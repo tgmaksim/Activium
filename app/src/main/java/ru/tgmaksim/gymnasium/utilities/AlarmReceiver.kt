@@ -1,9 +1,11 @@
 package ru.tgmaksim.gymnasium.utilities
 
-import android.content.Intent
-import android.content.Context
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import java.time.OffsetDateTime
+
+import android.content.Intent
+import android.content.Context
 import android.content.BroadcastReceiver
 import androidx.core.app.NotificationCompat
 
@@ -24,11 +26,10 @@ class AlarmReceiver : BroadcastReceiver() {
          * @param eaStart Дата и время начала внеурочного занятия
          * @author Максим Дрючин (tgmaksim)
          * */
-        fun createRemindEA(context: Context, ea: List<ScheduleExtracurricularActivity>, eaStart: LocalDateTime) {
+        fun createRemindEA(context: Context, ea: List<ScheduleExtracurricularActivity>, eaStart: OffsetDateTime) {
             val timestamp = eaStart
                 .minusMinutes(15)  // За 15 минут до начала
-                .toInstant(ZonedDateTime.now().offset)
-                .toEpochMilli()
+                .toEpochSecond()
 
             NotificationManager.addAlarmNotification(
                 context,
@@ -36,7 +37,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 "Внеурочное занятие",
                 "Напоминаю! Через 15 минут начнется ${ea.joinToString { it.subject }}",
                 NotificationCompat.PRIORITY_HIGH,
-                timestamp,
+                timestamp * 1000,
                 NotificationManager.ALARM_REQUEST_CODE_EA
             )
 

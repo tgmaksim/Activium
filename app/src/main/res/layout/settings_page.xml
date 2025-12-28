@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scrollbars="none"
     android:fillViewport="true">
 
     <LinearLayout
@@ -28,7 +30,7 @@
                 android:layout_marginBottom="8dp" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/settingsWebView"
+                android:id="@+id/settingsDocumentView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_webview"
@@ -53,6 +55,30 @@
                 android:checked="false"
                 android:textSize="16sp"
                 android:textColor="@color/text_primary" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_schedule_period"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary" />
+
+                <com.google.android.material.slider.RangeSlider
+                    android:id="@+id/settingsScheduleRange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/AppRangeSlider"
+                    android:valueFrom="-14"
+                    android:valueTo="21"
+                    android:stepSize="1"
+                    app:values="@array/schedule_range_default" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -13,10 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import ru.tgmaksim.gymnasium.R
 import ru.tgmaksim.gymnasium.api.Status
 import ru.tgmaksim.gymnasium.BuildConfig
-import ru.tgmaksim.gymnasium.pages.MarksPage
 import ru.tgmaksim.gymnasium.pages.SchoolPage
 import ru.tgmaksim.gymnasium.pages.SettingsPage
 import ru.tgmaksim.gymnasium.utilities.Utilities
+import ru.tgmaksim.gymnasium.pages.marks.MarksPage
 import ru.tgmaksim.gymnasium.utilities.CacheManager
 import ru.tgmaksim.gymnasium.pages.schedule.SchedulePage
 import ru.tgmaksim.gymnasium.databinding.ActivityMainBinding

@@ -2,6 +2,24 @@ package ru.tgmaksim.gymnasium.api
 
 import kotlinx.serialization.Serializable
 
+import ru.tgmaksim.gymnasium.BuildConfig
+
+/**
+ * Входные данные для запроса последней версии приложения
+ * @param classId Идентификатор класса
+ * @param versionNumber Номер сборки приложения
+ * @author Максим Дрючин (tgmaksim)
+ * @see VersionsApiRequest
+ * */
+@Serializable data class VersionsInputData(
+    override val classId: Int = CLASS_ID,
+    val versionNumber: Int = BuildConfig.VERSION_CODE
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x00000024
+    }
+}
+
 /**
  * Запрос данных о последней версии приложения
  * @param classId Идентификатор класса
@@ -10,10 +28,10 @@ import kotlinx.serialization.Serializable
  * */
 @Serializable data class VersionsApiRequest(
     override val classId: Int = CLASS_ID,
-    override val data: ApiBase? = null
+    override val data: VersionsInputData = VersionsInputData()
 ) : ApiRequest() {
     companion object {
-        const val CLASS_ID = 0x00000004
+        const val CLASS_ID = 0x00000025
     }
 }
 
@@ -26,6 +44,7 @@ import kotlinx.serialization.Serializable
  * @param versionStatus Статус новой версии, означающий важность обновления
  * @param updateLogs Изменения в последней версии приложения (latestVersion), которые можно показать пользователю
  * @author Максим Дрючин (tgmaksim)
+ * @see VersionsApiResponse
  * */
 @Serializable data class VersionsResult(
     override val classId: Int = CLASS_ID,

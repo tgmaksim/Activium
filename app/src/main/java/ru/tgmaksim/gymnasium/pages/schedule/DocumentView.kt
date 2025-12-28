@@ -1,4 +1,4 @@
-package ru.tgmaksim.gymnasium.fragments
+package ru.tgmaksim.gymnasium.pages.schedule
 
 import android.os.Bundle
 import android.view.View
@@ -7,8 +7,8 @@ import android.webkit.WebView
 import android.view.LayoutInflater
 import android.webkit.WebViewClient
 import androidx.activity.addCallback
-import android.webkit.WebChromeClient
 import androidx.fragment.app.Fragment
+import android.webkit.WebChromeClient
 
 import ru.tgmaksim.gymnasium.BuildConfig
 import ru.tgmaksim.gymnasium.utilities.Utilities
@@ -19,7 +19,7 @@ import ru.tgmaksim.gymnasium.databinding.FragmentWebViewBinding
  * @author Максим Дрючин (tgmaksim)
  * @see newInstance
  * */
-class WebViewFragment : Fragment() {
+class DocumentView : Fragment() {
     private lateinit var ui: FragmentWebViewBinding
     private var url: String? = null
 
@@ -27,19 +27,19 @@ class WebViewFragment : Fragment() {
         private const val ARG_URL = "arg_url"
 
         /**
-         * Создание экземпляра [WebViewFragment] для отображения веб-страницы
+         * Создание экземпляра [DocumentView] для отображения веб-страницы
          * @param url ссылка на веб-страницу
-         * @return экземпляр [WebViewFragment]
+         * @return экземпляр [DocumentView]
          * @author Максим Дрючин (tgmaksim)
          * */
-        fun newInstance(url: String): WebViewFragment {
+        fun newInstance(url: String): DocumentView {
             val browserUrl = if (
                 url.endsWith(".jpg") ||
                 url.endsWith(".png") ||
                 url.endsWith(".jpeg")) url
             else BuildConfig.DOCS_VIEW_ULR + url
 
-            return WebViewFragment().apply {
+            return DocumentView().apply {
                 arguments = Bundle().apply {
                     putString(ARG_URL, browserUrl)
                 }
@@ -100,8 +100,8 @@ class WebViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Utilities.log("WebViewFragment(url=$url) загружена", tag="load") {
-            param("place", "WebViewFragment")
+        Utilities.log("DocumentView(url=$url) загружена", tag="load") {
+            param("place", "DocumentView")
             param("url", url.toString())
         }
     }

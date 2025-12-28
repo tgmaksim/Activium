@@ -1,4 +1,4 @@
-package ru.tgmaksim.gymnasium.pages
+package ru.tgmaksim.gymnasium.pages.marks
 
 import android.os.Bundle
 import android.view.View

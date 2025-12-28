@@ -6,14 +6,15 @@ import android.graphics.Color
 import android.text.TextPaint
 import android.view.ViewGroup
 import android.text.TextUtils
-import android.widget.TextView
 import android.widget.LinearLayout
 import android.view.LayoutInflater
 import android.text.SpannableString
 import android.text.style.ClickableSpan
 import androidx.core.content.ContextCompat
-import android.text.method.LinkMovementMethod
+import androidx.recyclerview.widget.DiffUtil
 import androidx.fragment.app.FragmentActivity
+import android.text.method.LinkMovementMethod
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 
@@ -22,133 +23,97 @@ import ru.tgmaksim.gymnasium.api.ScheduleHours
 import ru.tgmaksim.gymnasium.api.ScheduleLesson
 import ru.tgmaksim.gymnasium.utilities.Utilities
 import ru.tgmaksim.gymnasium.utilities.CacheManager
-import ru.tgmaksim.gymnasium.fragments.WebViewFragment
+import ru.tgmaksim.gymnasium.pages.marks.LogsAdapter
+import ru.tgmaksim.gymnasium.databinding.ScheduleLessonBinding
 import ru.tgmaksim.gymnasium.api.ScheduleExtracurricularActivity
+import ru.tgmaksim.gymnasium.databinding.ScheduleHomeworkFileBinding
 
 /**
  * Адаптер списка уроков в расписании на странице
  * @author Максим Дрючин (tgmaksim)
- * @see DayPagerAdapter
+ * @see ScheduleAdapter
  * */
-class LessonsAdapter(
-    private val activity: FragmentActivity,
-    private var lessons: List<ScheduleLesson> = emptyList(),
-    private var ea: List<ScheduleExtracurricularActivity> = emptyList(),
-    private var hoursEA: ScheduleHours? = null
-) : RecyclerView.Adapter<LessonsAdapter.LessonViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LessonViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.schedule_lesson, parent, false)
-        return LessonViewHolder(view, activity)
+class LessonsAdapter : ListAdapter<ScheduleLesson, LessonsAdapter.ViewHolder>(Diff()) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val ui = ScheduleLessonBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ViewHolder(ui)
     }
 
-    override fun getItemCount(): Int =
-        lessons.size + if (ea.isEmpty()) 0 else 1  // Карточка внеурочных занятий всегда одна
-
-    override fun onBindViewHolder(holder: LessonViewHolder, position: Int) {
-        holder.bind(getLesson(holder, position))
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    /**
-     * Обновление расписания
-     * @param newLessons новые уроки в виде списка уроков [ScheduleLesson]
-     * @param newHoursEA время внеурочек данного дня (если есть) в виде [ScheduleHours]
-     * @param newEA внеурочные занятия данного дня
-     * @author Максим Дрючин (tgmaksim)
-     * */
-    fun updateLessons(
-        newLessons: List<ScheduleLesson>,
-        newHoursEA: ScheduleHours?,
-        newEA: List<ScheduleExtracurricularActivity>
-    ) {
-        lessons = newLessons
-        hoursEA = newHoursEA
-        ea = newEA
-        notifyItemRangeChanged(0, itemCount)
-    }
-
-    private fun getLesson(holder: LessonViewHolder, position: Int): ScheduleLesson {
-        // Для уроков объекты уже загружены
-        if (position < lessons.size) {
-            // Возвращение цвета
-            holder.view.background = ContextCompat.getDrawable(holder.view.context, R.drawable.bg_lesson)
-
-            return lessons[position]
-        } else {
-            // Выделение фона другим цветом
-            holder.view.background = ContextCompat.getDrawable(
-                holder.view.context, R.drawable.bg_lesson_extra)
-
-            val subjects = ea.joinToString("\n") { it.subject }
-            val place = ea.joinToString("; ") { it.place }
-
-            // Для всех внеурочек создается один объект
-            return ScheduleLesson(
-                number = position,
-                subject = subjects,
-                place = place,
-                hours = hoursEA ?: ScheduleHours(start = "00:00", end = "00:00"),
+    fun submitList(list: List<ScheduleLesson>, ea: List<ScheduleExtracurricularActivity>, hoursEA: ScheduleHours?) {
+        if (ea.isEmpty() || hoursEA == null)
+            super.submitList(list)
+        else  // Добавление одной карточки всех внеурочных занятий в список
+            super.submitList(list + ScheduleLesson(
+                number = list.size,
+                subject = ea.joinToString("\n") { it.subject },
+                place = ea.joinToString("; ") { it.place },
+                hours = hoursEA,
                 logs = emptyList(),
                 othersMarks = emptyList(),
                 homework = null,
-                files = emptyList()
-            )
-        }
+                files = emptyList(),
+                isEA = true
+            ))
     }
 
-    class LessonViewHolder(val view: View, private val activity: FragmentActivity) : RecyclerView.ViewHolder(view) {
-        val time: TextView = view.findViewById(R.id.time)
-        val subject: TextView = view.findViewById(R.id.subject)
-        val place: TextView = view.findViewById(R.id.place)
-        val logs: RecyclerView = view.findViewById(R.id.logs)
-        val homework: TextView = view.findViewById(R.id.homework)
-        val homeworkGroup: LinearLayout = view.findViewById(R.id.homeworkGroup)
-        val filesContainer: LinearLayout = view.findViewById(R.id.filesContainer)
-
-        fun bind(lesson: ScheduleLesson) {
-            // Заполняется информация в элементе
-            time.text = lesson.hours.stringFormat
-            subject.text = lesson.subject
-            place.text = lesson.place
-
-            // Показывается или скрывается домашнее задание
-            if (lesson.homework?.isEmpty() == false) {
-                homework.text = lesson.homework.trimIndent()
-                homeworkGroup.visibility = View.VISIBLE
-            } else {
-                homework.text = R.string.homework_not_found.toString()
-                homeworkGroup.visibility = View.GONE
-            }
-
-            filesContainer.removeAllViews()
-            for (file in lesson.files) {
-                val viewHomeworkFile = LayoutInflater.from(view.context).inflate(
-                    R.layout.schedule_homework_file,
-                    filesContainer,
-                    false
-                ) as LinearLayout
-
-                createFileSpannable(activity, viewHomeworkFile, file.fileName, file.downloadUrl)
-                filesContainer.addView(viewHomeworkFile)
-            }
-
-            // Показываются оценки и отметки о посещаемости
-            logs.layoutManager = LinearLayoutManager(
-                view.context,
+    class ViewHolder(val ui: ScheduleLessonBinding) : RecyclerView.ViewHolder(ui.root) {
+        init {
+            ui.logs.layoutManager = LinearLayoutManager(
+                ui.root.context,
                 LinearLayoutManager.HORIZONTAL,
                 false
             )
-            logs.adapter = LogsAdapter(lesson.logs)
         }
 
-        private fun createFileSpannable(
-            activity: FragmentActivity,
-            viewHomeworkFile: LinearLayout,
-            fileName: String,
-            downloadUrl: String
-        ) : LinearLayout {
-            val fileNameView: TextView = viewHomeworkFile.findViewById(R.id.homeworkDocumentName)
+        fun bind(lesson: ScheduleLesson) {
+            // Заполняется информация в элементе
+            ui.time.text = lesson.hours.stringFormat
+            ui.subject.text = lesson.subject
+            ui.place.text = lesson.place
+
+            // Выделение цветом внеурочного занятия
+            if (lesson.isEA)
+                ui.root.background = ContextCompat.getDrawable(ui.root.context, R.drawable.bg_lesson_extra)
+            else
+                ui.root.background = ContextCompat.getDrawable(ui.root.context, R.drawable.bg_lesson)
+
+            // Показывается или скрывается домашнее задание
+            if (lesson.homework?.isEmpty() == false) {
+                ui.homework.text = lesson.homework.trimIndent()
+                ui.homeworkGroup.visibility = View.VISIBLE
+            } else {
+                ui.homework.text = R.string.homework_not_found.toString()
+                ui.homeworkGroup.visibility = View.GONE
+            }
+
+            // Показываются ссылки на файлы
+            ui.filesContainer.removeAllViews()
+            for (file in lesson.files) {
+                ui.filesContainer.addView(createFileSpannable(file.fileName, file.downloadUrl))
+            }
+
+            // Инициализация адаптера или обновление данных
+            if (ui.logs.adapter == null)
+                ui.logs.adapter = LogsAdapter(ui.root.context)
+                    .apply { submitList(lesson.logs, lesson.othersMarks) }
+            else
+                (ui.logs.adapter as LogsAdapter).submitList(lesson.logs, lesson.othersMarks)
+        }
+
+        private fun createFileSpannable(fileName: String, downloadUrl: String) : LinearLayout {
+            val homeworkFile = ScheduleHomeworkFileBinding.inflate(
+                LayoutInflater.from(ui.root.context),
+                ui.root,
+                false
+            )
             val spannable = SpannableString(fileName)
 
             // Кликабельная ссылка
@@ -156,12 +121,15 @@ class LessonsAdapter(
                 override fun onClick(widget: View) {
                     // Открытие либо WebView, либо браузера
                     if (CacheManager.openWebView) {
-                        activity.supportFragmentManager.beginTransaction().replace(
-                            R.id.content_container,
-                            WebViewFragment.newInstance(downloadUrl)
-                        ).addToBackStack(null).commit()
+                        (ui.root.context as FragmentActivity)
+                            .supportFragmentManager
+                            .beginTransaction()
+                            .replace(
+                                R.id.content_container,  // Основной контейнер
+                                DocumentView.newInstance(downloadUrl)
+                            ).addToBackStack(null).commit()
                     } else {
-                        Utilities.openUrl(activity, downloadUrl)
+                        Utilities.openUrl(ui.root.context, downloadUrl)
                     }
                 }
 
@@ -171,7 +139,7 @@ class LessonsAdapter(
                 }
             }, 0, spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-            fileNameView.apply {
+            homeworkFile.homeworkDocumentName.apply {
                 text = spannable
                 movementMethod = LinkMovementMethod.getInstance()
                 highlightColor = Color.TRANSPARENT
@@ -179,7 +147,12 @@ class LessonsAdapter(
                 ellipsize = TextUtils.TruncateAt.MIDDLE
             }
 
-            return viewHomeworkFile
+            return homeworkFile.root
         }
+    }
+
+    class Diff : DiffUtil.ItemCallback<ScheduleLesson>() {
+        override fun areItemsTheSame(a: ScheduleLesson, b: ScheduleLesson) = a == b
+        override fun areContentsTheSame(a: ScheduleLesson, b: ScheduleLesson) = a == b
     }
 }

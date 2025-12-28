@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- [scheduleBefore, scheduleAfter] -->
+    <array name="schedule_range_default">
+        <item>-7</item>
+        <item>14</item>
+    </array>
+</resources>

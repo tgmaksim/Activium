@@ -17,6 +17,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 import ru.tgmaksim.gymnasium.R
+import java.time.OffsetDateTime
+import java.time.OffsetTime
+import java.time.ZoneOffset
 
 /**
  * Утилиты приложения
@@ -133,5 +136,15 @@ object Utilities {
             setCancelable(back)
             show()
         }
+    }
+
+    fun localDate(): OffsetDateTime {
+        val offset = ZoneOffset.ofHours(CacheManager.timezone)
+        return OffsetDateTime.now(offset)
+            .with(OffsetTime.of(0, 0, 0, 0, offset))
+    }
+
+    fun localTime(): OffsetTime {
+        return OffsetTime.now(ZoneOffset.ofHours(CacheManager.timezone))
     }
 }

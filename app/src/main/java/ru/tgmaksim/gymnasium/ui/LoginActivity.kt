@@ -55,26 +55,37 @@ class LoginActivity : ParentActivity() {
     }
 
     private suspend fun login() {
+        var loginUrl = loginUrl
+
         try {
-            val response = Login.login()
+            if (loginUrl == null) {
+                val response = Login.login()
 
-            if (!response.status || response.answer == null) {
-                response.error?.let {
-                    Utilities.log("API error(${it.type}) at login: ${it.errorMessage}")
+                if (!response.status || response.answer == null) {
+                    response.error?.let {
+                        Utilities.log("API error(${it.type}) at login: ${it.errorMessage}")
+                    }
+
+                    if (response.error?.errorMessage != null) {
+                        Utilities.showText(this, response.error.errorMessage)
+                    } else if (response.error?.type in listOf(
+                            "UnauthorizedError",
+                            "ValidationError",
+                            "ApiMethodNotFoundError"
+                        )
+                    ) {
+                        Utilities.showText(this, R.string.error_incorrect_data)
+                    } else {
+                        Utilities.showText(this, R.string.error_api)
+                    }
+
+                    return
                 }
 
-                if (response.error?.errorMessage != null) {
-                    Utilities.showText(this, response.error.errorMessage)
-                } else if (response.error?.type in listOf("UnauthorizedError", "ValidationError", "ApiMethodNotFoundError")) {
-                    Utilities.showText(this, R.string.error_incorrect_data)
-                } else {
-                    Utilities.showText(this, R.string.error_api)
-                }
-
-                return
+                loginUrl = response.answer.loginUrl
             }
 
-            if (Utilities.openUrl(this, response.answer.loginUrl)) {
+            if (Utilities.openUrl(this, loginUrl)) {
                 Utilities.log("login", tag="account") {
                     param("type", "login")
                 }

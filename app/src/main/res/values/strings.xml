@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Гимназия №147</string>
+    <string name="app_name">Гимназия</string>
     <string name="menu_item_schedule">Расписание</string>
     <string name="menu_item_marks">Оценки</string>
     <string name="menu_item_school">Школа</string>
@@ -26,6 +26,7 @@
     <string name="dnevnik_text">Дневник</string>
     <string name="login_with_dnevnik">Войти через Дневник.ру</string>
     <string name="weekend_text">Выходные</string>
+    <string name="marks_rating_emoji">📊</string>
 
     <string name="settings">Настройки</string>
     <string name="account">Аккаунт</string>
@@ -34,6 +35,7 @@
     <string name="settings_webview">Открывать файлы в приложении</string>
     <string name="settings_ea">Уведомлять о внеурочных занятиях</string>
     <string name="settings_theme">Использовать темную тему</string>
+    <string name="settings_schedule_period">Диапазон расписания</string>
     <string name="update">Обновление</string>
     <string name="update_button">Обновить</string>
     <string name="logout">Выйти из профиля</string>

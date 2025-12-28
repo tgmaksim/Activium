@@ -22,4 +22,27 @@
     <style name="DialogText" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
         <item name="android:textSize">16sp</item>
     </style>
+
+    <style name="AppBottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="shapeAppearanceOverlay">@style/AppBottomSheetShape</item>
+        <item name="backgroundTint">@color/bg_gradient_center</item>
+    </style>
+
+    <style name="AppBottomSheetShape">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+    </style>
+
+    <style name="AppSliderLabelStyle" parent="Widget.MaterialComponents.Tooltip">
+        <item name="backgroundTint">@color/slider_label_bg</item>
+        <item name="android:textAppearance">@style/AppSliderLabelTextAppearance</item>
+    </style>
+
+    <style name="AppSliderLabelTextAppearance" parent="TextAppearance.MaterialComponents.Tooltip">
+        <item name="android:textColor">@color/slider_label_text</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
 </resources>

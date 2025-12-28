@@ -1,22 +1,50 @@
 package ru.tgmaksim.gymnasium.api
 
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.OffsetTime
+import java.time.OffsetDateTime
+
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 import ru.tgmaksim.gymnasium.utilities.Utilities
 import ru.tgmaksim.gymnasium.utilities.CacheManager
 
 /**
- * Запрос расписания на 3 недели (22 дня): 7 дней до сегодня, сегодня и 15 дней после
+ * Входные данные для запроса расписания на несколько дней
+ * @param classId Идентификатор класса
+ * @param session Строковый идентификатор сессии
+ * @param before Количество дней расписания до сегодня
+ * @param after Количество дней расписания после сегодня
+ * @author Максим Дрючин (tgmaksim)
+ * @see ScheduleApiRequest
+ * */
+@Serializable data class ScheduleInputData(
+    override val classId: Int = CLASS_ID,
+    val session: String,
+    val before: Int,
+    val after: Int
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x00000024
+    }
+}
+
+/**
+ * Запрос расписания на несколько дней
  * @param classId Идентификатор класса
  * @param data Данные сессии
  * @author Максим Дрючин (tgmaksim)
  * */
 @Serializable data class ScheduleApiRequest(
     override val classId: Int = CLASS_ID,
-    override val data: ApiSession?
+    override val data: ScheduleInputData
 ) : ApiRequest() {
     companion object {
-        const val CLASS_ID = 0x00000022
+        const val CLASS_ID = 0x00000023
     }
 }
 
@@ -83,31 +111,10 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
             throw ClassCastException()
     }
 
-    val stringFormat: String
+    @Contextual val stringFormat: String
         get() = "$start - $end"
-}
-
-
-/**
- * Оценка другого ученика
- * @param name Имя и первая буква фамилии ученика
- * @param mark Оценка
- * @param mood Тип оценки: хороший, средний или плохой
- * @author Максим Дрючин (tgmaksim)
- * */
-@Serializable data class ScheduleOtherMark(
-    override val classId: Int = CLASS_ID,
-    val name: String,
-    val mark: String,
-    val mood: String
-) : ApiBase() {
-    companion object {
-        const val CLASS_ID = 0x00000021
-    }
-    init {
-        if (classId != CLASS_ID)
-            throw ClassCastException()
-    }
+    @Contextual val startTime: OffsetTime
+        get() = LocalTime.parse(start).atOffset(ZoneOffset.ofHours(CacheManager.timezone))
 }
 
 /**
@@ -116,14 +123,37 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
  * @param mood Тип оценки: хороший, средний, плохой или другой для отметки о посещаемости
  * @param value Полученная оценка или отметка о посещаемости
  * @author Максим Дрючин (tgmaksim)
+ * @see ScheduleLesson
+ * @see MarksOther
  * */
-@Serializable data class ScheduleLog(
+@Serializable data class MarkLog(
     override val classId: Int = CLASS_ID,
     val mood: String,
     val value: String
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x00000016
+    }
+    init {
+        if (classId != CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
+ * Оценки другого ученика(цы)
+ * @param name Имя и первая буква фамилии ученика
+ * @param marks Оценки
+ * @author Максим Дрючин (tgmaksim)
+ * @see ScheduleLesson
+ * */
+@Serializable data class MarksOther(
+    override val classId: Int = CLASS_ID,
+    val name: String,
+    val marks: List<MarkLog>
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x00000021
     }
     init {
         if (classId != CLASS_ID)
@@ -150,10 +180,11 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     val subject: String,
     val place: String,
     val hours: ScheduleHours,
-    val logs: List<ScheduleLog>,
-    val othersMarks: List<ScheduleOtherMark>,
+    val logs: List<MarkLog>,
+    val othersMarks: List<MarksOther>,
     val homework: String?,
-    val files: List<ScheduleHomeworkDocument>
+    val files: List<ScheduleHomeworkDocument>,
+    @Contextual val isEA: Boolean = false  // Только для внутренних взаимодействий
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x00000017
@@ -166,7 +197,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
 
 /**
  * День в расписании с уроками и внеурочными занятиями
- * @param date Дата дня в формате [ScheduleDay.DATE_FORMAT]
+ * @param date Дата дня в формате ISO
  * @param lessons Уроки в данный день в виде списка из уроков [ScheduleLesson]
  * @param hoursExtracurricularActivities Часы проведения внеурочек (если есть в данный день) в виде [ScheduleHours]
  * @param extracurricularActivities Внеурочные занятия в данный день (если есть) в виде списка внеурочек [ScheduleExtracurricularActivity]
@@ -177,36 +208,42 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
  * */
 @Serializable data class ScheduleDay(
     override val classId: Int = CLASS_ID,
-    val date: String,
+    @SerialName("date") val dateString: String,
     val lessons: List<ScheduleLesson>,
     val hoursExtracurricularActivities: ScheduleHours?,
     val extracurricularActivities: List<ScheduleExtracurricularActivity>
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x00000018
-        const val DATE_FORMAT = "yyyy-MM-dd"
     }
     init {
         if (classId != CLASS_ID)
             throw ClassCastException()
     }
 
-    val ea = extracurricularActivities
-    val hoursEA = hoursExtracurricularActivities
+    @Contextual val ea
+        get() = extracurricularActivities
+    @Contextual val hoursEA
+        get() = hoursExtracurricularActivities
+    @Contextual val date: OffsetDateTime
+        get() = LocalDate.parse(dateString).atStartOfDay().atOffset(ZoneOffset.ofHours(CacheManager.timezone))
 }
 
 /**
- * Результат запроса расписания на 3 недели (22 дня): 7 дней до сегодня, сегодня и 15 дней после
+ * Результат запроса расписания на несколько дней
  * @param classId Идентификатор класса
- * @param schedule Расписание на 3 недели (22 дня): 7 дней до сегодня, сегодня и 15 дней после
+ * @param schedule Расписание на несколько дней
+ * @param timezone Часовой пояс
  * @author Максим Дрючин (tgmaksim)
+ * @see ScheduleApiResponse
  * */
 @Serializable data class ScheduleResult(
     override val classId: Int = CLASS_ID,
-    val schedule: List<ScheduleDay>
+    val schedule: List<ScheduleDay>,
+    val timezone: Int
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x00000019
+        const val CLASS_ID = 0x00000026
     }
     init {
         if (classId != CLASS_ID)
@@ -215,11 +252,12 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
 }
 
 /**
- * Ответ на запрос расписания на 3 недели (22 дня): 7 дней до сегодня, сегодня и 15 дней после
- * @property classId Идентификатор класса
- * @property status Статус выполненного запроса
- * @property error Объект API-ошибки
- * @property answer Ответ в случае успешной обработки
+ * Ответ на запрос расписания на несколько дней
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект API-ошибки
+ * @param answer Ответ в случае успешной обработки
+ * @author Максим Дрючин (tgmaksim)
  * */
 @Serializable data class ScheduleApiResponse(
     override val classId: Int,
@@ -228,10 +266,10 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     override val answer: ScheduleResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x00000020
+        const val CLASS_ID = 0x00000027
     }
     init {
-        if (classId != CLASS_ID)
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
             throw ClassCastException()
     }
 }
@@ -247,22 +285,27 @@ object Dnevnik {
     private const val PATH_GET_SCHEDULE = "getSchedule"
 
     /**
-     * Запрос расписания на 2 недели (15 дней)
+     * Запрос расписания на несколько дней
      * @return Ответ сервера в виде [ScheduleApiResponse]
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
      * */
     suspend fun getSchedule() : ScheduleApiResponse {
-        val request = ScheduleApiRequest(data = ApiSession(session = CacheManager.apiSession.toString()))
+        val request = ScheduleApiRequest(data = ScheduleInputData(
+            session = CacheManager.apiSession.toString(),
+            before = CacheManager.scheduleBefore,
+            after = CacheManager.scheduleAfter
+        ))
 
-        val response = Request.post<ScheduleApiRequest, ScheduleApiResponse> (
+        val response = Request.post<ScheduleApiRequest, ScheduleApiResponse>(
             listOf(PATH_PREFIX, PATH_GET_SCHEDULE, ScheduleApiRequest.CLASS_ID).joinToString("/"),
             request
         )
 
-        // Сохранение расписания в кеш
+        // Сохранение расписания часового пояса в кеш
         response.answer?.let {
             CacheManager.schedule = json.encodeToString(it.schedule)
+            CacheManager.timezone = it.timezone
         }
 
         return response
@@ -270,19 +313,18 @@ object Dnevnik {
 
     /**
      * Получение сохраненного расписания из кеша
-     * @return Расписание на 3 недели (22 дня): 7 дней до сегодня,
-     * сегодня и 15 дней после — в виде списка из [ScheduleDay]
+     * @return Расписание на несколько дней в виде списка из [ScheduleDay]
      * @author Максим Дрючин (tgmaksim)
      * */
     fun getCacheSchedule() : List<ScheduleDay> {
         return CacheManager.schedule?.let {
             try {
-                return@let json.decodeFromString<List<ScheduleDay>>(it)
+                json.decodeFromString<List<ScheduleDay>>(it)
             } catch (e: Exception) {
                 // При возникновении ошибки десериализации расписание в кеше очищается
                 Utilities.log(e)
                 CacheManager.schedule = null
-                return@let emptyList()
+                emptyList()
             }
         } ?: emptyList()
     }

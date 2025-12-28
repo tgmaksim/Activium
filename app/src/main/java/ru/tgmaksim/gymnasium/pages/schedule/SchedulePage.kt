@@ -1,21 +1,22 @@
 package ru.tgmaksim.gymnasium.pages.schedule
 
 import java.util.Locale
+import java.time.OffsetDateTime
+import kotlinx.coroutines.launch
+import java.time.temporal.ChronoUnit
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.CancellationException
+
 import android.os.Bundle
 import android.view.View
-import java.time.LocalDate
-import java.time.LocalTime
 import android.content.Intent
 import android.view.ViewGroup
 import android.content.Context
-import kotlinx.coroutines.launch
 import android.widget.FrameLayout
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import java.time.format.DateTimeFormatter
 import androidx.recyclerview.widget.RecyclerView
-import java.util.concurrent.CancellationException
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 
@@ -38,13 +39,12 @@ import ru.tgmaksim.gymnasium.databinding.ScheduleCalendarDayBinding
 class SchedulePage : Fragment() {
     private lateinit var ui: SchedulePageBinding
     private var isDarkTheme: Boolean = false
+    private var scheduleLength: Int = CacheManager.scheduleBefore + 1 + CacheManager.scheduleAfter
     /** Текущий выбранный день в виде [ScheduleCalendarDayBinding.root] */
     private lateinit var lastSelected: FrameLayout
 
     companion object {
-        private var schedule: List<ScheduleDay>? = null
-        private val dateFormat = DateTimeFormatter.ofPattern(ScheduleDay.DATE_FORMAT)
-        private const val SCHEDULE_LENGTH = 22
+        private var schedule: List<ScheduleDay?>? = null
         private var updateToken: String? = null
 
         /**
@@ -55,21 +55,16 @@ class SchedulePage : Fragment() {
         fun createRemindEA(context: Context) {
             // Следующее по времени внеурочное занятие (сегодня или в другой день)
             val scheduleDay = schedule?.find {
-                val date = LocalDate.parse(it.date, dateFormat)
-                val startTimeEA = it.hoursEA?.let { h -> LocalTime.parse(h.start) } ?: return@find false
-
-                it.ea.any() && (date > LocalDate.now() || (date == LocalDate.now() && startTimeEA > LocalTime.now()))
+                val startTimeEA = it?.hoursEA?.startTime ?: return@find false
+                it.ea.any() &&
+                        (it.date > Utilities.localDate() ||
+                                (it.date == Utilities.localDate() && startTimeEA > Utilities.localTime()))
             } ?: return  // Внеурочных занятий не найдено
 
-            val startTime = LocalTime.parse(scheduleDay.hoursEA!!.start)
             AlarmReceiver.createRemindEA(
                 context,
                 scheduleDay.ea,
-                LocalDate
-                    .parse(scheduleDay.date, dateFormat)
-                    .atStartOfDay()
-                    .plusHours(startTime.hour.toLong())
-                    .plusMinutes(startTime.minute.toLong())
+                scheduleDay.date.with(scheduleDay.hoursEA!!.startTime)
             )
         }
     }
@@ -78,12 +73,15 @@ class SchedulePage : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // При смене страниц ui сохраняется
-        if (::ui.isInitialized && CacheManager.isDarkTheme == isDarkTheme)
+        // При смене страниц ui сохраняется, если не изменилась тема и настройки
+        val newScheduleLength = CacheManager.scheduleBefore + 1 + CacheManager.scheduleAfter
+        if (::ui.isInitialized && CacheManager.isDarkTheme == isDarkTheme && scheduleLength == newScheduleLength) {
             return ui.root
+        }
 
         ui = SchedulePageBinding.inflate(inflater, container, false)
         isDarkTheme = CacheManager.isDarkTheme
+        scheduleLength = newScheduleLength
 
         // Синхронизация только при первой отрисовке или после входа по ссылке
         val intentData = requireActivity().intent.data
@@ -93,8 +91,7 @@ class SchedulePage : Fragment() {
             needUpdate = true
         }
 
-        // Отображение даты на 3 недели (22 дня): 7 дней до сегодня, сегодня и 15 дней после
-        showScheduleCalendar()
+        showScheduleCalendar()  // Отображение даты на несколько дней
         showCacheSchedule()  // Показ расписания из кеша
 
         if (needUpdate) {
@@ -115,6 +112,11 @@ class SchedulePage : Fragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        ui.swipeRefresh.isRefreshing = false
+    }
+
     /**
      * Инициализация адаптера расписания после ее загрузки
      * @author Максим Дрючин (tgmaksim)
@@ -127,28 +129,17 @@ class SchedulePage : Fragment() {
         )
         ui.dayPager.layoutManager = layoutManager
 
-        // Подсчет сдвига в расписании относительно сегодняшнего дня
-        val schedule = schedule!!
-        val firstDate = schedule.getOrNull(0)?.let { LocalDate.parse(it.date, dateFormat) }
-        val offset = firstDate?.until(LocalDate.now().minusDays(7))
-
         // Создание адаптера с возможностью перелистывания
-        val todayPosition = schedule.indexOfFirst { LocalDate.parse(it.date, dateFormat) == LocalDate.now() }
-        ui.dayPager.adapter = DayPagerAdapter(
-            requireActivity(),
-            if (offset == null || offset.months > 0 || offset.years > 0 || offset.days >= SCHEDULE_LENGTH) {
-                List(SCHEDULE_LENGTH) { null }  // Локальное расписание полностью неактуально
-            } else {
-                schedule.drop(offset.days) + List(offset.days) { null }  // Сдвиг вправо на offset.days
-            }
-        )
-
+        ui.dayPager.adapter = ScheduleAdapter().apply {
+            submitList(schedule!!)
+        }
         val snapHelper = PagerSnapHelper().apply {
             attachToRecyclerView(ui.dayPager)
         }
 
-        // Выбор активного дня: до 15:00 - текущий, после - следующий
-        if (LocalTime.now().hour >= 15)
+        // Выбор активного дня: до 15:00 - текущий, иначе - следующий
+        val todayPosition = schedule!!.indexOfFirst { it?.date == Utilities.localDate() }
+        if (Utilities.localTime().hour >= 15)
             ui.dayPager.scrollToPosition(todayPosition + 1)  // Прокрутка без анимации
         else
             ui.dayPager.scrollToPosition(todayPosition)  // Возвращение в начальное положение
@@ -172,11 +163,6 @@ class SchedulePage : Fragment() {
         ui.swipeRefresh.setColorSchemeResources(R.color.bg_gradient_center)
         ui.swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.bg_gradient_start)
 
-        // Обновление жестом доступно только в самом верху
-        ui.swipeRefresh.setOnChildScrollUpCallback { _, _ ->
-            (ui.dayPager.adapter as DayPagerAdapter).lessons?.canScrollVertically(-1) != false
-        }
-
         // Обновление жестом
         ui.swipeRefresh.setOnRefreshListener {
             lifecycleScope.launch {
@@ -191,9 +177,20 @@ class SchedulePage : Fragment() {
      * @author Максим Дрючин (tgmaksim)
      * */
     private fun showCacheSchedule() {
-        schedule = Dnevnik.getCacheSchedule().let { if (it.size == SCHEDULE_LENGTH) it else emptyList() }
+        schedule = Dnevnik.getCacheSchedule().filter {
+            // Выбор только дней, входящих в период
+            val offset = Utilities.localDate().until(it.date, ChronoUnit.DAYS)
+            offset in -CacheManager.scheduleBefore..CacheManager.scheduleAfter
+        }.sortedBy { it.date }.let { schedule ->
+            // Сортировка по дате и добавление пустых дней при необходимости
+            val offset = schedule.indexOfFirst { it.date == Utilities.localDate() }
 
-        drawWeekends()
+            (List(CacheManager.scheduleBefore - offset) { null } + schedule).let {
+                it + List(CacheManager.scheduleBefore + 1 + CacheManager.scheduleAfter - it.size) { null }
+            }
+        }
+
+        drawWeekends()  // Раскраска выходных дней
         initDayPagerAdapter()  // Инициализация адаптера и показ расписания
     }
 
@@ -204,7 +201,7 @@ class SchedulePage : Fragment() {
      * */
     fun onBackPressed(): Boolean {
         val defaultDate = getDefaultDate()
-        if ((lastSelected.tag as LocalDate) != defaultDate) {
+        if ((lastSelected.tag as OffsetDateTime) != defaultDate) {
             openDay(ui.calendar.findViewWithTag(defaultDate))
             return true
         }
@@ -225,22 +222,23 @@ class SchedulePage : Fragment() {
             // Если сессия не авторизована, то открывается Login
             // Если произошла ошибка, выводится ошибка
             if (!response.status || response.answer == null) {
-                response.error?.let { Utilities.log(it.type) }
+                response.error?.type?.let { Utilities.log(it) }
+                response.error?.errorMessage?.let { Utilities.showText(requireContext(), it) }
 
-                if (response.error?.type == "UnauthorizedError") {
-                    response.error.errorMessage?.let { Utilities.showText(requireContext(), it) }
-
-                    val intent = Intent(requireContext(), LoginActivity::class.java)
-                    startActivity(intent)
-                    // Без закрытия MainActivity по нажатию системной кнопки назад (или жестом)
-                    // можно открыть локальное расписания
-//                    mainActivity.finish()
-                } else if (response.error?.errorMessage != null) {
-                    Utilities.showText(requireContext(), response.error.errorMessage)
-                } else if (response.error?.type in listOf("ValidationError", "ApiMethodNotFoundError")) {
-                    Utilities.showText(requireContext(), R.string.error_incorrect_data)
-                } else {
-                    Utilities.showText(requireContext(), R.string.error_api)
+                when (response.error?.type) {
+                    "UnauthorizedError" -> {
+                        val intent = Intent(requireContext(), LoginActivity::class.java)
+                        startActivity(intent)
+                        // Без закрытия MainActivity по нажатию системной кнопки назад (или жестом)
+                        // можно открыть локальное расписания
+//                        mainActivity.finish()
+                    }
+                    in listOf("ValidationError", "ApiMethodNotFoundError") -> {
+                        Utilities.showText(requireContext(), R.string.error_incorrect_data)
+                    }
+                    else -> {
+                        Utilities.showText(requireContext(), R.string.error_api)
+                    }
                 }
             } else {
                 schedule = response.answer.schedule  // Сохранение расписания
@@ -264,9 +262,9 @@ class SchedulePage : Fragment() {
         // Есть изменения
         if (cacheSchedule != schedule.hashCode()) {
             schedule?.let {
-                (ui.dayPager.adapter as DayPagerAdapter).updateSchedule(it)
+                (ui.dayPager.adapter as ScheduleAdapter).submitList(it)
             }
-            drawWeekends()
+            drawWeekends()  // Снова раскраска выходных дней
         }
         createRemindEA(requireContext())  // Напоминание о новых внеурочных занятиях
     }
@@ -276,12 +274,12 @@ class SchedulePage : Fragment() {
      * @author Максим Дрючин (tgmaksim)
      * */
     private fun showScheduleCalendar() {
-        val today = LocalDate.now()
-        val firstDay = today.minusDays(7)
-        val time = LocalTime.now()
+        val today = Utilities.localDate()
+        val firstDay = today.minusDays(CacheManager.scheduleBefore.toLong())
+        val time = Utilities.localTime()
 
-        // Заполнение дней на 3 недели (22 дня): 7 дней до сегодня, сегодня и 15 дней после
-        repeat(SCHEDULE_LENGTH) { i ->
+        // Заполнение дней
+        repeat(scheduleLength) { i ->
             val item = ScheduleCalendarDayBinding.inflate(layoutInflater, ui.calendar, false)
             item.root.setBackgroundResource(R.drawable.bg_button_day_selected)
 
@@ -294,7 +292,7 @@ class SchedulePage : Fragment() {
             val dayOfWeek = date.format(DateTimeFormatter.ofPattern("EE", Locale("ru")))
             item.weekday.text = dayOfWeek.uppercase()
 
-            // Выбор активного дня: до 15:00 - текущий, после - следующий
+            // Выбор активного дня: до 15:00 - текущий, иначе - следующий
             if (date == today && time.hour < 15 || date == today.plusDays(1) && time.hour >= 15) {
                 lastSelected = item.root
                 selectItemCalendar(item.root)
@@ -349,21 +347,21 @@ class SchedulePage : Fragment() {
      * */
     fun drawWeekends() {
         val schedule = schedule ?: return
-        for (i in 0..<SCHEDULE_LENGTH) {
+        for (i in 0..<scheduleLength) {
             if (schedule.getOrNull(i)?.lessons?.isEmpty() == true)
                 ui.calendar.getChildAt(i).isHovered = true  // Выходной
         }
     }
 
     /**
-     * День расписания по умолчанию (сегодня или завтра после 15:00)
-     * @return день в виде [LocalDate]
+     * День расписания по умолчанию (сегодня или завтра с 15:00)
+     * @return день в виде [OffsetDateTime]
      * @author Максим Дрючин (tgmaksim)
      * */
-    private fun getDefaultDate(): LocalDate =
-        if (LocalTime.now().hour >= 15) {
-            LocalDate.now().plusDays(1)
+    private fun getDefaultDate(): OffsetDateTime =
+        if (Utilities.localDate().hour > 15) {
+            Utilities.localDate().plusDays(1)
         } else {
-            LocalDate.now()
+            Utilities.localDate()
         }
 }

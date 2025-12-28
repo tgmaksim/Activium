@@ -8,8 +8,4 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <style name="Theme.Gymnasium.Splash" parent="Theme.Gymnasium">
-        <item name="android:windowBackground">@drawable/bg_gradient</item>
-    </style>
-
 </resources>

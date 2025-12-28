@@ -32,4 +32,10 @@
     <color name="lesson_log_average">#FF8F00</color>
     <color name="lesson_log_bad">#CF3838</color>
     <color name="lesson_log_more">#94ACC8</color>
+
+    <color name="slider_accent">#0288D1</color>
+    <color name="slider_track_off">#D1E9F6</color>
+    <color name="slider_label_bg">#0288D1</color>
+    <color name="slider_label_text">#FFFFFF</color>
+    <color name="slider_halo_static">#200288D1</color>
 </resources>

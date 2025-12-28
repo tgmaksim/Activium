@@ -26,4 +26,10 @@
     <color name="dialog_background">#1E1E1E</color>
     <color name="dialog_button_positive">#4DA3FF</color>
     <color name="dialog_button_negative">#AAAAAA</color>
+
+    <color name="slider_accent">#4FC3F7</color>
+    <color name="slider_track_off">#333333</color>
+    <color name="slider_label_bg">#4FC3F7</color>
+    <color name="slider_label_text">#000000</color>
+    <color name="slider_halo_static">#204FC3F7</color>
 </resources>

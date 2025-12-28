@@ -32,6 +32,7 @@ import ru.tgmaksim.gymnasium.BuildConfig
  * @param type Определенный тип ошибки из возможных
  * @param errorMessage Сообщение об ошибке для показа пользователю коротким оповещением
  * @author Максим Дрючин (tgmaksim)
+ * @see ApiResponse
  * */
 @Serializable data class ApiError(
     override val classId: Int = CLASS_ID,
@@ -70,6 +71,8 @@ import ru.tgmaksim.gymnasium.BuildConfig
  * Данные сессии для персонализированных запросов
  * @param classId Идентификатор класса
  * @param session Строковый идентификатор сессии для персонализированных запросов
+ * @author Максим Дрючин (tgmaksim)
+ * @see ApiRequest
  * */
 @Serializable data class ApiSession(
     override val classId: Int = CLASS_ID,

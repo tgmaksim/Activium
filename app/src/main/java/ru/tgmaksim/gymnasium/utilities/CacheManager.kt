@@ -1,5 +1,6 @@
 package ru.tgmaksim.gymnasium.utilities
 
+import java.util.TimeZone
 import android.content.Context
 import androidx.core.content.edit
 import android.content.SharedPreferences
@@ -20,6 +21,9 @@ object CacheManager {
     private const val KEY_OPEN_WEBVIEW = "open_WebView"
     private const val KEY_EA_NOTIFICATIONS = "extracurricular_activities"
     private const val KEY_FIREBASE_MESSAGING_TOKEN = "firebase_messaging_token"
+    private const val KEY_SCHEDULE_BEFORE = "schedule_before"
+    private const val KEY_SCHEDULE_AFTER = "schedule_after"
+    private const val KEY_TIMEZONE = "timezone"
 
     fun init(context: Context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -73,4 +77,25 @@ object CacheManager {
     var firebaseMessagingToken: String?
         get() = prefs.getString(KEY_FIREBASE_MESSAGING_TOKEN, null)
         set(value) = prefs.edit { putString(KEY_FIREBASE_MESSAGING_TOKEN, value) }
+
+    /**
+     * Количество дней в расписании до сегодня, по умолчанию - 1
+     * */
+    var scheduleBefore: Int
+        get() = prefs.getInt(KEY_SCHEDULE_BEFORE, 1)
+        set(value) = prefs.edit { putInt(KEY_SCHEDULE_BEFORE, value) }
+
+    /**
+     * Количество дней в расписании после сегодня, по умолчанию - 7
+     * */
+    var scheduleAfter: Int
+        get() = prefs.getInt(KEY_SCHEDULE_AFTER, 7)
+        set(value) = prefs.edit { putInt(KEY_SCHEDULE_AFTER, value) }
+
+    /**
+     * Часовой пояс
+     * */
+    var timezone: Int
+        get() = prefs.getInt(KEY_TIMEZONE, TimeZone.getDefault().rawOffset / (60 * 60 * 1000))
+        set(value) = prefs.edit { putInt(KEY_TIMEZONE, value) }
 }

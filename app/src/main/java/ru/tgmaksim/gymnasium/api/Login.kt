@@ -25,6 +25,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
  * @param loginUrl Ссылка для авторизации сессии (нужно открыть в браузере пользователя)
  * @param session Строковый идентификатор сессии для персонализированных запросов
  * @author Максим Дрючин (tgmaksim)
+ * @see LoginApiResponse
  * */
 @Serializable data class LoginResult(
     override val classId: Int = CLASS_ID,
@@ -42,10 +43,10 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
 
 /**
  * Ответ на запрос на генерацию сессии и получение ссылки для ее авторизации
- * @property classId Идентификатор класса
- * @property status Статус выполненного запроса
- * @property error Объект API-ошибки
- * @property answer Ответ в случае успешной обработки
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект API-ошибки
+ * @param answer Ответ в случае успешной обработки
  * @author Максим Дрючин (tgmaksim)
  * */
 @Serializable data class LoginApiResponse(
