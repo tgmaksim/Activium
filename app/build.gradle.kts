@@ -35,7 +35,7 @@ gradle.taskGraph.whenReady {
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.21"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.0"
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
@@ -109,12 +109,12 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
     implementation(libs.androidx.documentfile)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
-    implementation("com.google.firebase:firebase-crashlytics")
     implementation(platform(libs.firebase.bom))
 
     api(libs.firebase.messaging)

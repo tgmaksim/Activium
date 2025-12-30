@@ -1,5 +1,9 @@
 package ru.tgmaksim.gymnasium.utilities
 
+import java.time.OffsetTime
+import java.time.ZoneOffset
+import java.time.OffsetDateTime
+
 import android.util.Log
 import android.widget.Toast
 import android.content.Intent
@@ -13,13 +17,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.logEvent
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.ParametersBuilder
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import ru.tgmaksim.gymnasium.R
-import java.time.OffsetDateTime
-import java.time.OffsetTime
-import java.time.ZoneOffset
 
 /**
  * Утилиты приложения

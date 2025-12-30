@@ -46,18 +46,12 @@ class MainActivity : ParentActivity() {
         setupSystemBars(ui.contentContainer)
 
         // После перерисовки текущий fragment сам отрисуется
-        if (savedInstanceState == null) {
-            pages.clear()
-            replaceFragment(newMenuPage(currentTab), animation = false)
-        }
+        val scheduleFragment = supportFragmentManager.fragments.find { it is SchedulePage }
 
-        // Текущий фрагмент расписания скрыт или не существует
-        else if ((pages[R.id.it_schedule]?.id ?: 0) == 0) {
-            val scheduleFragment = supportFragmentManager.fragments.find { it is SchedulePage }
-
-            if (scheduleFragment != null)
-                pages[R.id.it_schedule] = scheduleFragment
-        }
+        if (scheduleFragment != null)
+            pages[R.id.it_schedule] = scheduleFragment
+        else if (savedInstanceState == null)
+            replaceFragment(newMenuPage(R.id.it_schedule), animation = false)
 
         setupMenuListener()  // Настройка нажатий на пункты меню
         setupBackListener()  // Настройка нажатий на системную кнопку назад (или жестом)

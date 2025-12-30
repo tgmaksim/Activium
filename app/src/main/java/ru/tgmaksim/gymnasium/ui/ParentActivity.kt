@@ -3,8 +3,6 @@ package ru.tgmaksim.gymnasium.ui
 import android.os.Build
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -40,14 +38,8 @@ open class ParentActivity : AppCompatActivity() {
         // Установка отступа сверху на высоту системной панели
         ViewCompat.setOnApplyWindowInsetsListener(contentContainer) { v, insets ->
             val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            if (contentContainer is FrameLayout) {
-                v.updateLayoutParams<RelativeLayout.LayoutParams> {
-                    topMargin = topInset
-                }
-            } else if (contentContainer is LinearLayout) {
-                v.updateLayoutParams<FrameLayout.LayoutParams> {
-                    topMargin = topInset
-                }
+            v.updateLayoutParams<FrameLayout.LayoutParams> {
+                topMargin = topInset
             }
 
             insets

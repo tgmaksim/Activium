@@ -6,19 +6,20 @@ import android.graphics.Color
 import android.text.TextPaint
 import android.view.ViewGroup
 import android.text.TextUtils
+import android.content.Intent
 import android.widget.LinearLayout
 import android.view.LayoutInflater
 import android.text.SpannableString
 import android.text.style.ClickableSpan
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
-import androidx.fragment.app.FragmentActivity
 import android.text.method.LinkMovementMethod
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import ru.tgmaksim.gymnasium.R
+import ru.tgmaksim.gymnasium.ui.DocumentView
 import ru.tgmaksim.gymnasium.api.ScheduleHours
 import ru.tgmaksim.gymnasium.api.ScheduleLesson
 import ru.tgmaksim.gymnasium.utilities.Utilities
@@ -121,13 +122,11 @@ class LessonsAdapter : ListAdapter<ScheduleLesson, LessonsAdapter.ViewHolder>(Di
                 override fun onClick(widget: View) {
                     // Открытие либо WebView, либо браузера
                     if (CacheManager.openWebView) {
-                        (ui.root.context as FragmentActivity)
-                            .supportFragmentManager
-                            .beginTransaction()
-                            .replace(
-                                R.id.content_container,  // Основной контейнер
-                                DocumentView.newInstance(downloadUrl)
-                            ).addToBackStack(null).commit()
+                        ui.root.context.startActivity(
+                            Intent(ui.root.context, DocumentView::class.java).apply {
+                                putExtra("url", downloadUrl)
+                            }
+                        )
                     } else {
                         Utilities.openUrl(ui.root.context, downloadUrl)
                     }
