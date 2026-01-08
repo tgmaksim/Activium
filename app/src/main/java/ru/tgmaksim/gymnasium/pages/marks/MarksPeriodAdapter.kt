@@ -2,47 +2,29 @@ package ru.tgmaksim.gymnasium.pages.marks
 
 import android.graphics.Color
 import android.view.ViewGroup
-import android.content.Context
 import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import android.graphics.drawable.GradientDrawable
 
 import ru.tgmaksim.gymnasium.R
 import ru.tgmaksim.gymnasium.api.MarkLog
-import ru.tgmaksim.gymnasium.api.MarksOther
-import ru.tgmaksim.gymnasium.databinding.MarkLogBinding
-import ru.tgmaksim.gymnasium.pages.schedule.LessonsAdapter
+import ru.tgmaksim.gymnasium.databinding.MarkPeriodBinding
 
 /**
- * Адаптер списка оценок и отметок о посещаемости уроков
+ * Адаптер списка оценок по предмету за текущий период
  * @author Максим Дрючин (tgmaksim)
- * @see LessonsAdapter
+ * @see MarksSubjectPeriodAdapter
  * */
-class LogsAdapter(private val context: Context): ListAdapter<MarkLog, LogsAdapter.ViewHolder>(Diff()) {
-    private var marksOthers: List<MarksOther>? = null
-
+class MarksPeriodAdapter : ListAdapter<MarkLog, MarksPeriodAdapter.ViewHolder>(Diff()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val ui = MarkLogBinding.inflate(
+        val ui = MarkPeriodBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
-
-        // Показ рейтинга при нажатии на список с оценками и отметками о посещаемости
-        ui.root.setOnClickListener {
-            marksOthers?.let {
-                if (it.isNotEmpty())
-                    RatingDialogFragment(it).show(
-                        (ui.root.context as FragmentActivity).supportFragmentManager,
-                        "rating"
-                    )
-            }
-        }
-
         return ViewHolder(ui)
     }
 
@@ -50,23 +32,10 @@ class LogsAdapter(private val context: Context): ListAdapter<MarkLog, LogsAdapte
         holder.bind(getItem(position))
     }
 
-    fun submitList(list: List<MarkLog>, newMarksOthers: List<MarksOther>?) {
-        marksOthers = newMarksOthers
-
-        // При отсутствии своих оценок и наличии других, показывается эмодзи статистики
-        val statistics = MarkLog(value = ContextCompat.getString(context, R.string.marks_rating_emoji), mood = "null", work = null)
-        super.submitList(if (list.isEmpty() && marksOthers?.isEmpty() == false) listOf(statistics) else list)
-    }
-
-    override fun submitList(list: List<MarkLog?>?) {
-        super.submitList(list)
-        marksOthers = null
-    }
-
-    class ViewHolder(val ui: MarkLogBinding) : RecyclerView.ViewHolder(ui.root) {
+    class ViewHolder(val ui: MarkPeriodBinding) : RecyclerView.ViewHolder(ui.root) {
         fun bind(log: MarkLog) {
             ui.scheduleLog.text = log.value
-            (ui.root.background.mutate() as GradientDrawable).setColor(getLogColor(log))
+            (ui.scheduleLog.background.mutate() as GradientDrawable).setColor(getLogColor(log))
         }
 
         /**

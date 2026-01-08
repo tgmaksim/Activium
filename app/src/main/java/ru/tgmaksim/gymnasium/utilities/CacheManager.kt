@@ -24,6 +24,9 @@ object CacheManager {
     private const val KEY_SCHEDULE_BEFORE = "schedule_before"
     private const val KEY_SCHEDULE_AFTER = "schedule_after"
     private const val KEY_TIMEZONE = "timezone"
+    private const val KEY_LAST_MARKS = "last_marks"
+    private const val KEY_PERIOD_MARKS = "period_marks"
+    private const val KEY_CLASS_RATING = "class_rating"
 
     fun init(context: Context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -98,4 +101,16 @@ object CacheManager {
     var timezone: Int
         get() = prefs.getInt(KEY_TIMEZONE, TimeZone.getDefault().rawOffset / (60 * 60 * 1000))
         set(value) = prefs.edit { putInt(KEY_TIMEZONE, value) }
+
+    var lastMarks: String?
+        get() = prefs.getString(KEY_LAST_MARKS, null)
+        set(value) = prefs.edit { putString(KEY_LAST_MARKS, value) }
+
+    var periodMarks: String?
+        get() = prefs.getString(KEY_PERIOD_MARKS, null)
+        set(value) = prefs.edit { putString(KEY_PERIOD_MARKS, value) }
+
+    var classRating: String?
+        get() = prefs.getString(KEY_CLASS_RATING, null)
+        set(value) = prefs.edit { putString(KEY_CLASS_RATING, value) }
 }

@@ -39,16 +39,16 @@ import ru.tgmaksim.gymnasium.databinding.ScheduleCalendarDayBinding
  * */
 class SchedulePage : Fragment() {
     private lateinit var ui: SchedulePageBinding
-    private var isDarkTheme: Boolean = false
-    private var scheduleBefore: Int = CacheManager.scheduleBefore
-    private var scheduleAfter: Int = CacheManager.scheduleAfter
-    private var scheduleLength: Int = scheduleBefore + 1 + scheduleAfter
+    private var isDarkTheme = false
+    private var scheduleBefore = CacheManager.scheduleBefore
+    private var scheduleAfter = CacheManager.scheduleAfter
+    private var scheduleLength = scheduleBefore + 1 + scheduleAfter
 
     companion object {
         private var schedule: List<ScheduleDay?> = getCacheSchedule()
         private var updateToken: String? = null
-        private var lastSelected: Int = -1
-        private var needUpdate: Boolean = true
+        private var lastSelected = -1
+        private var needUpdate = true
 
         /**
          * Создание напоминания о внеурочном занятии в виде уведомления за несколько минут до начала
@@ -80,8 +80,8 @@ class SchedulePage : Fragment() {
                 // Сортировка по дате и добавление пустых дней при необходимости
                 val offset = schedule.indexOfFirst { it.date == Utilities.localDate() }
 
-                (List(CacheManager.scheduleBefore - offset) { null } + schedule).let {
-                    it + List(CacheManager.scheduleBefore + 1 + CacheManager.scheduleAfter - it.size) { null }
+                (List(max(0, CacheManager.scheduleBefore - offset)) { null } + schedule).let {
+                    it + List(max(0, CacheManager.scheduleBefore + 1 + CacheManager.scheduleAfter - it.size)) { null }
                 }
             }
         }
@@ -103,14 +103,13 @@ class SchedulePage : Fragment() {
         isDarkTheme = CacheManager.isDarkTheme
         scheduleLength = CacheManager.scheduleBefore + 1 + CacheManager.scheduleAfter
 
-        if (lastSelected == -1)
-            lastSelected = schedule.indexOfFirst { it?.date == getDefaultDate() }
+        if (lastSelected != -1 && scheduleBefore != CacheManager.scheduleBefore)
+            lastSelected += CacheManager.scheduleBefore - scheduleBefore
+        if (lastSelected !in 0..<scheduleLength)
+            lastSelected = max(0, schedule.indexOfFirst { it?.date == getDefaultDate() })
 
         showScheduleCalendar()  // Отображение даты на несколько дней
         showCacheSchedule()  // Показ расписания из кеша
-
-        if (scheduleBefore != CacheManager.scheduleBefore)
-            selectItemCalendar(max(lastSelected + CacheManager.scheduleBefore - scheduleBefore, 0))
 
         scheduleBefore = CacheManager.scheduleBefore
         scheduleAfter = CacheManager.scheduleAfter

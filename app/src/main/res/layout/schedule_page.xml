@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Список дней с горизонтальной прокруткой -->
+    <!-- Горизонтальный мини-календарь -->
     <HorizontalScrollView
         android:id="@+id/calendarScroll"
         android:layout_width="match_parent"

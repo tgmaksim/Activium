@@ -4,6 +4,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.OffsetTime
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 import kotlinx.serialization.Contextual
@@ -44,7 +45,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     override val data: ScheduleInputData
 ) : ApiRequest() {
     companion object {
-        const val CLASS_ID = 0x00000023
+        const val CLASS_ID = 0x00000028
     }
 }
 
@@ -117,6 +118,20 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
         get() = LocalTime.parse(start).atOffset(ZoneOffset.ofHours(CacheManager.timezone))
 }
 
+@Serializable data class WorkType(
+    override val classId: Int = CLASS_ID,
+    val title: String,
+    val abbr: String
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x00000029
+    }
+    init {
+        if (classId != CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
 /**
  * Оценка или отметка о посещаемости урока
  * @param classId Идентификатор класса
@@ -129,10 +144,11 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
 @Serializable data class MarkLog(
     override val classId: Int = CLASS_ID,
     val mood: String,
-    val value: String
+    val value: String,
+    val work: WorkType?
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x00000016
+        const val CLASS_ID = 0x0000002A
     }
     init {
         if (classId != CLASS_ID)
@@ -153,7 +169,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     val marks: List<MarkLog>
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x00000021
+        const val CLASS_ID = 0x0000002B
     }
     init {
         if (classId != CLASS_ID)
@@ -179,6 +195,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     val number: Int,
     val subject: String,
     val place: String,
+    val works: List<WorkType>,
     val hours: ScheduleHours,
     val logs: List<MarkLog>,
     val othersMarks: List<MarksOther>,
@@ -187,7 +204,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     @Contextual val isEA: Boolean = false  // Только для внутренних взаимодействий
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x00000017
+        const val CLASS_ID = 0x0000002C
     }
     init {
         if (classId != CLASS_ID)
@@ -214,7 +231,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     val extracurricularActivities: List<ScheduleExtracurricularActivity>
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x00000018
+        const val CLASS_ID = 0x0000002D
     }
     init {
         if (classId != CLASS_ID)
@@ -243,7 +260,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     val timezone: Int
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x00000026
+        const val CLASS_ID = 0x0000002E
     }
     init {
         if (classId != CLASS_ID)
@@ -266,7 +283,89 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
     override val answer: ScheduleResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x00000027
+        const val CLASS_ID = 0x0000002F
+    }
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+@Serializable data class MarksApiRequest(
+    override val classId: Int = CLASS_ID,
+    override val data: ApiSession
+) : ApiRequest() {
+    companion object {
+        const val CLASS_ID = 0x00000030
+    }
+}
+
+@Serializable data class MarkLast(
+    override val classId: Int = CLASS_ID,
+    val mark: MarkLog,
+    val work: WorkType?,
+    val subject: String,
+    @SerialName("sentDatetime") val sentDatetimeString: String,
+    @SerialName("lessonDate") val lessonDateString: String?,
+    val lessonDateFormat: String?,
+    val othersMarks: List<MarksOther>
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x00000031
+    }
+    init {
+        if (classId != CLASS_ID)
+            throw ClassCastException()
+    }
+
+    @Contextual val sentDatetime: OffsetDateTime
+        get() = LocalDateTime.parse(sentDatetimeString).atOffset(ZoneOffset.ofHours(CacheManager.timezone))
+    /*
+    @Contextual val lessonDate: OffsetDateTime?
+        get() = lessonDateString?.let { LocalDate.parse(it).atStartOfDay().atOffset(ZoneOffset.ofHours(CacheManager.timezone)) }
+    */
+}
+
+@Serializable data class MarksSubjectPeriod(
+    override val classId: Int = CLASS_ID,
+    val subject: String,
+    val marks: List<MarkLog>,
+    val averageMark: MarkLog?,
+    val periodMark: MarkLog?,
+    val othersAverageMark: List<MarksOther>
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x00000035
+    }
+    init {
+        if (classId != CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+@Serializable data class MarksResult(
+    override val classId: Int = CLASS_ID,
+    val lastMarks: List<MarkLast>,
+    val periodMarks: List<MarksSubjectPeriod>,
+    val classRating: List<MarksOther>
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x00000032
+    }
+    init {
+        if (classId != CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+@Serializable data class MarksApiResponse(
+    override val classId: Int,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: MarksResult?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x00000033
     }
     init {
         if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
@@ -283,6 +382,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
 object Dnevnik {
     private const val PATH_PREFIX = "dnevnik"
     private const val PATH_GET_SCHEDULE = "getSchedule"
+    private const val PATH_GET_MARKS = "getMarks"
 
     /**
      * Запрос расписания на несколько дней
@@ -302,7 +402,7 @@ object Dnevnik {
             request
         )
 
-        // Сохранение расписания часового пояса в кеш
+        // Сохранение расписания и часового пояса в кеш
         response.answer?.let {
             CacheManager.schedule = json.encodeToString(it.schedule)
             CacheManager.timezone = it.timezone
@@ -324,6 +424,63 @@ object Dnevnik {
                 // При возникновении ошибки десериализации расписание в кеше очищается
                 Utilities.log(e)
                 CacheManager.schedule = null
+                emptyList()
+            }
+        } ?: emptyList()
+    }
+
+    suspend fun getMarks() : MarksApiResponse {
+        val request = MarksApiRequest(data = ApiSession(session = CacheManager.apiSession.toString()))
+
+        val response = Request.post<MarksApiRequest, MarksApiResponse>(
+            listOf(PATH_PREFIX, PATH_GET_MARKS, MarksApiRequest.CLASS_ID).joinToString("/"),
+            request
+        )
+
+        // Сохранение расписания в кеш
+        response.answer?.let {
+            CacheManager.lastMarks = json.encodeToString(it.lastMarks)
+            CacheManager.periodMarks = json.encodeToString(it.periodMarks)
+            CacheManager.classRating = json.encodeToString(it.classRating)
+        }
+
+        return response
+    }
+
+    fun getCacheLastMarks() : List<MarkLast> {
+        return CacheManager.lastMarks?.let {
+            try {
+                json.decodeFromString<List<MarkLast>>(it)
+            } catch (e: Exception) {
+                // При возникновении ошибки десериализации расписание в кеше очищается
+                Utilities.log(e)
+                CacheManager.lastMarks = null
+                emptyList()
+            }
+        } ?: emptyList()
+    }
+
+    fun getCachePeriodMarks() : List<MarksSubjectPeriod> {
+        return CacheManager.periodMarks?.let {
+            try {
+                json.decodeFromString<List<MarksSubjectPeriod>>(it)
+            } catch (e: Exception) {
+                // При возникновении ошибки десериализации расписание в кеше очищается
+                Utilities.log(e)
+                CacheManager.periodMarks = null
+                emptyList()
+            }
+        } ?: emptyList()
+    }
+
+    fun getCacheClassRating() : List<MarksOther> {
+        return CacheManager.classRating?.let {
+            try {
+                json.decodeFromString<List<MarksOther>>(it)
+            } catch (e: Exception) {
+                // При возникновении ошибки десериализации расписание в кеше очищается
+                Utilities.log(e)
+                CacheManager.classRating = null
                 emptyList()
             }
         } ?: emptyList()

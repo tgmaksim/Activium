@@ -185,14 +185,14 @@ class MainActivity : ParentActivity() {
         onBackPressedDispatcher.addCallback(this) {
             // На странице расписания свой обработчик,
             // но если действие не выполнено, окно сворачивается
-            if (ui.bottomMenu.selectedItemId == R.id.it_schedule) {
-                if (!(newMenuPage(R.id.it_schedule) as SchedulePage).onBackPressed())
-                    moveTaskToBack(true)
-            }
-
-            // Если открытая страница - не расписание, переход на нее
-            else {
-                ui.bottomMenu.selectedItemId = R.id.it_schedule
+            when (ui.bottomMenu.selectedItemId) {
+                R.id.it_schedule ->
+                    if ((pages[R.id.it_schedule] as? SchedulePage)?.onBackPressed() != true)
+                        moveTaskToBack(true)
+                R.id.it_marks ->
+                    if ((pages[R.id.it_marks] as? MarksPage)?.onBackPressed() != true)
+                        ui.bottomMenu.selectedItemId = R.id.it_schedule
+                else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
             }
         }
     }

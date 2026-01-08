@@ -102,6 +102,7 @@ kotlin {
 dependencies {
     implementation(libs.okio)
     implementation(libs.okhttp)
+    implementation(libs.flexbox)
     implementation(libs.material)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.core)

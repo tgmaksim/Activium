@@ -27,6 +27,7 @@ import ru.tgmaksim.gymnasium.utilities.CacheManager
 import ru.tgmaksim.gymnasium.pages.marks.LogsAdapter
 import ru.tgmaksim.gymnasium.databinding.ScheduleLessonBinding
 import ru.tgmaksim.gymnasium.api.ScheduleExtracurricularActivity
+import ru.tgmaksim.gymnasium.databinding.ScheduleWorkTypeBinding
 import ru.tgmaksim.gymnasium.databinding.ScheduleHomeworkFileBinding
 
 /**
@@ -56,6 +57,7 @@ class LessonsAdapter : ListAdapter<ScheduleLesson, LessonsAdapter.ViewHolder>(Di
                 number = list.size,
                 subject = ea.joinToString("\n") { it.subject },
                 place = ea.joinToString("; ") { it.place },
+                works = emptyList(),
                 hours = hoursEA,
                 logs = emptyList(),
                 othersMarks = emptyList(),
@@ -79,6 +81,7 @@ class LessonsAdapter : ListAdapter<ScheduleLesson, LessonsAdapter.ViewHolder>(Di
             ui.time.text = lesson.hours.stringFormat
             ui.subject.text = lesson.subject
             ui.place.text = lesson.place
+            ui.number.text = "${lesson.number + 1}."
 
             // Выделение цветом внеурочного занятия
             if (lesson.isEA)
@@ -99,6 +102,17 @@ class LessonsAdapter : ListAdapter<ScheduleLesson, LessonsAdapter.ViewHolder>(Di
             ui.filesContainer.removeAllViews()
             for (file in lesson.files) {
                 ui.filesContainer.addView(createFileSpannable(file.fileName, file.downloadUrl))
+            }
+
+            ui.worksContainer.removeAllViews()
+            for (workType in lesson.works) {
+                val workUI = ScheduleWorkTypeBinding.inflate(
+                    LayoutInflater.from(ui.root.context),
+                    ui.root,
+                    false
+                )
+                workUI.root.text = workType.title
+                ui.worksContainer.addView(workUI.root)
             }
 
             // Инициализация адаптера или обновление данных

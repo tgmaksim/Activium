@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Строка таблицы -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="8dp">
+
+        <!-- Предмет -->
+        <TextView
+            android:id="@+id/subject"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="3dp"
+            android:textSize="10sp"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="left|top" />
+
+        <!-- Оценки (растягиваются) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/marks"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:overScrollMode="never" />
+
+        <!-- Средний балл -->
+        <TextView
+            android:id="@+id/averageMark"
+            android:layout_width="25dp"
+            android:layout_height="17dp"
+            android:minWidth="17dp"
+            android:layout_marginStart="6dp"
+            android:gravity="center"
+            android:textSize="11sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="sans-serif-medium"
+            android:background="@drawable/bg_lesson_log" />
+
+        <!-- Итог за период -->
+        <TextView
+            android:id="@+id/periodMark"
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:layout_marginStart="6dp"
+            android:gravity="center"
+            android:textSize="11sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="sans-serif-bold"
+            android:background="@drawable/bg_lesson_log"/>
+
+    </LinearLayout>
+
+    <!-- Горизонтальная линия (граница таблицы) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/text_secondary"
+        android:alpha="0.15" />
+</LinearLayout>

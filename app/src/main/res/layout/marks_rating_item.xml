@@ -5,6 +5,17 @@
     android:layout_height="wrap_content"
     android:paddingVertical="8dp">
 
+    <!-- Номер в рейтинге -->
+    <TextView
+        android:id="@+id/number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="5dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary" />
+
     <!-- Имя ученика -->
     <TextView
         android:id="@+id/studentName"

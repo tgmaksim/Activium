@@ -11,29 +11,30 @@
     android:clickable="true"
     android:focusable="true">
 
+    <!-- Данные урока -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_weight="1">
 
-        <!-- Верхняя часть -->
+        <!-- Название предмета, время и место -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <!-- Левая часть: время, место и предмет -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical">
 
+                <!-- Переносчик шапки урока на следующую строку -->
                 <androidx.constraintlayout.helper.widget.Flow
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:constraint_referenced_ids="subject,time_place"
+                    app:constraint_referenced_ids="number, subject,time_place"
                     app:flow_wrapMode="chain"
                     app:flow_horizontalStyle="packed"
                     app:flow_horizontalBias="0"
@@ -42,6 +43,17 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
+
+                <!-- Название предмета -->
+                <TextView
+                    android:id="@+id/number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/default_number"
+                    android:textSize="18sp"
+                    android:textColor="@color/lesson_subject"
+                    android:fontFamily="sans-serif-medium"
+                    android:includeFontPadding="false" />
 
                 <!-- Название предмета -->
                 <TextView
@@ -54,6 +66,7 @@
                     android:fontFamily="sans-serif-medium"
                     android:includeFontPadding="false" />
 
+                <!-- Группировка для совместного переноса -->
                 <LinearLayout
                     android:id="@+id/time_place"
                     android:layout_width="wrap_content"
@@ -86,6 +99,13 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
+
+        <!-- Типы работ на уроке -->
+        <LinearLayout
+            android:id="@+id/worksContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
         <!-- Домашнее задание -->
         <LinearLayout

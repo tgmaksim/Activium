@@ -11,7 +11,11 @@ import ru.tgmaksim.gymnasium.R
 import ru.tgmaksim.gymnasium.api.MarksOther
 import ru.tgmaksim.gymnasium.databinding.MarksRatingBinding
 
-class RatingDialogFragment(private val rating: List<MarksOther>) : BottomSheetDialogFragment() {
+class RatingDialogFragment(
+    private val rating: List<MarksOther>,
+    private val showNumber: Boolean = false,
+    private val note: String? = null
+) : BottomSheetDialogFragment() {
     private lateinit var ui: MarksRatingBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,16 +30,23 @@ class RatingDialogFragment(private val rating: List<MarksOther>) : BottomSheetDi
     ): View {
         ui = MarksRatingBinding.inflate(inflater, container, false)
 
+        if (note.isNullOrEmpty())
+            ui.note.visibility = View.GONE
+        ui.note.text = note ?: ""
+
         ui.ratingList.layoutManager = LinearLayoutManager(
             requireContext(),
             LinearLayoutManager.VERTICAL,
             false
         )
-        ui.ratingList.adapter = MarksRatingAdapter().apply {
+        ui.ratingList.adapter = MarksRatingAdapter(showNumber).apply {
             submitList(rating.sortedByDescending { person ->
                 val sum = person.marks.sumOf {
-                    // Учет плюса и минуса в оценках как 0.25 балла
-                    it.value.replace(Regex("[+-]"), "").toDouble() +
+                    // Учет плюса и минуса в оценках как 0.25 балла для учета при сортировке
+                    it.value
+                        .replace(Regex("[+-]"), "")
+                        .replace(",", ".")  // Средний балл
+                        .toDouble() +
                             if (it.value.last() in listOf('+', '-'))
                                 "${it.value.last()}0.25".toDouble()
                             else 0.0

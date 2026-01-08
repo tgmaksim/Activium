@@ -2,6 +2,7 @@ package ru.tgmaksim.gymnasium.pages.marks
 
 import android.view.ViewGroup
 import android.view.LayoutInflater
+import android.view.View
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,7 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import ru.tgmaksim.gymnasium.api.MarksOther
 import ru.tgmaksim.gymnasium.databinding.MarksRatingItemBinding
 
-class MarksRatingAdapter : ListAdapter<MarksOther, MarksRatingAdapter.ViewHolder>(Diff()) {
+class MarksRatingAdapter(
+    private val showNumber: Boolean = false
+) : ListAdapter<MarksOther, MarksRatingAdapter.ViewHolder>(Diff()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val ui = MarksRatingItemBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -21,7 +24,7 @@ class MarksRatingAdapter : ListAdapter<MarksOther, MarksRatingAdapter.ViewHolder
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), position, showNumber)
     }
 
     class ViewHolder(val ui: MarksRatingItemBinding) : RecyclerView.ViewHolder(ui.root) {
@@ -33,8 +36,10 @@ class MarksRatingAdapter : ListAdapter<MarksOther, MarksRatingAdapter.ViewHolder
             )
         }
 
-        fun bind(marks: MarksOther) {
+        fun bind(marks: MarksOther, position: Int, showNumber: Boolean) {
             ui.studentName.text = marks.name
+            ui.number.text = "${position + 1}."
+            ui.number.visibility = if (showNumber) View.VISIBLE else View.GONE
 
             if (ui.logs.adapter == null)
                 ui.logs.adapter = LogsAdapter(ui.root.context).apply { submitList(marks.marks) }
