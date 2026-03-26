@@ -1,8 +1,9 @@
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 // Переменные окружения
-val propsFile = rootProject.file("variables.xml")
+val propsFile: File = rootProject.file("variables.xml")
 val props = Properties()
 
 if (propsFile.exists()) {
@@ -17,7 +18,6 @@ val buildNumber = props.getProperty("BUILD_NUMBER").toInt()
 val appVersion: String = props.getProperty("APP_VERSION")
 val domain: String = props.getProperty("DOMAIN")
 val apiKey: String = props.getProperty("API_KEY")
-val docsViewUrl: String = props.getProperty("DOCS_VIEW_URL")
 val checkInternetDomain: String = props.getProperty("CHECK_INTERNET_DOMAIN")
 
 // Увеличение номера сборки при каждой компиляции
@@ -35,34 +35,34 @@ gradle.taskGraph.whenReady {
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.20"
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("com.google.devtools.ksp") version "2.3.6"
 }
 
 android {
-    namespace = "ru.tgmaksim.gymnasium"
+    namespace = "ru.tgmaksim.activium"
     compileSdk {
         version = release(36)
     }
 
     applicationVariants.all {
         outputs.all {
-            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            output.outputFileName = "gymnasium_v$appVersion.apk"
+            val output = this as BaseVariantOutputImpl
+            output.outputFileName = "activium_v$appVersion.apk"
         }
     }
 
     defaultConfig {
-        applicationId = "ru.tgmaksim.gymnasium"
-        minSdk = 30
+        applicationId = "ru.tgmaksim.activium"
+        minSdk = 29
         targetSdk = 36
         versionCode = newBuildNumber
         versionName = appVersion
 
         buildConfigField("String", "DOMAIN", "\"$domain\"")
         buildConfigField("String", "API_KEY", "\"$apiKey\"")
-        buildConfigField("String", "DOCS_VIEW_ULR", "\"$docsViewUrl\"")
         buildConfigField("String", "CHECK_INTERNET_DOMAIN", "\"${checkInternetDomain}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -98,7 +98,6 @@ kotlin {
     }
 }
 
-
 dependencies {
     implementation(libs.okio)
     implementation(libs.okhttp)
@@ -116,7 +115,11 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.room.runtime)
     implementation(platform(libs.firebase.bom))
+
+    ksp(libs.androidx.room.compiler)
 
     api(libs.firebase.messaging)
     api(platform(libs.firebase.bom))

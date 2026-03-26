@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient"
+    android:background="@color/main_bg"
     android:fillViewport="true">
 
     <LinearLayout
@@ -20,7 +20,7 @@
             android:layout_height="120dp"
             android:src="@mipmap/ic_launcher_round"
             android:contentDescription="@string/app_name"
-            android:layout_marginTop="60dp" />
+            android:layout_marginTop="30dp" />
 
         <!-- Название приложения -->
         <TextView
@@ -38,9 +38,12 @@
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="5dp"
             android:text="@string/hello"
             android:textSize="16sp"
+            android:textStyle="italic"
             android:textColor="@color/text_primary"
+            android:background="@drawable/login_about_bg"
             android:layout_marginTop="24dp"
             android:lineSpacingExtra="4dp"
             android:gravity="center" />
@@ -52,7 +55,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_button_login"
+            android:background="@drawable/button_bg"
             android:padding="12dp"
             android:layout_marginTop="32dp"
             android:clickable="true"
@@ -62,7 +65,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@mipmap/logo_dnevnik"
+                android:src="@drawable/dnevnik_ru"
                 android:contentDescription="@string/dnevnik_text" />
 
             <!-- Текст кнопки -->
@@ -78,13 +81,13 @@
             <FrameLayout
                 android:id="@+id/loadingOverlay"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:visibility="gone">
 
                 <ProgressBar
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center" />
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="end" />
 
             </FrameLayout>
 

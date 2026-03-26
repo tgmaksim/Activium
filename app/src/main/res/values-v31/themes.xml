@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Activium.Splash" parent="Theme.Activium">
+        <item name="android:windowBackground">@drawable/background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
+        <item name="android:windowSplashScreenBackground">@color/main_bg</item>
+    </style>
+
+</resources>

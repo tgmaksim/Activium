@@ -6,8 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM"
-        tools:ignore="ExactAlarmPolicy" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:ignore="ExactAlarmPolicy" />
 
     <application
         android:name=".App"
@@ -18,13 +17,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Gymnasium.Splash">
+        android:theme="@style/Theme.Activium.Splash">
 
         <!-- Загрузчик всего приложения -->
         <activity
             android:name=".LauncherActivity"
             android:exported="true"
-            android:theme="@style/Theme.Gymnasium.Splash">
+            android:theme="@style/Theme.Activium.Splash">
 
             <!-- Определение главного Activity -->
             <intent-filter>
@@ -38,11 +37,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <!-- gmn://open/ — открывает приложение -->
+                <!-- tgm://activium/open — открывает приложение -->
                 <data
-                    android:scheme="gmn"
-                    android:host="open"
-                    android:path="/" />
+                    android:scheme="tgm"
+                    android:host="activium"
+                    android:path="/open" />
 
             </intent-filter>
 
@@ -54,10 +53,10 @@
         <activity android:name=".ui.DocumentView" android:exported="false" />
 
         <!-- Receiver для запуска по расписанию (уведомления с напоминаниями) -->
-        <receiver
-            android:name=".utilities.AlarmReceiver"
-            android:enabled="true"
-            android:exported="false" />
+<!--        <receiver-->
+<!--            android:name=".utilities.AlarmReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="false" />-->
 
         <!-- Service для уведомлений -->
         <service android:name=".utilities.MessagingService"

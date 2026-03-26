@@ -1,35 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg_gradient_start">#1A1A1A</color>
-    <color name="bg_gradient_center">#2E7DA8</color>
-    <color name="bg_gradient_end">#000000</color>
+    <color name="main_bg">#001C38</color>
 
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#99FFFFFF</color>
 
-    <color name="bg_bottom_menu">#000000</color>
+    <color name="button_bg">#004080</color>
+
+    <color name="stroke_bg">#1AB0B0BE</color>
+
+    <color name="bg_login_about">#30101010</color>
+
+    <color name="bg_bottom_menu">#004080</color>
     <color name="bottom_menu_icon_checked">#FFFFFF</color>
     <color name="bottom_menu_icon">#4FC3F7</color>
 
-    <color name="glass_card_bg">#30101010</color>
-
-    <color name="lesson_time">#4FC3F7</color>
-    <color name="lesson_subject">#FFFFFF</color>
-    <color name="lesson_place">#CCCCCC</color>
-    <color name="lesson_homework_title">#88FFFFFF</color>
-    <color name="lesson_homework_text">#CCFFFFFF</color>
-    <color name="lesson_homework_file_name">#81d5fc</color>
-
-    <color name="update_progress_fill">#2979FF</color>
-    <color name="update_progress_bg">#444444</color>
-
-    <color name="dialog_background">#1E1E1E</color>
+    <color name="dialog_background">#004080</color>
     <color name="dialog_button_positive">#4DA3FF</color>
     <color name="dialog_button_negative">#AAAAAA</color>
 
-    <color name="slider_accent">#4FC3F7</color>
-    <color name="slider_track_off">#333333</color>
-    <color name="slider_label_bg">#4FC3F7</color>
-    <color name="slider_label_text">#000000</color>
-    <color name="slider_halo_static">#204FC3F7</color>
+<!--    <color name="glass_card_bg">#30101010</color>-->
+
+<!--    <color name="lesson_time">#4FC3F7</color>-->
+<!--    <color name="lesson_subject">#FFFFFF</color>-->
+<!--    <color name="lesson_place">#CCCCCC</color>-->
+<!--    <color name="lesson_homework_title">#88FFFFFF</color>-->
+<!--    <color name="lesson_homework_text">#CCFFFFFF</color>-->
+<!--    <color name="lesson_homework_file_name">#81d5fc</color>-->
+
+<!--    <color name="update_progress_fill">#2979FF</color>-->
+<!--    <color name="update_progress_bg">#444444</color>-->
+
+<!--    <color name="slider_accent">#4FC3F7</color>-->
+<!--    <color name="slider_track_off">#333333</color>-->
+<!--    <color name="slider_label_bg">#4FC3F7</color>-->
+<!--    <color name="slider_label_text">#000000</color>-->
+<!--    <color name="slider_halo_static">#204FC3F7</color>-->
 </resources>

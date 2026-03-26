@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Gymnasium" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.Activium" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.Gymnasium.Splash" parent="Theme.Gymnasium">
-        <item name="android:windowBackground">@drawable/bg_gradient</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
-        <item name="android:windowSplashScreenBackground">@color/bg_gradient_center</item>
+    <style name="Theme.Activium.Splash" parent="Theme.Activium">
+        <item name="android:windowBackground">@drawable/background</item>
     </style>
 
     <style name="AppDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
@@ -27,17 +25,17 @@
         <item name="bottomSheetStyle">@style/AppBottomSheetStyle</item>
     </style>
 
-    <style name="AppRangeSlider" parent="Widget.MaterialComponents.Slider">
-        <item name="trackColorActive">@color/slider_accent</item>
-        <item name="trackColorInactive">@color/slider_track_off</item>
-        <item name="thumbColor">@color/slider_accent</item>
-        <item name="haloColor">@color/slider_halo_static</item>
+<!--    <style name="AppRangeSlider" parent="Widget.MaterialComponents.Slider">-->
+<!--        <item name="trackColorActive">@color/slider_accent</item>-->
+<!--        <item name="trackColorInactive">@color/slider_track_off</item>-->
+<!--        <item name="thumbColor">@color/slider_accent</item>-->
+<!--        <item name="haloColor">@color/slider_halo_static</item>-->
 
-        <item name="trackHeight">5dp</item>
-        <item name="thumbRadius">11dp</item>
-        <item name="thumbElevation">4dp</item>
+<!--        <item name="trackHeight">5dp</item>-->
+<!--        <item name="thumbRadius">11dp</item>-->
+<!--        <item name="thumbElevation">4dp</item>-->
 
-        <item name="labelStyle">@style/AppSliderLabelStyle</item>
-    </style>
+<!--        <item name="labelStyle">@style/AppSliderLabelStyle</item>-->
+<!--    </style>-->
 
 </resources>

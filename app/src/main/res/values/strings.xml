@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Гимназия</string>
+    <string name="app_name">Активиум</string>
     <string name="menu_item_schedule">Расписание</string>
     <string name="menu_item_marks">Оценки</string>
     <string name="menu_item_school">Школа</string>
     <string name="menu_item_settings">Настройки</string>
     <string name="sun_text">Тема</string>
-    <string name="hello">Приложение школы, которое поможет всегда узнавать о новых оценках и домашнем, не забывать о внеурочных занятиях и быть в курсе всех мероприятий</string>
+    <string name="hello">Активиум — это приложение для школьников, которое поможет всегда узнавать о новых оценках, не забывать о внеурочных занятиях и быть в курсе всех мероприятий</string>
 
     <string name="error_login">Произошла ошибка при попытке авторизоваться</string>
     <string name="error_api">Произошла ошибка на сервере…</string>
@@ -29,6 +29,8 @@
     <string name="login_with_dnevnik">Войти через Дневник.ру</string>
     <string name="weekend_text">Выходные</string>
     <string name="marks_rating_emoji">📊</string>
+
+    <string name="class_rating">📊 Рейтинг в классе</string>
 
     <string name="settings">Настройки</string>
     <string name="account">Аккаунт</string>
