@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 
+import ru.tgmaksim.activium.api.Settings
 import ru.tgmaksim.activium.utilities.datastore.CacheManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
@@ -34,7 +35,9 @@ class App : Application() {
 
                 if (SettingsManager.getFirebaseMessagingToken() != firebaseMessagingToken) {
                     SettingsManager.setFirebaseMessagingToken(firebaseMessagingToken)
-                    // TODO: отправить новый firebaseToken на сервер
+
+                    if (SettingsManager.getSessionId() != null)
+                        Settings.updateFirebase(firebaseMessagingToken)
                 }
             }
         }

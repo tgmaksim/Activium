@@ -11,6 +11,7 @@ import ru.tgmaksim.activium.api.Login
 import ru.tgmaksim.activium.api.Request
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.databinding.ActivityLoginBinding
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
  * Activity для авторизации пользователя
@@ -48,19 +49,23 @@ class LoginActivity : ParentActivity() {
 
         try {
             if (loginUrl == null) {
-                val response = Login.login()
+                val sessionId = SettingsManager.getSessionId()
+                val firebaseToken = SettingsManager.getFirebaseMessagingToken()
+                val response = Login.login(sessionId, firebaseToken)
 
-                response.error?.let { error ->
-                    Utilities.log("API error(${error.type}) at login: ${error.errorMessage}")
+                if (!response.status || response.answer == null) {
+                    if (response.error != null)
+                        Utilities.log("API error(${response.error.type}) at login: ${response.error.errorMessage}")
 
-                    if (error.errorMessage != null)
-                        Utilities.showText(this, error.errorMessage)
+                    if (response.error?.errorMessage != null)
+                        Utilities.showText(this, response.error.errorMessage)
                     else
                         Utilities.showText(this, R.string.error_api)
+
+                    return
                 }
 
-                if (!response.status || response.answer == null)
-                    return
+                SettingsManager.setSessionId(response.answer.sessionId)
 
                 loginUrl = response.answer.loginUrl
             }

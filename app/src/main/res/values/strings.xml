@@ -5,11 +5,11 @@
     <string name="menu_item_marks">Оценки</string>
     <string name="menu_item_school">Школа</string>
     <string name="menu_item_settings">Настройки</string>
-    <string name="sun_text">Тема</string>
     <string name="hello">Активиум — это приложение для школьников, которое поможет всегда узнавать о новых оценках, не забывать о внеурочных занятиях и быть в курсе всех мероприятий</string>
 
     <string name="error_login">Произошла ошибка при попытке авторизоваться</string>
     <string name="error_api">Произошла ошибка на сервере…</string>
+    <string name="error_children">Произошла ошибка при загрузке активного профиля</string>
     <string name="error_load_schedule">Произошла ошибка при загрузке расписания</string>
     <string name="error_load_marks">Произошла ошибка при загрузке оценок</string>
     <string name="error_internet">Нет подключения к интернету</string>
@@ -38,12 +38,18 @@
     <string name="open_site">Открыть сайт</string>
     <string name="settings_webview">Открывать файлы в приложении</string>
     <string name="settings_ea">Уведомлять о внеурочных занятиях</string>
+    <string name="settings_dnevnik">Уведомлять о новых оценках</string>
     <string name="settings_theme">Использовать темную тему</string>
     <string name="settings_schedule_period">Диапазон расписания</string>
     <string name="update">Обновление</string>
     <string name="update_button">Обновить</string>
     <string name="logout">Выйти из профиля</string>
-    <string name="app_info">Удобно и бесплатно пользуйтесь возможностями дневника.ру в своем телефоне и всегда знайте новости школы</string>
-    <string name="account_info">Ваш профиль в приложении связан с аккаунтом в дневнике.ру. Все предоставленные данные используются только в целях работы приложения</string>
+    <string name="default_version">Версия: 0.0.1</string>
+    <string name="select_profile">Выберите активный профиль</string>
+    <string name="no_child">Не выбран</string>
+    <string name="developer">Разработчик: Максим Дрючин, 2026</string>
+    <string name="default_android">Android</string>
+    <string name="app_info">Удобно и бесплатно пользуйтесь всеми возможностями Дневника.ру в своем телефоне и всегда будьте в курсе новостей и мероприятий школы</string>
+    <string name="account_info">Ваш профиль в приложении связан с аккаунтом в Дневнике.ру. Все предоставленные данные используются только в целях работы приложения и доступны только Вам в приложении</string>
     <string name="important_update">Изменено взаимодействие с сервером. Для корректной работы требуется обновить приложение.</string>
 </resources>

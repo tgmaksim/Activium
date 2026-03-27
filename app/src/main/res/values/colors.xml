@@ -11,11 +11,16 @@
 
     <color name="bg_login_about">#40FFFFFF</color>
 
-    <color name="bg_bottom_menu">#80FFFFFF</color>
+    <color name="bg_settings_block">#40FFFFFF</color>
+
+    <color name="bg_bottom_menu">#D9F2FD</color>
     <color name="bottom_menu_icon_checked">#000000</color>
     <color name="bottom_menu_icon">#66000000</color>
 
-<!--    <color name="glass_card_bg">#40FFFFFF</color>-->
+    <color name="thumb_switch_checked">#0288D1</color>
+    <color name="thumb_switch_simple">#FFFFFF</color>
+    <color name="track_switch_checked">#CFCFCF</color>
+    <color name="track_switch_simple">#CFCFCF</color>
 
 <!--    <color name="calendar_today">#4B9A25</color>-->
 <!--    <color name="lesson_time">#7B1FA2</color>-->
@@ -24,9 +29,6 @@
 <!--    <color name="lesson_homework_title">#555555</color>-->
 <!--    <color name="lesson_homework_text">#333333</color>-->
 <!--    <color name="lesson_homework_file_name">#FF0f3159</color>-->
-
-<!--    <color name="update_progress_fill">#2979FF</color>-->
-<!--    <color name="update_progress_bg">#E0E0E0</color>-->
 
     <color name="dialog_background">#B3E5FC</color>
     <color name="dialog_button_positive">#0066CC</color>
@@ -37,9 +39,9 @@
 <!--    <color name="lesson_log_bad">#CF3838</color>-->
 <!--    <color name="lesson_log_more">#94ACC8</color>-->
 
-<!--    <color name="slider_accent">#0288D1</color>-->
-<!--    <color name="slider_track_off">#D1E9F6</color>-->
-<!--    <color name="slider_label_bg">#0288D1</color>-->
-<!--    <color name="slider_label_text">#FFFFFF</color>-->
-<!--    <color name="slider_halo_static">#200288D1</color>-->
+    <color name="slider_accent">#0288D1</color>
+    <color name="slider_track_off">#D1E9F6</color>
+    <color name="slider_label_bg">#0288D1</color>
+    <color name="slider_label_text">#FFFFFF</color>
+    <color name="slider_halo_static">#200288D1</color>
 </resources>

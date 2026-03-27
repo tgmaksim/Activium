@@ -2,8 +2,6 @@ package ru.tgmaksim.activium.api
 
 import kotlinx.serialization.Serializable
 
-import ru.tgmaksim.activium.utilities.datastore.SettingsManager
-
 /**
  * Результат запроса на генерацию сессии и получение ссылки для ее авторизации
  * @param classId Идентификатор класса
@@ -66,10 +64,10 @@ object Login {
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
      * */
-    suspend fun login(): LoginApiResponse {
-        val parameters = (SettingsManager.getSessionId()?.let {
+    suspend fun login(sessionId: String?, firebaseToken: String?): LoginApiResponse {
+        val parameters = (sessionId?.let {
             mapOf("sessionId" to it)
-        } ?: mapOf()).plus(SettingsManager.getFirebaseMessagingToken()?.let {
+        } ?: mapOf()).plus(firebaseToken?.let {
             mapOf("firebaseToken" to it)
         } ?: mapOf())
 
@@ -77,11 +75,6 @@ object Login {
             listOf(PATH_PREFIX, PATH_LOGIN, LOGIN_VERSION).joinToString("/"),
             params = parameters
         )
-
-        // Сохранение сессии в кеш
-        response.answer?.let {
-            SettingsManager.setSessionId(it.sessionId)
-        }
 
         return response
     }

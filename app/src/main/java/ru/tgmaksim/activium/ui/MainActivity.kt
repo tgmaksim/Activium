@@ -13,12 +13,11 @@ import androidx.lifecycle.lifecycleScope
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.Status
 import ru.tgmaksim.activium.BuildConfig
-//import ru.tgmaksim.activium.pages.SchoolPage
-//import ru.tgmaksim.activium.pages.SettingsPage
+import ru.tgmaksim.activium.pages.SchoolPage
+import ru.tgmaksim.activium.pages.SettingsPage
 import ru.tgmaksim.activium.utilities.Utilities
-//import ru.tgmaksim.activium.pages.marks.MarksPage
-import ru.tgmaksim.activium.utilities.datastore.SettingsManager
-//import ru.tgmaksim.activium.pages.schedule.SchedulePage
+import ru.tgmaksim.activium.pages.marks.MarksPage
+import ru.tgmaksim.activium.pages.schedule.SchedulePage
 import ru.tgmaksim.activium.databinding.ActivityMainBinding
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
@@ -46,16 +45,18 @@ class MainActivity : ParentActivity() {
         // Настройка системных полей сверху и снизу
         setupSystemBars(ui.rootLayout)
 
+        // TODO: настроить уведомления
+
         // После перерисовки текущий fragment сам отрисуется
-//        val scheduleFragment = supportFragmentManager.fragments.find { it is SchedulePage }
+        val scheduleFragment = supportFragmentManager.fragments.find { it is SchedulePage }
 
-//        if (scheduleFragment != null)
-//            pages[R.id.it_schedule] = scheduleFragment
-//        else if (savedInstanceState == null)
-//            replaceFragment(newMenuPage(R.id.it_schedule), animation = false)
+        if (scheduleFragment != null)
+            pages[R.id.it_schedule] = scheduleFragment
+        else if (savedInstanceState == null)
+            replaceFragment(newMenuPage(R.id.it_schedule), animation = false)
 
-//        setupMenuListener()  // Настройка нажатий на пункты меню
-//        setupBackListener()  // Настройка нажатий на системную кнопку назад (или жестом)
+        setupMenuListener()  // Настройка нажатий на пункты меню
+        setupBackListener()  // Настройка нажатий на системную кнопку назад (или жестом)
 
         // Проверка текущей версии приложения
         lifecycleScope.launch {
@@ -87,15 +88,16 @@ class MainActivity : ParentActivity() {
      * */
     private suspend fun checkVersion() {
         try {
-            val response = Status.checkVersion()
+            val response = Status.checkVersion(BuildConfig.VERSION_CODE)
 
             if (!response.status || response.answer == null) {
-                response.error?.let { error ->
-                    Utilities.log("API error(${error.type}) at checkVersion: ${error.errorMessage}}")
-                    error.errorMessage?.let {
-                        Utilities.showText(this, it)
-                    }
-                }
+                if (response.error != null)
+                    Utilities.log("API error(${response.error.type}) at checkVersion: ${response.error.errorMessage}")
+
+                if (response.error?.errorMessage != null)
+                    Utilities.showText(this, response.error.errorMessage)
+                else
+                    Utilities.showText(this, R.string.error_api)
 
                 return
             }
@@ -112,7 +114,7 @@ class MainActivity : ParentActivity() {
                 clearNumber()
             }
 
-            if (response.answer.versionStatus == "Требуется обновление") {
+            if (response.answer.versionStatus == "Требуется обновить") {
                 Utilities.showAlertDialog(
                     this,
                     response.answer.versionStatus,
@@ -143,50 +145,49 @@ class MainActivity : ParentActivity() {
      * Настройка нажатий на кнопки меню
      * @author Максим Дрючин (tgmaksim)
      * */
-//    private fun setupMenuListener() {
-//        ui.bottomMenu.setOnItemSelectedListener { item ->
-//            val newFragment = newMenuPage(item.itemId)
-//
-//            if (skipAnimation) {
-//                skipAnimation = false
-//                replaceFragment(newFragment, animation = false)
-//                currentTab = item.itemId
-//                return@setOnItemSelectedListener true
-//            }
-//
-//            val oldIndex = menuIndex(currentTab)
-//            val newIndex = menuIndex(item.itemId)
-//
-//            if (newIndex > oldIndex)
-//                replaceFragment(newFragment, toRight = true)
-//            else
-//                replaceFragment(newFragment, toRight = false)
-//
-//            // Сохраняется открытая страница
-//            currentTab = item.itemId
-//            true
-//        }
-//    }
+    private fun setupMenuListener() {
+        ui.bottomMenu.setOnItemSelectedListener { item ->
+            val newFragment = newMenuPage(item.itemId)
+
+            if (skipAnimation) {
+                skipAnimation = false
+                replaceFragment(newFragment, animation = false)
+                currentTab = item.itemId
+                return@setOnItemSelectedListener true
+            }
+
+            val oldIndex = menuIndex(currentTab)
+            val newIndex = menuIndex(item.itemId)
+
+            if (newIndex > oldIndex)
+                replaceFragment(newFragment, toRight = true)
+            else
+                replaceFragment(newFragment, toRight = false)
+
+            // Сохраняется открытая страница
+            currentTab = item.itemId
+            true
+        }
+    }
 
     /**
      * Настройка нажатий на системную кнопку назад (или жестом)
      * @author Максим Дрючин (tgmaksim)
      * */
-//    private fun setupBackListener() {
-//        onBackPressedDispatcher.addCallback(this) {
-//            // На странице расписания свой обработчик,
-//            // но если действие не выполнено, окно сворачивается
-//            when (ui.bottomMenu.selectedItemId) {
+    private fun setupBackListener() {
+        onBackPressedDispatcher.addCallback(this) {
+            when (ui.bottomMenu.selectedItemId) {
 //                R.id.it_schedule ->
 //                    if ((pages[R.id.it_schedule] as? SchedulePage)?.onBackPressed() != true)
 //                        moveTaskToBack(true)
 //                R.id.it_marks ->
 //                    if ((pages[R.id.it_marks] as? MarksPage)?.onBackPressed() != true)
 //                        ui.bottomMenu.selectedItemId = R.id.it_schedule
-//                else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
-//            }
-//        }
-//    }
+
+                else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
+            }
+        }
+    }
 
     /**
      * Смена страницы с анимацией перехода
@@ -227,14 +228,14 @@ class MainActivity : ParentActivity() {
      * @param itemId идентификатор страницы в виде идентификатора ресурса
      * @author Максим Дрючин (tgmaksim)
      * */
-//    private fun newMenuPage(itemId: Int): Fragment =
-//        pages.getOrPut(itemId) {
-//            when(itemId) {
-//                R.id.it_schedule -> SchedulePage()
-//                R.id.it_marks -> MarksPage()
-//                R.id.it_school -> SchoolPage()
-//                R.id.it_settings -> SettingsPage()
-//                else -> SchedulePage()
-//            }
-//        }
+    private fun newMenuPage(itemId: Int): Fragment =
+        pages.getOrPut(itemId) {
+            when(itemId) {
+                R.id.it_schedule -> SchedulePage()
+                R.id.it_marks -> MarksPage()
+                R.id.it_school -> SchoolPage()
+                R.id.it_settings -> SettingsPage()
+                else -> SchedulePage()
+            }
+        }
 }

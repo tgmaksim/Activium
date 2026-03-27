@@ -2,19 +2,14 @@ package ru.tgmaksim.activium.ui
 
 import android.os.Build
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.updatePadding
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 import ru.tgmaksim.activium.R
-import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**

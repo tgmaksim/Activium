@@ -1,6 +1,5 @@
 package ru.tgmaksim.activium.api
 
-import ru.tgmaksim.activium.BuildConfig
 import kotlinx.serialization.Serializable
 
 /**
@@ -71,10 +70,10 @@ object Status {
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
      * */
-    suspend fun checkVersion(): VersionsApiResponse {
+    suspend fun checkVersion(versionCode: Int): VersionsApiResponse {
         val response = Request.get<VersionsApiResponse>(
             listOf(PATH_STATUS, PATH_CHECK_VERSION, CHECK_VERSION_VERSION).joinToString("/"),
-            params = mapOf("versionNumber" to BuildConfig.VERSION_CODE)
+            params = mapOf("versionNumber" to versionCode)
         )
 
         return response

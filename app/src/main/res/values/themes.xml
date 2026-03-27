@@ -25,17 +25,17 @@
         <item name="bottomSheetStyle">@style/AppBottomSheetStyle</item>
     </style>
 
-<!--    <style name="AppRangeSlider" parent="Widget.MaterialComponents.Slider">-->
-<!--        <item name="trackColorActive">@color/slider_accent</item>-->
-<!--        <item name="trackColorInactive">@color/slider_track_off</item>-->
-<!--        <item name="thumbColor">@color/slider_accent</item>-->
-<!--        <item name="haloColor">@color/slider_halo_static</item>-->
+    <style name="AppRangeSlider" parent="Widget.MaterialComponents.Slider">
+        <item name="trackColorActive">@color/slider_accent</item>
+        <item name="trackColorInactive">@color/slider_track_off</item>
+        <item name="thumbColor">@color/slider_accent</item>
+        <item name="haloColor">@color/slider_halo_static</item>
 
-<!--        <item name="trackHeight">5dp</item>-->
-<!--        <item name="thumbRadius">11dp</item>-->
-<!--        <item name="thumbElevation">4dp</item>-->
+        <item name="trackHeight">5dp</item>
+        <item name="thumbRadius">11dp</item>
+        <item name="thumbElevation">4dp</item>
 
-<!--        <item name="labelStyle">@style/AppSliderLabelStyle</item>-->
-<!--    </style>-->
+        <item name="labelStyle">@style/AppSliderLabelStyle</item>
+    </style>
 
 </resources>
