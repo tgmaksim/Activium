@@ -19,7 +19,7 @@
 
     <color name="thumb_switch_checked">#4FC3F7</color>
     <color name="thumb_switch_simple">#CFCFCF</color>
-    <color name="track_switch_checked">#808080</color>
+    <color name="track_switch_checked">#004080</color>
     <color name="track_switch_simple">#545454</color>
 
     <color name="dialog_background">#004080</color>

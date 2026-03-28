@@ -81,7 +81,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="50dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
@@ -104,7 +103,7 @@
                 <ProgressBar
                     android:id="@+id/dnevnikNotificationsLoading"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_height="match_parent"
                     android:visibility="gone" />
 
             </LinearLayout>
@@ -223,7 +222,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Активный профиль"
+                android:text="@string/active_profile"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -233,6 +232,7 @@
                 android:id="@+id/childrenHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
@@ -246,7 +246,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Загрузка..."
+                    android:text="@string/load_active_profile"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -260,6 +260,7 @@
                     android:id="@+id/childrenArrow"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:contentDescription="@string/content_description_arrow"
                     android:src="@drawable/ic_arrow_down"
                     android:rotation="0" />
 
@@ -306,6 +307,7 @@
                 android:id="@+id/buttonLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:layout_marginTop="14dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
@@ -398,19 +400,19 @@
                 android:textSize="14sp" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/developer"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
-
-            <TextView
                 android:id="@+id/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="@string/default_android"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/developer"
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
 

@@ -11,6 +11,7 @@ import ru.tgmaksim.activium.api.Login
 import ru.tgmaksim.activium.api.Request
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.databinding.ActivityLoginBinding
+import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
@@ -49,7 +50,7 @@ class LoginActivity : ParentActivity() {
 
         try {
             if (loginUrl == null) {
-                val sessionId = SettingsManager.getSessionId()
+                val sessionId = MemoryDataManager.sessionId.value
                 val firebaseToken = SettingsManager.getFirebaseMessagingToken()
                 val response = Login.login(sessionId, firebaseToken)
 
@@ -66,6 +67,7 @@ class LoginActivity : ParentActivity() {
                 }
 
                 SettingsManager.setSessionId(response.answer.sessionId)
+                MemoryDataManager.sessionId.value = response.answer.sessionId
 
                 loginUrl = response.answer.loginUrl
             }

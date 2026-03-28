@@ -1,5 +1,6 @@
 package ru.tgmaksim.activium.pages
 
+import android.annotation.SuppressLint
 import android.transition.AutoTransition
 import android.transition.TransitionManager
 
@@ -25,6 +26,7 @@ import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.ui.ParentActivity
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.databinding.SettingsPageBinding
+import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
@@ -35,12 +37,13 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
  * */
 class SettingsPage : Fragment() {
     private lateinit var ui: SettingsPageBinding
+    private var reload = false
     private var darkTheme = false
     private var isChildrenExpanded = false
+    private var before = 3
+    private var after = 3
 
-    companion object {
-        private var before = 3
-        private var after = 3
+    companion object { // Для новых переменных в setupButtons обнулять их значение
         private var children: List<Child> = emptyList()
         private var activeChildId = -1L
         private var dnevnikNotifications = false
@@ -54,10 +57,11 @@ class SettingsPage : Fragment() {
             SettingsManager.getDarkTheme()
         }
 
-        if (::ui.isInitialized && theme == darkTheme)
+        if (::ui.isInitialized && theme == darkTheme && !reload)
             return ui.root
 
-        ui = SettingsPageBinding.inflate(inflater, container, false)
+        if (!::ui.isInitialized || theme != darkTheme)
+            ui = SettingsPageBinding.inflate(inflater, container, false)
         darkTheme = theme
 
         lifecycleScope.launch {
@@ -88,7 +92,7 @@ class SettingsPage : Fragment() {
     }
 
     private suspend fun loadChildren() {
-        if (!children.isEmpty()) {
+        if (activeChildId != -1L) {
             renderChildren()
             renderSwitchDnevnikNotifications()
             return
@@ -252,6 +256,7 @@ class SettingsPage : Fragment() {
             .start()
     }
 
+    @SuppressLint("SetTextI18n")
     private suspend fun initSettingsValues() {
         val settings = SettingsManager.snapshot()
 
@@ -346,7 +351,18 @@ class SettingsPage : Fragment() {
 
     private fun dnevnikNotificationsListener(isChecked: Boolean) {
         lifecycleScope.launch {
-            // TODO: проверить разрешение на уведомления
+            val context = requireContext()
+            if (!NotificationManager.checkPermission(context)) {
+                Utilities.showAlertDialog(
+                    context,
+                    "Разрешение на уведомления",
+                    "Предоставьте разрешения на уведомления. Если окно не откроется, посетите настройки",
+                    "Предоставить"
+                ) { _, _ ->
+                    NotificationManager.setupPostNotifications(requireActivity())
+                }
+            }
+
             ui.settingsDnevnikNotifications.visibility = View.GONE
             ui.dnevnikNotificationsLoading.visibility = View.VISIBLE
 
@@ -384,19 +400,27 @@ class SettingsPage : Fragment() {
     private fun setupButtons() {
         // Нажатие на кнопку обновления
         ui.buttonUpdate.setOnClickListener {
-            Utilities.openUrl(requireContext(), BuildConfig.DOMAIN)
+            val sessionId = MemoryDataManager.sessionId.value
+            Utilities.openUrl(requireContext(), "${BuildConfig.DOMAIN}?sessionId=${sessionId}")
         }
 
         // Нажатие на кнопку открытия сайта
         ui.buttonOpenSite.setOnClickListener {
-            // TODO: отправить в параметрах sessionId
-            Utilities.openUrl(requireContext(), BuildConfig.DOMAIN)
+            val sessionId = MemoryDataManager.sessionId.value
+            Utilities.openUrl(requireContext(), "${BuildConfig.DOMAIN}?sessionId=${sessionId}")
         }
 
         // Нажатие на кнопку выхода
         ui.buttonLogout.setOnClickListener {
             lifecycleScope.launch {
                 SettingsManager.setSessionId(null)
+                MemoryDataManager.sessionId.value = null
+
+                children = emptyList()
+                activeChildId = -1L
+                dnevnikNotifications = false
+                reload = true
+
                 val intent = Intent(requireContext(), LoginActivity::class.java)
                 startActivity(intent)
                 requireActivity().finish()

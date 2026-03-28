@@ -11,7 +11,7 @@ material = "1.13.0"
 firebaseBom = "34.11.0"
 flexbox = "3.0.0"
 kotlinxSerializationJson = "1.10.0"
-ktorClientCore = "3.4.1"
+ktorClientCore = "3.4.2"
 okhttp = "5.3.2"
 okio = "3.17.0"
 documentfile = "1.1.0"
@@ -27,7 +27,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }

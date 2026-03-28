@@ -19,6 +19,7 @@ import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.pages.marks.MarksPage
 import ru.tgmaksim.activium.pages.schedule.SchedulePage
 import ru.tgmaksim.activium.databinding.ActivityMainBinding
+import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
 /**
@@ -45,8 +46,6 @@ class MainActivity : ParentActivity() {
         // Настройка системных полей сверху и снизу
         setupSystemBars(ui.rootLayout)
 
-        // TODO: настроить уведомления
-
         // После перерисовки текущий fragment сам отрисуется
         val scheduleFragment = supportFragmentManager.fragments.find { it is SchedulePage }
 
@@ -57,6 +56,8 @@ class MainActivity : ParentActivity() {
 
         setupMenuListener()  // Настройка нажатий на пункты меню
         setupBackListener()  // Настройка нажатий на системную кнопку назад (или жестом)
+
+        NotificationManager.setupPostNotifications(this)
 
         // Проверка текущей версии приложения
         lifecycleScope.launch {

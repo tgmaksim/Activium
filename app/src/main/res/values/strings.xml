@@ -33,6 +33,9 @@
     <string name="class_rating">📊 Рейтинг в классе</string>
 
     <string name="settings">Настройки</string>
+    <string name="active_profile">Активный профиль</string>
+    <string name="load_active_profile">Загрузка…</string>
+    <string name="content_description_arrow">v</string>
     <string name="account">Аккаунт</string>
     <string name="about">О приложении</string>
     <string name="open_site">Открыть сайт</string>

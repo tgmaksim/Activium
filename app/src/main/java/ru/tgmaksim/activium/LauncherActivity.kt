@@ -4,29 +4,24 @@ import android.os.Bundle
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 
-import kotlinx.coroutines.launch
-import androidx.lifecycle.lifecycleScope
-
 import ru.tgmaksim.activium.ui.MainActivity
 import ru.tgmaksim.activium.ui.LoginActivity
-import ru.tgmaksim.activium.utilities.datastore.SettingsManager
+import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
 class LauncherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Маршрутизация в зависимости от наличия сессии
-        lifecycleScope.launch {
-            val sessionId = SettingsManager.getSessionId()
+        val sessionId = MemoryDataManager.sessionId.value
 
-            val target = if (sessionId == null) {
-                LoginActivity::class.java
-            } else {
-                MainActivity::class.java
-            }
-
-            startActivity(Intent(this@LauncherActivity, target))
-            finish()
+        val target = if (sessionId == null) {
+            LoginActivity::class.java
+        } else {
+            MainActivity::class.java
         }
+
+        startActivity(Intent(this, target))
+        finish()
     }
 }

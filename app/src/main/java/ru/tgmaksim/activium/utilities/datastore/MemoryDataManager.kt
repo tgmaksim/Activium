@@ -1,12 +1,11 @@
 package ru.tgmaksim.activium.utilities.datastore
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import ru.tgmaksim.activium.api.VersionsResult
+import kotlinx.coroutines.flow.MutableStateFlow
 
 object MemoryDataManager {
     private val versionStatus = MutableStateFlow<VersionsResult?>(null)
-    val sessionId: StateFlow<VersionsResult?> = versionStatus
+    val sessionId = MutableStateFlow<String?>(null)
 
     fun setVersionResult(versionStatus: VersionsResult?) {
         this.versionStatus.value = versionStatus
