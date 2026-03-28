@@ -177,7 +177,8 @@ class MainActivity : ParentActivity() {
      * */
     private fun setupBackListener() {
         onBackPressedDispatcher.addCallback(this) {
-            when (ui.bottomMenu.selectedItemId) {
+            moveTaskToBack(true)
+//            when (ui.bottomMenu.selectedItemId) {
 //                R.id.it_schedule ->
 //                    if ((pages[R.id.it_schedule] as? SchedulePage)?.onBackPressed() != true)
 //                        moveTaskToBack(true)
@@ -185,8 +186,8 @@ class MainActivity : ParentActivity() {
 //                    if ((pages[R.id.it_marks] as? MarksPage)?.onBackPressed() != true)
 //                        ui.bottomMenu.selectedItemId = R.id.it_schedule
 
-                else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
-            }
+//                else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
+//            }
         }
     }
 

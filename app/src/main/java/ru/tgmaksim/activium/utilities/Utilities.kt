@@ -120,7 +120,7 @@ object Utilities {
         message: String,
         buttonText: String,
         back: Boolean = true,
-        buttonListener: DialogInterface.OnClickListener
+        buttonListener: DialogInterface.OnClickListener? = null
     ) {
         MaterialAlertDialogBuilder(context, R.style.AppDialogTheme).apply {
             setTitle(title)

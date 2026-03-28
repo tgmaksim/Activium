@@ -10,18 +10,32 @@ import android.content.Intent
 import android.os.Build
 import android.view.ViewGroup
 import android.view.LayoutInflater
+import android.widget.ImageView
+import androidx.core.view.children
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.toLocalDateTime
 import java.util.concurrent.CancellationException
 
 import ru.tgmaksim.activium.BuildConfig
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.Child
+import ru.tgmaksim.activium.api.MyReviewResult
 import ru.tgmaksim.activium.api.Request
+import ru.tgmaksim.activium.api.Review
+import ru.tgmaksim.activium.api.Reviews
 import ru.tgmaksim.activium.api.Settings
 import ru.tgmaksim.activium.databinding.ChildItemBinding
+import ru.tgmaksim.activium.databinding.DialogReviewEditorBinding
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.ui.ParentActivity
 import ru.tgmaksim.activium.utilities.Utilities
@@ -47,6 +61,9 @@ class SettingsPage : Fragment() {
         private var children: List<Child> = emptyList()
         private var activeChildId = -1L
         private var dnevnikNotifications = false
+        private var myReview: MyReviewResult? = null
+
+        private const val REVIEW_TEXT_LIMIT = 512
     }
 
     override fun onCreateView(
@@ -71,6 +88,9 @@ class SettingsPage : Fragment() {
             loadChildren()
         }
         lifecycleScope.launch {
+            refreshReview()
+        }
+        lifecycleScope.launch {
             before = SettingsManager.getBeforeSchedule()
             after = SettingsManager.getAfterSchedule()
         }
@@ -89,6 +109,183 @@ class SettingsPage : Fragment() {
         }
 
         return ui.root
+    }
+
+    @SuppressLint("SetTextI18n")
+    @OptIn(FormatStringsInDatetimeFormats::class)
+    private fun renderReview(myReview: MyReviewResult?) {
+        ui.buttonWriteReview.visibility = if (myReview == null) View.GONE else View.VISIBLE
+
+        if (myReview == null || myReview.review == null) {
+            ui.reviewMeta.visibility = View.GONE
+            ui.reviewStars.visibility = View.GONE
+            ui.reviewText.visibility = View.GONE
+            ui.reviewLikes.visibility = View.GONE
+
+            ui.buttonEditReview.visibility = View.GONE
+            ui.buttonDeleteReview.visibility = View.GONE
+        } else {
+            val review = myReview.review
+
+            val editedText = if (review.isUpdated) " (${getString(R.string.review_edit_marker)})" else "" +
+                    if (myReview.onModeration) " (${getString(R.string.review_moderation_marker)})" else ""
+            val createdAt = review.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()).format(LocalDateTime.Format { byUnicodePattern("dd.MM.yyyy") })
+            ui.reviewMeta.text = "${review.name} • ${createdAt}$editedText"
+            ui.reviewMeta.visibility = View.VISIBLE
+
+            updateStars(ui.reviewStars.children.toList().map { it as ImageView }, review.stars)
+            ui.reviewStars.visibility = View.VISIBLE
+
+            ui.reviewText.text = review.text
+            ui.reviewText.visibility = View.VISIBLE
+
+            ui.reviewLikesIcon.setImageResource(if (review.likes == 0) R.drawable.like_outline else R.drawable.like)
+            ui.reviewLikesCounter.text = review.likes.toString()
+            ui.reviewLikes.visibility = View.VISIBLE
+
+            ui.buttonWriteReview.visibility = View.GONE
+            ui.buttonEditReview.visibility = View.VISIBLE
+            ui.buttonDeleteReview.visibility = View.VISIBLE
+        }
+    }
+
+    private fun refreshReview(forceUpdate: Boolean = false) {
+        if (myReview != null && !forceUpdate) {
+            ui.buttonRefreshReview.visibility = View.VISIBLE
+            renderReview(myReview)
+            return
+        }
+
+        lifecycleScope.launch {
+            ui.buttonRefreshReview.visibility = View.GONE
+            ui.reviewLoading.visibility = View.VISIBLE
+
+            try {
+                val response = Reviews.getMyReview()
+
+                if (!response.status || response.answer == null) {
+                    if (response.error != null)
+                        Utilities.log("API error(${response.error.type}) at myReview: ${response.error.errorMessage}")
+
+                    if (response.error?.errorMessage != null)
+                        Utilities.showText(requireContext(), response.error.errorMessage)
+                    else
+                        Utilities.showText(requireContext(), R.string.error_api)
+                }
+
+                myReview = response.answer
+            } catch (_: CancellationException) {
+            } catch (e: Exception) {
+                Utilities.log(e)
+                if (!Request.checkInternet())
+                    Utilities.showText(requireContext(), R.string.error_internet)
+                else
+                    Utilities.showText(requireContext(), R.string.error_review)
+            } finally {
+                renderReview(myReview)
+                ui.reviewLoading.visibility = View.GONE
+                ui.buttonRefreshReview.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun updateStars(stars: List<ImageView>, selectedStars: Int) {
+        stars.forEachIndexed { index, imageView ->
+            val filled = index < selectedStars
+            imageView.setImageResource(
+                if (filled) R.drawable.star_filled else R.drawable.star_outline
+            )
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun openReviewEditor(existing: Review? = null) {
+        val view = DialogReviewEditorBinding.inflate(layoutInflater, ui.root, false)
+
+        val stars = listOf(view.star1, view.star2, view.star3, view.star4, view.star5)
+
+        var selectedStars = existing?.stars ?: 0
+
+        view.title.text = if (existing == null) getString(R.string.review_editor_new_title) else getString(R.string.review_editor_edit_title)
+
+        view.text.setText(existing?.text.orEmpty())
+        view.textCounter.text = "${view.text.text?.length ?: 0}/$REVIEW_TEXT_LIMIT"
+
+        updateStars(stars, selectedStars)
+
+        stars.forEachIndexed { index, imageView ->
+            imageView.setOnClickListener {
+                selectedStars = index + 1
+                updateStars(stars, selectedStars)
+            }
+        }
+
+        view.text.addTextChangedListener {
+            view.textCounter.text = "${it?.length ?: 0}/$REVIEW_TEXT_LIMIT"
+            if ((it?.length ?: 0) > REVIEW_TEXT_LIMIT)
+                view.textCounter.setTextColor(resources.getColor(android.R.color.holo_red_dark, requireContext().theme))
+        }
+
+        val dialog = MaterialAlertDialogBuilder(
+            requireContext(),
+            R.style.AppDialogTheme
+        ).setView(view.root).create()
+
+        view.buttonSendReview.setOnClickListener {
+            lifecycleScope.launch {
+                val text = view.text.text?.toString().orEmpty().trim()
+
+                if (selectedStars == 0) {
+                    Utilities.showAlertDialog(
+                        requireContext(),
+                        "Оценка",
+                        "Поставьте от 1 до 5 звезд",
+                        "А, точно!"
+                    )
+                    return@launch
+                }
+
+                dialog.dismiss()
+
+                ui.buttonRefreshReview.visibility = View.GONE
+                ui.reviewLoading.visibility = View.VISIBLE
+
+                try {
+                    val response = Reviews.createReview(selectedStars, text)
+
+                    if (!response.status || response.answer == null) {
+                        if (response.error != null)
+                            Utilities.log("API error(${response.error.type}) at createReview: ${response.error.errorMessage}")
+
+                        if (response.error?.errorMessage != null)
+                            Utilities.showText(requireContext(), response.error.errorMessage)
+                        else
+                            Utilities.showText(requireContext(), R.string.error_api)
+                    } else {
+                        myReview = response.answer
+                        Utilities.showAlertDialog(
+                            requireContext(),
+                            getString(R.string.review_saved_title),
+                            getString(R.string.review_send_moderation),
+                            "Ок"
+                        )
+                        refreshReview()
+                    }
+                } catch (_: CancellationException) {
+                } catch (e: Exception) {
+                    Utilities.log(e)
+                    if (!Request.checkInternet())
+                        Utilities.showText(requireContext(), R.string.error_internet)
+                    else
+                        Utilities.showText(requireContext(), R.string.error_create_review)
+                } finally {
+                    ui.reviewLoading.visibility = View.GONE
+                    ui.buttonRefreshReview.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        dialog.show()
     }
 
     private suspend fun loadChildren() {
@@ -419,6 +616,7 @@ class SettingsPage : Fragment() {
                 children = emptyList()
                 activeChildId = -1L
                 dnevnikNotifications = false
+                myReview = null
                 reload = true
 
                 val intent = Intent(requireContext(), LoginActivity::class.java)
@@ -451,6 +649,59 @@ class SettingsPage : Fragment() {
                 .rotation(if (isChildrenExpanded) 180f else 0f)
                 .setDuration(600)
                 .start()
+        }
+
+        ui.buttonRefreshReview.setOnClickListener {
+            refreshReview(forceUpdate = true)
+        }
+
+        ui.buttonWriteReview.setOnClickListener {
+            openReviewEditor()
+        }
+
+        ui.buttonEditReview.setOnClickListener {
+            openReviewEditor(myReview?.review)
+        }
+
+        ui.buttonDeleteReview.setOnClickListener {
+            Utilities.showAlertDialog(
+                requireContext(),
+                getString(R.string.review),
+                "Удалить Ваш отзыв? Это действие нельзя отменить!",
+                "Да, удалить"
+            ) { _, _ ->
+                lifecycleScope.launch {
+                    try {
+                        val response = Reviews.deleteReview()
+
+                        if (!response.status) {
+                            if (response.error != null)
+                                Utilities.log("API error(${response.error.type}) at deleteReview: ${response.error.errorMessage}")
+
+                            if (response.error?.errorMessage != null)
+                                Utilities.showText(requireContext(), response.error.errorMessage)
+                            else
+                                Utilities.showText(requireContext(), R.string.error_api)
+                        } else {
+                            myReview = MyReviewResult(review = null, onModeration = false)
+                        }
+                    } catch (_: CancellationException) {
+                    } catch (e: Exception) {
+                        Utilities.log(e)
+                        if (!Request.checkInternet())
+                            Utilities.showText(requireContext(), R.string.error_internet)
+                        else
+                            Utilities.showText(requireContext(), R.string.error_delete_review)
+                    } finally {
+                        refreshReview()
+                    }
+                }
+            }
+        }
+
+        ui.buttonOpenAllReviews.setOnClickListener {
+            val sessionId = MemoryDataManager.sessionId.value
+            Utilities.openUrl(requireContext(), "${BuildConfig.DOMAIN}?sessionId=${sessionId}#reviews")
         }
     }
 }

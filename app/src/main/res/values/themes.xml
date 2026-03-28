@@ -18,7 +18,7 @@
         <item name="buttonBarNegativeButtonStyle">@style/DialogButtonNegative</item>
         <item name="materialAlertDialogTitleTextStyle">@style/DialogTitle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/DialogText</item>
-        <item name="android:background">@color/dialog_background</item>
+        <item name="android:backgroundTint">@color/dialog_background</item>
     </style>
 
     <style name="AppBottomSheetDialogTheme" parent="Theme.Material3.Light.BottomSheetDialog">

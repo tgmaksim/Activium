@@ -12,6 +12,7 @@ import kotlinx.serialization.json.Json
 import io.ktor.serialization.kotlinx.json.json
 import java.util.concurrent.CancellationException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
 //import io.ktor.client.request.delete
 import io.ktor.client.request.parameter
 import io.ktor.client.request.put
@@ -105,26 +106,26 @@ object Request {
         }.body(typeInfo<TRes>())
     }
 
-//    /**
-//     * Обобщенная функция для осуществления API-запросов с помощью метода DELETE
-//     * @param path Путь к нужному запросу
-//     * @param sessionId Идентификатор сессии
-//     * @param params Дополнительный параметры запроса в ?query
-//     * @return Десериализованный результат запроса в виде [TRes]
-//     * @exception Exception
-//     * @author Максим Дрючин (tgmaksim)
-//     * */
-//    suspend inline fun <reified TRes : ApiResponse> delete(
-//        path: String,
-//        sessionId: String? = null,
-//        params: Map<String, Any> = mapOf()
-//    ): TRes {
-//        return httpClient.delete(listOf(BuildConfig.DOMAIN, API_PREFIX, path).joinToString("/")) {
-//            header("apiKey", BuildConfig.API_KEY)
-//            header("sessionId", sessionId)
-//            for (param in params) parameter(param.key, param.value)
-//        }.body(typeInfo<TRes>())
-//    }
+    /**
+     * Обобщенная функция для осуществления API-запросов с помощью метода DELETE
+     * @param path Путь к нужному запросу
+     * @param sessionId Идентификатор сессии
+     * @param params Дополнительный параметры запроса в ?query
+     * @return Десериализованный результат запроса в виде [TRes]
+     * @exception Exception
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    suspend inline fun <reified TRes : ApiResponse> delete(
+        path: String,
+        sessionId: String? = null,
+        params: Map<String, Any> = mapOf()
+    ): TRes {
+        return httpClient.delete(listOf(BuildConfig.DOMAIN, API_PREFIX, path).joinToString("/")) {
+            header("apiKey", BuildConfig.API_KEY)
+            header("sessionId", sessionId)
+            for (param in params) parameter(param.key, param.value)
+        }.body(typeInfo<TRes>())
+    }
 
     /**
      * Проверка соединения с интернетом путем попытки подключения к серверу API

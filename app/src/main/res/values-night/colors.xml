@@ -26,6 +26,13 @@
     <color name="dialog_button_positive">#4DA3FF</color>
     <color name="dialog_button_negative">#AAAAAA</color>
 
+    <color name="review_star_filled">#FFD54F</color>
+    <color name="review_star_outline">#BFA24A</color>
+    <color name="review_star_glow">#22FFD54F</color>
+
+    <color name="review_like_filled">#FFD95A</color>
+    <color name="review_like_outline">#D7B44A</color>
+
 <!--    <color name="lesson_time">#4FC3F7</color>-->
 <!--    <color name="lesson_subject">#FFFFFF</color>-->
 <!--    <color name="lesson_place">#CCCCCC</color>-->

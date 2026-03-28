@@ -10,6 +10,9 @@
     <string name="error_login">Произошла ошибка при попытке авторизоваться</string>
     <string name="error_api">Произошла ошибка на сервере…</string>
     <string name="error_children">Произошла ошибка при загрузке активного профиля</string>
+    <string name="error_review">Произошла ошибка при загрузке отзыва</string>
+    <string name="error_create_review">Произошла ошибка при отправке отзыва</string>
+    <string name="error_delete_review">Произошла ошибка при удалении отзыва</string>
     <string name="error_load_schedule">Произошла ошибка при загрузке расписания</string>
     <string name="error_load_marks">Произошла ошибка при загрузке оценок</string>
     <string name="error_internet">Нет подключения к интернету</string>
@@ -36,6 +39,16 @@
     <string name="active_profile">Активный профиль</string>
     <string name="load_active_profile">Загрузка…</string>
     <string name="content_description_arrow">v</string>
+    <string name="review">Отзыв</string>
+    <string name="write_review">Написать отзыв</string>
+    <string name="edit_review">Изменить отзыв</string>
+    <string name="delete_review">Удалить отзыв</string>
+    <string name="open_all_reviews">Открыть отзывы на сайте</string>
+    <string name="refresh_review">Обновить отзыв</string>
+    <string name="review_edit_marker">изменен</string>
+    <string name="review_moderation_marker">на модерации</string>
+    <string name="review_send_moderation">Отзыв отправлен на модерацию. После проверки вам придет уведомление</string>
+    <string name="review_star_value">%1$d из 5</string>
     <string name="account">Аккаунт</string>
     <string name="about">О приложении</string>
     <string name="open_site">Открыть сайт</string>
@@ -55,4 +68,10 @@
     <string name="app_info">Удобно и бесплатно пользуйтесь всеми возможностями Дневника.ру в своем телефоне и всегда будьте в курсе новостей и мероприятий школы</string>
     <string name="account_info">Ваш профиль в приложении связан с аккаунтом в Дневнике.ру. Все предоставленные данные используются только в целях работы приложения и доступны только Вам в приложении</string>
     <string name="important_update">Изменено взаимодействие с сервером. Для корректной работы требуется обновить приложение.</string>
+
+    <string name="review_text_hint">Напишите отзыв, необязательно</string>
+    <string name="send">Отправить</string>
+    <string name="review_editor_new_title">Написать отзыв</string>
+    <string name="review_editor_edit_title">Изменить отзыв</string>
+    <string name="review_saved_title">Отзыв отправлен</string>
 </resources>
