@@ -2,8 +2,11 @@ package ru.tgmaksim.activium.ui
 
 import android.view.View
 import android.os.Bundle
-import kotlinx.coroutines.launch
+
 import androidx.lifecycle.lifecycleScope
+
+import kotlinx.coroutines.launch
+
 import java.util.concurrent.CancellationException
 
 import ru.tgmaksim.activium.R
@@ -11,8 +14,8 @@ import ru.tgmaksim.activium.api.Login
 import ru.tgmaksim.activium.api.Request
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.databinding.ActivityLoginBinding
-import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
+import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
 /**
  * Activity для авторизации пользователя

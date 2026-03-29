@@ -20,13 +20,14 @@ class App : Application() {
         super.onCreate()
 
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-        CacheManager.init(this)
         SettingsManager.init(this)
 
         applicationScope.launch {
             MemoryDataManager.sessionId.value = SettingsManager.getSessionId()
+            MemoryDataManager.darkTheme.value = SettingsManager.getDarkTheme()
         }
+
+        CacheManager.init(this)
 
         // Загрузка Firebase
         FirebaseApp.initializeApp(this)

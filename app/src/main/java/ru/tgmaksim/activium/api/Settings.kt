@@ -82,15 +82,13 @@ import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
     override val classId: Int = CLASS_ID,
     override val status: Boolean,
     override val error: ApiError?,
-    override val answer: ApiBase?
+    override val answer: ChildrenResult?
 ) : ApiResponse() {
     companion object {
         const val CLASS_ID = 0x24
     }
     init {
         if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
-            throw ClassCastException()
-        if (answer != null)
             throw ClassCastException()
     }
 }
@@ -241,16 +239,14 @@ object Settings {
     }
 
     /**
-     * Получение статуса (включена или выключена) настройки уведомлений о новых оценках для определенного ребенка
-     * @param childId Идентификатор ребенка
+     * Получение статуса (включена или выключена) настройки уведомлений о новых оценках для активного ребенка
      * @return Ответ сервера в виде [StatusDnevnikNotificationsApiResponse]
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
      * */
-    suspend fun getStatusDnevnikNotifications(childId: Long): StatusDnevnikNotificationsApiResponse {
+    suspend fun getStatusDnevnikNotifications(): StatusDnevnikNotificationsApiResponse {
         val response = Request.get<StatusDnevnikNotificationsApiResponse>(
             listOf(PATH_PREFIX, PATH_DNEVNIK_NOTIFICATIONS, DNEVNIK_NOTIFICATIONS_VERSION).joinToString("/"),
-            params = mapOf("childId" to childId),
             sessionId = MemoryDataManager.sessionId.value
         )
 
@@ -258,16 +254,15 @@ object Settings {
     }
 
     /**
-     * Включение или выключение уведомлений о новых оценках для определенного ребенка
-     * @param childId Идентификатор ребенка
+     * Включение или выключение уведомлений о новых оценках для активного ребенка
      * @return Ответ сервера в виде [SwitchDnevnikNotificationsApiResponse]
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
      * */
-    suspend fun switchDnevnikNotifications(childId: Long, status: Boolean): SwitchDnevnikNotificationsApiResponse {
+    suspend fun switchDnevnikNotifications(status: Boolean): SwitchDnevnikNotificationsApiResponse {
         val response = Request.put<SwitchDnevnikNotificationsApiResponse>(
             listOf(PATH_PREFIX, PATH_SWITCH_DNEVNIK_NOTIFICATIONS, SWITCH_DNEVNIK_NOTIFICATIONS_VERSION).joinToString("/"),
-            params = mapOf("childId" to childId, "status" to status),
+            params = mapOf("status" to status),
             sessionId = MemoryDataManager.sessionId.value
         )
 

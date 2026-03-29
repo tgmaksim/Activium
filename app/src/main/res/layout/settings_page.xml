@@ -49,7 +49,6 @@
                     android:id="@+id/settingsTheme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"
                     app:thumbTint="@color/thumb_switch_colors"
                     app:trackTint="@color/track_switch_colors" />
 
@@ -106,6 +105,14 @@
                     android:layout_height="match_parent"
                     android:visibility="gone" />
 
+                <ImageView
+                    android:id="@+id/dnevnikNotificationsError"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/error"
+                    android:visibility="gone" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -152,6 +159,15 @@
                 app:thumbTint="@color/thumb_switch_colors"
                 app:trackTint="@color/thumb_switch_colors" />
 
+            <TextView
+                android:id="@+id/rangeSliderStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="@string/settings_schedule_warning"
+                android:textColor="@color/schedule_slider_warning"
+                android:textSize="16sp" />
+
         </LinearLayout>
 
         <!-- Блок обновления -->
@@ -178,7 +194,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="@string/important_update"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:lineSpacingExtra="3dp" />
@@ -262,7 +277,16 @@
                     android:layout_height="20dp"
                     android:contentDescription="@string/content_description_arrow"
                     android:src="@drawable/ic_arrow_down"
-                    android:rotation="0" />
+                    android:rotation="0"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/childrenError"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/error"
+                    android:rotation="0"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -316,7 +340,6 @@
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         android:src="@drawable/ic_refresh"
-                        android:contentDescription="@string/refresh_review"
                         app:tint="@color/text_primary" />
 
                 </LinearLayout>
@@ -325,6 +348,14 @@
                     android:id="@+id/reviewLoading"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/reviewError"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/error"
                     android:visibility="gone" />
 
             </LinearLayout>
@@ -433,6 +464,7 @@
                     android:gravity="center_vertical"
                     android:background="@drawable/button_bg"
                     android:padding="12dp"
+                    android:visibility="gone"
                     android:clickable="true"
                     android:focusable="true">
 

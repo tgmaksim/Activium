@@ -1,0 +1,639 @@
+package ru.tgmaksim.activium.pages.settings
+
+import android.os.Build
+import android.os.Bundle
+import android.view.View
+import android.content.Intent
+import android.graphics.Color
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.view.LayoutInflater
+import android.transition.AutoTransition
+import android.transition.TransitionManager
+
+import androidx.core.view.children
+import androidx.lifecycle.Lifecycle
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.fragment.app.activityViewModels
+import androidx.core.widget.addTextChangedListener
+
+import com.google.android.material.slider.RangeSlider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
+import kotlinx.datetime.format
+import kotlinx.datetime.TimeZone
+import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+
+import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.api.Child
+import ru.tgmaksim.activium.api.Review
+import ru.tgmaksim.activium.BuildConfig
+import ru.tgmaksim.activium.pages.UiText
+import ru.tgmaksim.activium.ui.LoginActivity
+import ru.tgmaksim.activium.ui.ParentActivity
+import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.main.MainActivity
+import ru.tgmaksim.activium.databinding.ChildItemBinding
+import ru.tgmaksim.activium.utilities.NotificationManager
+import ru.tgmaksim.activium.databinding.SettingsPageBinding
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
+import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
+import ru.tgmaksim.activium.databinding.DialogReviewEditorBinding
+
+/**
+ * Fragment-страница с настройками приложения
+ * @author Максим Дрючин (tgmaksim)
+ * @see ru.tgmaksim.activium.ui.main.MainActivity
+ * */
+class SettingsPage : Fragment() {
+    private lateinit var ui: SettingsPageBinding
+    private val settingsViewModel: SettingsViewModel by activityViewModels()
+
+    private var isChildrenExpanded = false
+    private var before = 3
+    private var after = 3
+
+    companion object {
+        private const val REVIEW_TEXT_LIMIT = 512
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        ui = SettingsPageBinding.inflate(inflater, container, false)
+
+        return ui.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            initSettingsValues()  // Установка настроек в нужное положение
+        }
+
+        showUpdateInfo()  // Показ информации об обновлении приложения, если требуется
+
+        setupSettingsListener()  // Настройка обработчиков настроек
+        setupButtonsListener()  // Настройка кнопок после настроек
+
+        if (settingsViewModel.childrenState.value is ChildrenState.Null)
+            settingsViewModel.loadChildren()
+
+        if (settingsViewModel.statusDNState.value is StatusDnevnikNotificationsState.Null)
+            settingsViewModel.loadDnevnikNotifications()
+
+        if (settingsViewModel.reviewState.value is ReviewState.Null)
+            settingsViewModel.loadReview()
+
+        setupStatesListener()
+    }
+
+    /**
+     * Установление положения переключателей настроек, заполнение данных о версии приложения и Android
+     * и инициализация формата текста в Label у Range
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private suspend fun initSettingsValues() {
+        val settings = SettingsManager.snapshot()
+
+        // Установка Switch в нужное положение
+        ui.settingsDocumentView.isChecked = settings.openWebView
+        ui.settingsEANotifications.isChecked = settings.eaNotifications
+        ui.settingsTheme.isChecked = settings.darkTheme
+
+        // Установка нужного диапазона
+        before = settings.beforeSchedule
+        after = settings.afterSchedule
+        ui.settingsScheduleRange.values = listOf(-before.toFloat(), after.toFloat())
+
+        // Определение формата
+        ui.settingsScheduleRange.setLabelFormatter { value: Float ->
+            when (value.toInt()) {
+                in -14..-1 -> getString(R.string.schedule_range_label_from, -value.toInt())
+                0 -> getString(R.string.schedule_range_label_today)
+                1 -> getString(R.string.schedule_range_label_tomorrow)
+                else -> getString(R.string.schedule_range_label_to, value.toInt())
+            }
+        }
+
+        ui.version.text = getString(R.string.version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
+        ui.android.text = getString(R.string.android, Build.VERSION.RELEASE,Build.VERSION.SDK_INT)
+    }
+
+    /**
+     * Показ блока с обновлением приложения, если требуется
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun showUpdateInfo() {
+        MemoryDataManager.versionStatus.value?.let {
+            ui.updateDescription.text = getString(
+                R.string.update_description,
+                it.latestVersionString, it.latestVersionNumber, it.updateLogs
+            )
+            ui.updateApplication.visibility = View.VISIBLE
+        }
+    }
+
+    /**
+     * Настройка обработчиков переключателей настроек и слайдера
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun setupSettingsListener() {
+        // Смена темы приложения
+        ui.settingsTheme.setOnCheckedChangeListener { _, isChecked ->
+            settingsViewModel.updateTheme(isChecked)
+            MemoryDataManager.darkTheme.value = isChecked
+            (requireActivity() as ParentActivity).setupActivityTheme()
+        }
+
+        // Смена настройки для уведомлений с напоминанием о внеурочном занятии
+        /*ui.settingsEANotifications.setOnCheckedChangeListener { switch, isChecked ->
+            if (!isChecked) {
+                lifecycleScope.launch {
+                    SettingsManager.setEaNotifications(false)
+                }
+                return@setOnCheckedChangeListener
+            }
+
+            val context = requireContext()
+            if (NotificationManager.checkPermission(context) && NotificationManager.canScheduleExactAlarms(context)) {
+                CacheManager.EANotifications = true
+                Utilities.log("EANotifications = true", tag="settings") {
+                    param("name", "ea_notifications")
+                    param("is_checked", "true")
+                }
+                SchedulePage.createRemindEA(context)
+            } else {
+                switch.isChecked = false
+                NotificationManager.setupPostNotifications(requireActivity())
+            }
+        }*/
+
+        ui.settingsDnevnikNotifications.setOnCheckedChangeListener { _, isChecked ->
+            dnevnikNotificationsListener(isChecked)
+        }
+
+        // Смена настройки для открытия документов в домашнем задании
+        ui.settingsDocumentView.setOnCheckedChangeListener { _, isChecked ->
+            settingsViewModel.setOpenWebView(isChecked)
+        }
+
+        // Смена периода загружаемого расписания
+        ui.settingsScheduleRange.addOnChangeListener { slider, _, _ ->
+            settingsScheduleRangeListener(slider)
+        }
+    }
+
+    /**
+     * Обработчик переключателя учебных уведомлений
+     * @param isChecked Новый статус настройки
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun dnevnikNotificationsListener(isChecked: Boolean) {
+        if (!NotificationManager.checkPermission(requireContext())) {
+            Utilities.showAlertDialog(
+                requireContext(),
+                getString(R.string.title_dialog_permission_dnevnik_notifications),
+                getString(R.string.message_dialog_permission_dnevnik_notifications),
+                getString(R.string.button_dialog_permission_dnevnik_notifications)
+            ) { _, _ ->
+                NotificationManager.setupPostNotifications(requireActivity())
+            }
+        }
+
+        settingsViewModel.switchDnevnikNotifications(isChecked)
+    }
+
+    /**
+     * Обработчик слайдера
+     * @param slider Объект, переданный после установления нового положения
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun settingsScheduleRangeListener(slider: RangeSlider) {
+        val left = slider.values.first().toInt()
+        val right = slider.values.last().toInt()
+
+        if (left in -14..0 && right in 1..21 && right - left <= 31) {
+            before = -left
+            after = right
+
+            ui.rangeSliderStatus.visibility = if (-left > 7 || right > 14) View.VISIBLE else View.GONE
+
+            settingsViewModel.setRangeSchedule(-left, right)
+        } else {
+            slider.values = listOf(-before.toFloat(), after.toFloat())
+        }
+    }
+
+    /**
+     * Настройка обработчиков кнопок
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun setupButtonsListener() {
+        // Нажатие на кнопку ошибки для обновления профилей и статуса настройки учебных уведомлений
+        ui.dnevnikNotificationsError.setOnClickListener {
+            settingsViewModel.loadDnevnikNotifications()
+        }
+        ui.childrenError.setOnClickListener {
+            settingsViewModel.loadChildren()
+        }
+
+        // Нажатие на кнопку обновления
+        ui.buttonUpdate.setOnClickListener {
+            openSite()
+        }
+
+        // Нажатие на кнопку раскрытия списка профилей
+        ui.childrenHeader.setOnClickListener {
+            childrenListener()
+        }
+
+        // Нажатие на кнопку обновления отзыва
+        ui.buttonRefreshReview.setOnClickListener {
+            settingsViewModel.loadReview()
+        }
+        ui.reviewError.setOnClickListener {
+            settingsViewModel.loadReview()
+        }
+
+        ui.buttonWriteReview.setOnClickListener {
+            openReviewEditor()
+        }
+
+        ui.buttonEditReview.setOnClickListener {
+            openReviewEditor((settingsViewModel.reviewState.value as? ReviewState.Success)?.data?.review)
+        }
+
+        // Нажатие на кнопку удаления отзыва
+        ui.buttonDeleteReview.setOnClickListener {
+            deleteReviewListener()
+        }
+
+        // Нажатие на кнопку открытия сайта
+        ui.buttonOpenSite.setOnClickListener {
+            openSite()
+        }
+
+        // Нажатие на кнопку выхода
+        ui.buttonLogout.setOnClickListener {
+            logout()
+        }
+
+        ui.buttonOpenAllReviews.setOnClickListener {
+            openSite("reviews")
+        }
+    }
+
+    /**
+     * Открыть сайт и передать сессию в параметрах
+     * @param hash Необязательный параметр, передача хеша страницы
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun openSite(hash: String? = null) {
+        val sessionId = MemoryDataManager.sessionId.value
+        Utilities.openUrl(
+            requireContext(),
+            "${BuildConfig.DOMAIN}?sessionId=${sessionId}${if (hash != null) "#$hash" else ""}"
+        )
+    }
+
+    /**
+     * Настройка обработчиков состояний
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun setupStatesListener() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    settingsViewModel.childrenState.collect { state ->
+                        switchChildrenState(state)
+
+                        if (state is ChildrenState.Success)
+                            renderChildren(state.data.children, state.data.activeChildId)
+                        else if (state is ChildrenState.Error) {
+                            showUiMessage(state.message)
+                            if (state.unauthorized)
+                                logout()
+                        }
+                    }
+                }
+                launch {
+                    settingsViewModel.statusDNState.collect { state ->
+                        if (state is StatusDnevnikNotificationsState.Success)
+                            renderSwitchDnevnikNotifications(state.data.status)
+                        else if (state is StatusDnevnikNotificationsState.Error) {
+                            showUiMessage(state.message)
+                            if (state.unauthorized)
+                                logout()
+                        }
+
+                        switchDNState(state)
+                    }
+                }
+                launch {
+                    settingsViewModel.reviewState.collect { state ->
+                        if (state is ReviewState.Success && state.data.review != null)
+                            renderReview(state.data.review, state.data.onModeration)
+                        else if (state is ReviewState.Error) {
+                            showUiMessage(state.message)
+                            if (state.unauthorized)
+                                logout()
+                        }
+
+                        switchReviewState(state)
+                    }
+                }
+                launch {
+                    (requireActivity() as MainActivity).activityViewModel.versionState.collect {
+                        showUpdateInfo()
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Обработчик заголовка профилей
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun childrenListener() {
+        val state = settingsViewModel.childrenState.value
+        if (state !is ChildrenState.Success) return
+
+        isChildrenExpanded = !isChildrenExpanded
+
+        if (isChildrenExpanded) {
+            ui.childrenList.visibility = View.VISIBLE
+
+            TransitionManager.beginDelayedTransition(
+                ui.settingsChildren,
+                AutoTransition().apply {
+                    duration = 600
+                }
+            )
+        } else {
+            ui.childrenList.visibility = View.GONE
+        }
+
+        val active = state.data.children.find { it.childId == state.data.activeChildId }
+        ui.activeChildText.text = if (isChildrenExpanded) getString(R.string.select_profile) else active?.name ?: getString(
+            R.string.no_child)
+
+        ui.childrenArrow.animate()
+            .rotation(if (isChildrenExpanded) 180f else 0f)
+            .setDuration(600)
+            .start()
+    }
+
+    /**
+     * Выход из аккаунта и открытие LoginActivity
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun logout() {
+        settingsViewModel.logout()
+
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
+    }
+
+    /**
+     * Добавление в раскрывающийся список профилей
+     * @param children Список профилей
+     * @param activeChildId Идентификатор активного профиля
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun renderChildren(children: List<Child>, activeChildId: Long) {
+        val active = children.find { it.childId == activeChildId }
+
+        ui.activeChildText.text = active?.name ?: getString(R.string.no_child)
+
+        ui.childrenList.removeAllViews()
+
+        children.forEach { child ->
+            val item = ChildItemBinding.inflate(layoutInflater, ui.childrenList, false)
+
+            item.childName.text = child.name
+            item.childActive.visibility = if (child.childId == activeChildId) View.VISIBLE else View.GONE
+
+            item.root.setOnClickListener {
+                selectChild(child.childId)
+            }
+
+            ui.childrenList.addView(item.root)
+        }
+    }
+
+    /**
+     * Выбор активного профиля
+     * @param childId Идентификатор активного профиля
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun selectChild(childId: Long) {
+        collapse()
+
+        val state = settingsViewModel.childrenState.value as? ChildrenState.Success
+        val active = state?.data?.children?.find { it.childId == childId }
+        ui.activeChildText.text = active?.name ?: getString(
+            R.string.no_child)
+
+        settingsViewModel.selectActiveChild(childId)
+    }
+
+    /**
+     * Сворачивание раскрывающегося списка профилей
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun collapse() {
+        isChildrenExpanded = false
+
+        ui.childrenList.visibility = View.GONE
+
+        ui.childrenArrow.animate()
+            .rotation(0f)
+            .setDuration(600)
+            .start()
+    }
+
+    /**
+     * Установление переключателя настройки учебных уведомлений в нужное положение
+     * @param isChecked Новый статус настройки
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun renderSwitchDnevnikNotifications(isChecked: Boolean) {
+        ui.settingsDnevnikNotifications.setOnCheckedChangeListener(null)
+
+        ui.settingsDnevnikNotifications.isChecked = isChecked
+
+        ui.settingsDnevnikNotifications.setOnCheckedChangeListener { _, isChecked ->
+            dnevnikNotificationsListener(isChecked)
+        }
+    }
+
+    /**
+     * Обработчик кнопки удаления отзыва
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun deleteReviewListener() {
+        Utilities.showAlertDialog(
+            requireContext(),
+            getString(R.string.review),
+            getString(R.string.message_dialog_delete_review),
+            getString(R.string.button_dialog_delete_review)
+        ) { _, _ ->
+            settingsViewModel.deleteReview()
+        }
+    }
+
+    /**
+     * Показ данных отзыва
+     * @param review Отзыв
+     * @param onModeration Статус отзыва на модерации
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    @OptIn(FormatStringsInDatetimeFormats::class)
+    private fun renderReview(review: Review, onModeration: Boolean) {
+        val editedText = if (review.isUpdated) " (${getString(R.string.review_edit_marker)})" else ""
+        val moderationText = if (onModeration) " (${getString(R.string.review_moderation_marker)})" else ""
+        val metaText = editedText + moderationText
+        val createdAt = review.createdAt.toLocalDateTime(TimeZone.currentSystemDefault())
+            .format(LocalDateTime.Format { byUnicodePattern("dd.MM.yyyy") })
+        ui.reviewMeta.text = getString(R.string.review_meta, review.name, createdAt, metaText)
+
+        updateStars(ui.reviewStars.children.toList().map { it as ImageView }, review.stars)
+
+        ui.reviewText.text = review.text
+
+        ui.reviewLikesIcon.setImageResource(if (review.likes == 0) R.drawable.like_outline else R.drawable.like)
+        ui.reviewLikesCounter.text = review.likes.toString()
+    }
+
+    private fun updateStars(stars: List<ImageView>, selectedStars: Int) {
+        stars.forEachIndexed { index, imageView ->
+            val filled = index < selectedStars
+            imageView.setImageResource(
+                if (filled) R.drawable.star_filled else R.drawable.star_outline
+            )
+        }
+    }
+
+    private fun openReviewEditor(existing: Review? = null) {
+        val view = DialogReviewEditorBinding.inflate(layoutInflater, ui.root, false)
+
+        val stars = listOf(view.star1, view.star2, view.star3, view.star4, view.star5)
+
+        var selectedStars = existing?.stars ?: 0
+
+        view.title.text = if (existing == null) getString(R.string.review_editor_new_title)
+        else getString(R.string.review_editor_edit_title)
+
+        view.text.setText(existing?.text.orEmpty())
+        view.textCounter.text = getString(R.string.review_text_counter, view.text.text?.length ?: 0, REVIEW_TEXT_LIMIT)
+
+        updateStars(stars, selectedStars)
+
+        stars.forEachIndexed { index, imageView ->
+            imageView.setOnClickListener {
+                selectedStars = index + 1
+                updateStars(stars, selectedStars)
+            }
+        }
+
+        view.text.addTextChangedListener {
+            view.textCounter.text = getString(R.string.review_text_counter, view.text.text?.length ?: 0, REVIEW_TEXT_LIMIT)
+            if ((it?.length ?: 0) > REVIEW_TEXT_LIMIT)
+                view.textCounter.setTextColor(Color.RED)
+            else if ((it?.length ?: 0) == REVIEW_TEXT_LIMIT)
+                view.textCounter.setTextColor(resources.getColor(R.color.text_secondary, requireContext().theme))
+        }
+
+        val dialog = MaterialAlertDialogBuilder(
+            requireContext(),
+            R.style.AppDialogTheme
+        ).setView(view.root).create()
+
+        view.buttonSendReview.setOnClickListener {
+            val text = view.text.text?.toString()?.trim()?.ifEmpty { null }
+
+            if (selectedStars == 0) {
+                Utilities.showAlertDialog(
+                    requireContext(),
+                    getString(R.string.title_dialog_review_no_stars),
+                    getString(R.string.message_dialog_review_no_stars),
+                    getString(R.string.button_dialog_review_no_stars)
+                )
+                return@setOnClickListener
+            }
+
+            dialog.dismiss()
+
+            Utilities.showAlertDialog(
+                requireContext(),
+                getString(R.string.title_dialog_review_sent),
+                getString(R.string.message_dialog_review_sent),
+                getString(R.string.button_dialog_review_sent)
+            )
+
+            settingsViewModel.sendReview(selectedStars, text)
+        }
+
+        dialog.show()
+    }
+
+    private fun switchChildrenState(state: ChildrenState) {
+        ui.childrenLoading.visibility = if (state is ChildrenState.Loading) View.VISIBLE else View.GONE
+        ui.childrenArrow.visibility = if (state is ChildrenState.Success) View.VISIBLE else View.GONE
+        ui.childrenError.visibility = if (state is ChildrenState.Error) View.VISIBLE else View.GONE
+
+        ui.childrenHeader.isEnabled = state is ChildrenState.Success
+    }
+
+    private fun switchDNState(state: StatusDnevnikNotificationsState) {
+        ui.dnevnikNotificationsLoading.visibility = if (state is StatusDnevnikNotificationsState.Loading) View.VISIBLE else View.GONE
+        ui.settingsDnevnikNotifications.visibility = if (state is StatusDnevnikNotificationsState.Success) View.VISIBLE else View.GONE
+        ui.dnevnikNotificationsError.visibility = if (state is StatusDnevnikNotificationsState.Error) View.VISIBLE else View.GONE
+    }
+
+    private fun switchReviewState(state: ReviewState) {
+        ui.buttonRefreshReview.visibility = if (state is ReviewState.Success) View.VISIBLE else View.GONE
+        ui.reviewLoading.visibility = if (state is ReviewState.Loading) View.VISIBLE else View.GONE
+        ui.reviewError.visibility = if (state is ReviewState.Error) View.VISIBLE else View.GONE
+
+        if (state is ReviewState.Success && state.data.review != null) {
+            ui.reviewMeta.visibility = View.VISIBLE
+            ui.reviewStars.visibility = View.VISIBLE
+            ui.reviewText.visibility = View.VISIBLE
+            ui.reviewLikes.visibility = View.VISIBLE
+
+            ui.buttonWriteReview.visibility = View.GONE
+            ui.buttonEditReview.visibility = View.VISIBLE
+            ui.buttonDeleteReview.visibility = View.VISIBLE
+        } else {
+            ui.reviewMeta.visibility = View.GONE
+            ui.reviewStars.visibility = View.GONE
+            ui.reviewText.visibility = View.GONE
+            ui.reviewLikes.visibility = View.GONE
+
+            ui.buttonEditReview.visibility = View.GONE
+            ui.buttonDeleteReview.visibility = View.GONE
+            ui.buttonWriteReview.visibility = if (state is ReviewState.Success && state.data.review == null) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun showUiMessage(message: UiText) {
+        when (message) {
+            is UiText.DynamicString -> {
+                Utilities.showText(requireContext(), message.value)
+            }
+            is UiText.StringResource -> {
+                Utilities.showText(requireContext(), message.resId, *message.args.toTypedArray())
+            }
+        }
+    }
+}

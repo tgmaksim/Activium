@@ -65,8 +65,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/dnevnik_ru"
-                android:contentDescription="@string/dnevnik_text" />
+                android:src="@drawable/dnevnik_ru" />
 
             <!-- Текст кнопки -->
             <TextView

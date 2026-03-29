@@ -2,10 +2,11 @@ package ru.tgmaksim.activium
 
 import android.os.Bundle
 import android.content.Intent
+
 import androidx.appcompat.app.AppCompatActivity
 
-import ru.tgmaksim.activium.ui.MainActivity
 import ru.tgmaksim.activium.ui.LoginActivity
+import ru.tgmaksim.activium.ui.main.MainActivity
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
 class LauncherActivity : AppCompatActivity() {
@@ -21,7 +22,9 @@ class LauncherActivity : AppCompatActivity() {
             MainActivity::class.java
         }
 
-        startActivity(Intent(this, target))
+        startActivity(Intent(this, target).apply {
+            data = intent.data
+        })
         finish()
     }
 }

@@ -51,4 +51,5 @@
     <color name="slider_label_bg">#0288D1</color>
     <color name="slider_label_text">#FFFFFF</color>
     <color name="slider_halo_static">#200288D1</color>
+    <color name="schedule_slider_warning">#FFFF4444</color>
 </resources>

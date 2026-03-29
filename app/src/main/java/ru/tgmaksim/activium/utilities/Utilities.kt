@@ -8,10 +8,11 @@ import android.util.Log
 import android.widget.Toast
 import android.content.Intent
 import android.content.Context
-import androidx.core.net.toUri
-import androidx.annotation.StringRes
 import android.content.DialogInterface
 import android.content.ActivityNotFoundException
+
+import androidx.core.net.toUri
+import androidx.annotation.StringRes
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -64,10 +65,10 @@ object Utilities {
      * @param long показывать ли долгое сообщение
      * @author Максим Дрючин (tgmaksim)
      * */
-    fun showText(context: Context, @StringRes resId: Int, long: Boolean = false) {
+    fun showText(context: Context, @StringRes resId: Int, vararg formatArgs: Any, long: Boolean = false) {
         Toast.makeText(
             context,
-            resId,
+            context.getString(resId, formatArgs),
             if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
         ).show()
     }

@@ -2,15 +2,15 @@ package ru.tgmaksim.activium.ui
 
 import android.os.Build
 import android.view.ViewGroup
+
 import androidx.core.view.ViewCompat
+import androidx.core.view.updatePadding
 import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.updatePadding
-import kotlinx.coroutines.runBlocking
 
 import ru.tgmaksim.activium.R
-import ru.tgmaksim.activium.utilities.datastore.SettingsManager
+import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
 /**
  * Базовый класс для всех Activity
@@ -24,13 +24,11 @@ open class ParentActivity : AppCompatActivity() {
     fun setupActivityTheme() {
         setTheme(R.style.Theme_Activium)
 
-        runBlocking {
-            val darkTheme = SettingsManager.getDarkTheme()
-            if (darkTheme)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            else
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        }
+        val darkTheme = MemoryDataManager.darkTheme.value
+        if (darkTheme)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     }
 
     /**

@@ -4,22 +4,23 @@ import android.Manifest
 import android.os.Build
 import android.app.Activity
 import android.content.Intent
-import androidx.core.net.toUri
 import android.content.Context
 import android.app.AlarmManager
 import android.provider.Settings
 import android.app.PendingIntent
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import androidx.core.app.ActivityCompat
 import android.content.pm.PackageManager
+import android.content.Context.NOTIFICATION_SERVICE
+
+import androidx.core.net.toUri
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationManagerCompat
-import android.content.Context.NOTIFICATION_SERVICE
 
 import ru.tgmaksim.activium.R
-import ru.tgmaksim.activium.ui.MainActivity
+import ru.tgmaksim.activium.ui.main.MainActivity
 
 /**
  * Менеджер уведомлений для создания, планирования и запроса разрешений

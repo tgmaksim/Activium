@@ -4,14 +4,7 @@ import ru.tgmaksim.activium.api.VersionsResult
 import kotlinx.coroutines.flow.MutableStateFlow
 
 object MemoryDataManager {
-    private val versionStatus = MutableStateFlow<VersionsResult?>(null)
+    val darkTheme = MutableStateFlow(false)
     val sessionId = MutableStateFlow<String?>(null)
-
-    fun setVersionResult(versionStatus: VersionsResult?) {
-        this.versionStatus.value = versionStatus
-    }
-
-    fun getVersionStatus(): VersionsResult? {
-        return versionStatus.value
-    }
+    val versionStatus = MutableStateFlow<VersionsResult?>(null)
 }

@@ -1,77 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Активиум</string>
+    <string name="error_api">Произошла ошибка на сервере…</string>
+    <string name="error_internet">Нет подключения к интернету</string>
+
+    <string name="title_dialog_permission_dnevnik_notifications">Разрешение на уведомления</string>
+    <string name="message_dialog_permission_dnevnik_notifications">Предоставьте разрешения на уведомления. Если окно не откроется, посетите настройки</string>
+    <string name="button_dialog_permission_dnevnik_notifications">Предоставить</string>
+
+    <string name="hello">Активиум — это приложение для школьников, которое поможет всегда узнавать о новых оценках, не забывать о внеурочных занятиях и быть в курсе всех мероприятий</string>
+    <string name="login_with_dnevnik">Войти через Дневник.ру</string>
+    <string name="error_login">Произошла ошибка при попытке авторизоваться</string>
+
     <string name="menu_item_schedule">Расписание</string>
     <string name="menu_item_marks">Оценки</string>
     <string name="menu_item_school">Школа</string>
+
     <string name="menu_item_settings">Настройки</string>
-    <string name="hello">Активиум — это приложение для школьников, которое поможет всегда узнавать о новых оценках, не забывать о внеурочных занятиях и быть в курсе всех мероприятий</string>
-
-    <string name="error_login">Произошла ошибка при попытке авторизоваться</string>
-    <string name="error_api">Произошла ошибка на сервере…</string>
-    <string name="error_children">Произошла ошибка при загрузке активного профиля</string>
-    <string name="error_review">Произошла ошибка при загрузке отзыва</string>
-    <string name="error_create_review">Произошла ошибка при отправке отзыва</string>
-    <string name="error_delete_review">Произошла ошибка при удалении отзыва</string>
-    <string name="error_load_schedule">Произошла ошибка при загрузке расписания</string>
-    <string name="error_load_marks">Произошла ошибка при загрузке оценок</string>
-    <string name="error_internet">Нет подключения к интернету</string>
-    <string name="error_incorrect_data">Произошла ошибка при общении с сервером. Обратитесь в поддержку</string>
-
-    <string name="default_bells_schedule">08:00 – 09:35</string>
-    <string name="default_place">101</string>
-    <string name="default_subject">Математика</string>
-    <string name="default_number">1.</string>
-    <string name="homework_emoji">✏️</string>
-    <string name="homework_document_emoji">📎</string>
-    <string name="homework_not_found">Нет домашнего задания</string>
-    <string name="homework_document_not_found">Нет дополнительных ресурсов</string>
-    <string name="default_day_number">1</string>
-    <string name="default_weekday">ПН</string>
-    <string name="dnevnik_text">Дневник</string>
-    <string name="login_with_dnevnik">Войти через Дневник.ру</string>
-    <string name="weekend_text">Выходные</string>
-    <string name="marks_rating_emoji">📊</string>
-
-    <string name="class_rating">📊 Рейтинг в классе</string>
-
     <string name="settings">Настройки</string>
+
+    <string name="settings_theme">Использовать темную тему</string>
+    <string name="settings_ea">Уведомлять о внеурочных занятиях</string>
+    <string name="settings_dnevnik">Уведомлять о новых оценках</string>
+    <string name="error_dnevnik_notifications">Произошла ошибка при загрузке статуса учебных уведомлений</string>
+    <string name="settings_webview">Открывать файлы в приложении</string>
+    <string name="settings_schedule_period">Диапазон расписания</string>
+    <string name="schedule_range_label_today">сегодня</string>
+    <string name="schedule_range_label_tomorrow">завтра</string>
+    <string name="schedule_range_label_from">%1$d до</string>
+    <string name="schedule_range_label_to">%1$d после</string>
+    <string name="settings_schedule_warning">Большой диапазон расписания влияет на скорость загрузки</string>
+
+    <string name="update">Обновление</string>
+    <string name="update_description">%1$s (%2$d)\n%3$s</string>
+    <string name="update_button">Обновить</string>
+    <string name="message_dialog_version_with_new_function">В обновлении приложения появилась новая функция. Уже можно пользоваться</string>
+    <string name="message_dialog_important_version">Вышло обновление, которое требуется установить для корректной работы приложения</string>
+    <string name="button_dialog_new_version">Настройки</string>
+    <string name="error_check_version">Произошла ошибка при проверке версии</string>
+
     <string name="active_profile">Активный профиль</string>
     <string name="load_active_profile">Загрузка…</string>
     <string name="content_description_arrow">v</string>
+    <string name="select_profile">Выберите активный профиль</string>
+    <string name="no_child">Не выбран</string>
+    <string name="error_children">Произошла ошибка при загрузке активного профиля</string>
+
     <string name="review">Отзыв</string>
+    <string name="review_meta">%1$s • %2$s%3$s</string>
+    <string name="review_edit_marker">изменен</string>
+    <string name="review_moderation_marker">на модерации</string>
     <string name="write_review">Написать отзыв</string>
     <string name="edit_review">Изменить отзыв</string>
     <string name="delete_review">Удалить отзыв</string>
     <string name="open_all_reviews">Открыть отзывы на сайте</string>
-    <string name="refresh_review">Обновить отзыв</string>
-    <string name="review_edit_marker">изменен</string>
-    <string name="review_moderation_marker">на модерации</string>
-    <string name="review_send_moderation">Отзыв отправлен на модерацию. После проверки вам придет уведомление</string>
-    <string name="review_star_value">%1$d из 5</string>
-    <string name="account">Аккаунт</string>
-    <string name="about">О приложении</string>
-    <string name="open_site">Открыть сайт</string>
-    <string name="settings_webview">Открывать файлы в приложении</string>
-    <string name="settings_ea">Уведомлять о внеурочных занятиях</string>
-    <string name="settings_dnevnik">Уведомлять о новых оценках</string>
-    <string name="settings_theme">Использовать темную тему</string>
-    <string name="settings_schedule_period">Диапазон расписания</string>
-    <string name="update">Обновление</string>
-    <string name="update_button">Обновить</string>
-    <string name="logout">Выйти из профиля</string>
-    <string name="default_version">Версия: 0.0.1</string>
-    <string name="select_profile">Выберите активный профиль</string>
-    <string name="no_child">Не выбран</string>
-    <string name="developer">Разработчик: Максим Дрючин, 2026</string>
-    <string name="default_android">Android</string>
-    <string name="app_info">Удобно и бесплатно пользуйтесь всеми возможностями Дневника.ру в своем телефоне и всегда будьте в курсе новостей и мероприятий школы</string>
-    <string name="account_info">Ваш профиль в приложении связан с аккаунтом в Дневнике.ру. Все предоставленные данные используются только в целях работы приложения и доступны только Вам в приложении</string>
-    <string name="important_update">Изменено взаимодействие с сервером. Для корректной работы требуется обновить приложение.</string>
+    <string name="error_review">Произошла ошибка при загрузке отзыва</string>
 
-    <string name="review_text_hint">Напишите отзыв, необязательно</string>
-    <string name="send">Отправить</string>
+<!--    <string name="error_load_schedule">Произошла ошибка при загрузке расписания</string>-->
+<!--    <string name="error_load_marks">Произошла ошибка при загрузке оценок</string>-->
+
+<!--    <string name="default_bells_schedule">08:00 – 09:35</string>-->
+<!--    <string name="default_place">101</string>-->
+<!--    <string name="default_subject">Математика</string>-->
+<!--    <string name="default_number">1.</string>-->
+<!--    <string name="homework_emoji">✏️</string>-->
+<!--    <string name="homework_document_emoji">📎</string>-->
+<!--    <string name="homework_not_found">Нет домашнего задания</string>-->
+<!--    <string name="homework_document_not_found">Нет дополнительных ресурсов</string>-->
+<!--    <string name="default_day_number">1</string>-->
+<!--    <string name="default_weekday">ПН</string>-->
+<!--    <string name="weekend_text">Выходные</string>-->
+<!--    <string name="marks_rating_emoji">📊</string>-->
+<!--    <string name="class_rating">📊 Рейтинг в классе</string>-->
+
     <string name="review_editor_new_title">Написать отзыв</string>
     <string name="review_editor_edit_title">Изменить отзыв</string>
-    <string name="review_saved_title">Отзыв отправлен</string>
+    <string name="review_text_counter">%1$d/%2$d</string>
+    <string name="review_text_hint">Напишите отзыв (необязательно)</string>
+    <string name="send">Отправить</string>
+    <string name="title_dialog_review_no_stars">Оценка</string>
+    <string name="message_dialog_review_no_stars">Поставьте от 1 до 5 звезд, пожалуйста</string>
+    <string name="button_dialog_review_no_stars">А, точно!</string>
+    <string name="message_dialog_review_sent">Отзыв отправлен на модерацию. После проверки вам придет уведомление</string>
+    <string name="button_dialog_review_sent">Ок</string>
+    <string name="title_dialog_review_sent">Отзыв отправлен</string>
+    <string name="error_create_review">Произошла ошибка при отправке отзыва</string>
+
+    <string name="message_dialog_delete_review">Удалить Ваш отзыв? Это действие нельзя отменить!</string>
+    <string name="button_dialog_delete_review">Да, удалить</string>
+    <string name="error_delete_review">Произошла ошибка при удалении отзыва</string>
+
+    <string name="account">Аккаунт</string>
+    <string name="account_info">Ваш профиль в приложении связан с аккаунтом в Дневнике.ру. Все предоставленные данные используются только в целях работы приложения и доступны только Вам в приложении</string>
+    <string name="logout">Выйти из профиля</string>
+
+    <string name="about">О приложении</string>
+    <string name="app_info">Удобно и бесплатно пользуйтесь всеми возможностями Дневника.ру в своем телефоне и всегда будьте в курсе новостей и мероприятий школы</string>
+    <string name="open_site">Открыть сайт</string>
+
+    <string name="version">Версия: %1$s (%2$d)</string>
+    <string name="default_version">Версия: 0.0.1</string>
+    <string name="android">Android %1$s (API %2$d)</string>
+    <string name="default_android">Android</string>
+    <string name="developer">Разработчик: Максим Дрючин, 2026</string>
 </resources>
