@@ -1,4 +1,4 @@
-package ru.tgmaksim.activium.pages.schedule
+package ru.tgmaksim.activium.ui.pages.schedule
 
 import android.os.Bundle
 import android.view.View

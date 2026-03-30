@@ -48,8 +48,8 @@
         </activity>
 
         <!-- Другие Activity приложения -->
-        <activity android:name=".ui.main.MainActivity" android:exported="false" />
-        <activity android:name=".ui.LoginActivity" android:exported="false" />
+        <activity android:name=".ui.main.MainActivity" android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".ui.LoginActivity" android:exported="false" android:launchMode="singleTask" />
         <activity android:name=".ui.DocumentView" android:exported="false" />
 
         <!-- Receiver для запуска по расписанию (уведомления с напоминаниями) -->

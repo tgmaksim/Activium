@@ -57,4 +57,8 @@ object CacheManager {
             )
         }
     }
+
+    fun clear() {
+        db().clearAllTables()
+    }
 }

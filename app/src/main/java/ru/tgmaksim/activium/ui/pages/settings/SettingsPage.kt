@@ -1,9 +1,8 @@
-package ru.tgmaksim.activium.pages.settings
+package ru.tgmaksim.activium.ui.pages.settings
 
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.content.Intent
 import android.graphics.Color
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -34,7 +33,9 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.Child
 import ru.tgmaksim.activium.api.Review
 import ru.tgmaksim.activium.BuildConfig
-import ru.tgmaksim.activium.pages.UiText
+import ru.tgmaksim.activium.api.ChildrenResult
+import ru.tgmaksim.activium.api.MyReviewResult
+import ru.tgmaksim.activium.api.StatusDnevnikNotificationsResult
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.ui.ParentActivity
 import ru.tgmaksim.activium.utilities.Utilities
@@ -45,11 +46,12 @@ import ru.tgmaksim.activium.databinding.SettingsPageBinding
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 import ru.tgmaksim.activium.databinding.DialogReviewEditorBinding
+import ru.tgmaksim.activium.ui.core.LoadState
 
 /**
  * Fragment-страница с настройками приложения
  * @author Максим Дрючин (tgmaksim)
- * @see ru.tgmaksim.activium.ui.main.MainActivity
+ * @see MainActivity
  * */
 class SettingsPage : Fragment() {
     private lateinit var ui: SettingsPageBinding
@@ -82,13 +84,13 @@ class SettingsPage : Fragment() {
         setupSettingsListener()  // Настройка обработчиков настроек
         setupButtonsListener()  // Настройка кнопок после настроек
 
-        if (settingsViewModel.childrenState.value is ChildrenState.Null)
+        if (settingsViewModel.childrenState.value is LoadState.Empty)
             settingsViewModel.loadChildren()
 
-        if (settingsViewModel.statusDNState.value is StatusDnevnikNotificationsState.Null)
+        if (settingsViewModel.statusDNState.value is LoadState.Empty)
             settingsViewModel.loadDnevnikNotifications()
 
-        if (settingsViewModel.reviewState.value is ReviewState.Null)
+        if (settingsViewModel.reviewState.value is LoadState.Empty)
             settingsViewModel.loadReview()
 
         setupStatesListener()
@@ -104,8 +106,11 @@ class SettingsPage : Fragment() {
 
         // Установка Switch в нужное положение
         ui.settingsDocumentView.isChecked = settings.openWebView
+        ui.settingsDocumentView.visibility = View.VISIBLE
         ui.settingsEANotifications.isChecked = settings.eaNotifications
+        ui.settingsEANotifications.visibility = View.VISIBLE
         ui.settingsTheme.isChecked = settings.darkTheme
+        ui.settingsTheme.visibility = View.VISIBLE
 
         // Установка нужного диапазона
         before = settings.beforeSchedule
@@ -131,13 +136,15 @@ class SettingsPage : Fragment() {
      * @author Максим Дрючин (tgmaksim)
      * */
     private fun showUpdateInfo() {
-        MemoryDataManager.versionStatus.value?.let {
-            ui.updateDescription.text = getString(
-                R.string.update_description,
-                it.latestVersionString, it.latestVersionNumber, it.updateLogs
-            )
-            ui.updateApplication.visibility = View.VISIBLE
-        }
+        val version = MemoryDataManager.versionStatus.value
+        if (version != null && version.latestVersionNumber > BuildConfig.VERSION_CODE)
+            MemoryDataManager.versionStatus.value?.let {
+                ui.updateDescription.text = getString(
+                    R.string.update_description,
+                    it.latestVersionString, it.latestVersionNumber, it.updateLogs
+                )
+                ui.updateApplication.visibility = View.VISIBLE
+            }
     }
 
     /**
@@ -267,7 +274,8 @@ class SettingsPage : Fragment() {
         }
 
         ui.buttonEditReview.setOnClickListener {
-            openReviewEditor((settingsViewModel.reviewState.value as? ReviewState.Success)?.data?.review)
+            val stateValue = (settingsViewModel.reviewState.value as? LoadState.Success)
+            openReviewEditor(stateValue?.data?.review)
         }
 
         // Нажатие на кнопку удаления отзыва
@@ -314,10 +322,10 @@ class SettingsPage : Fragment() {
                     settingsViewModel.childrenState.collect { state ->
                         switchChildrenState(state)
 
-                        if (state is ChildrenState.Success)
+                        if (state is LoadState.Success)
                             renderChildren(state.data.children, state.data.activeChildId)
-                        else if (state is ChildrenState.Error) {
-                            showUiMessage(state.message)
+                        else if (state is LoadState.Error) {
+                            Utilities.showUiMessage(requireContext(), state.message)
                             if (state.unauthorized)
                                 logout()
                         }
@@ -325,10 +333,10 @@ class SettingsPage : Fragment() {
                 }
                 launch {
                     settingsViewModel.statusDNState.collect { state ->
-                        if (state is StatusDnevnikNotificationsState.Success)
+                        if (state is LoadState.Success)
                             renderSwitchDnevnikNotifications(state.data.status)
-                        else if (state is StatusDnevnikNotificationsState.Error) {
-                            showUiMessage(state.message)
+                        else if (state is LoadState.Error) {
+                            Utilities.showUiMessage(requireContext(), state.message)
                             if (state.unauthorized)
                                 logout()
                         }
@@ -338,10 +346,10 @@ class SettingsPage : Fragment() {
                 }
                 launch {
                     settingsViewModel.reviewState.collect { state ->
-                        if (state is ReviewState.Success && state.data.review != null)
+                        if (state is LoadState.Success && state.data.review != null)
                             renderReview(state.data.review, state.data.onModeration)
-                        else if (state is ReviewState.Error) {
-                            showUiMessage(state.message)
+                        else if (state is LoadState.Error) {
+                            Utilities.showUiMessage(requireContext(), state.message)
                             if (state.unauthorized)
                                 logout()
                         }
@@ -364,7 +372,7 @@ class SettingsPage : Fragment() {
      * */
     private fun childrenListener() {
         val state = settingsViewModel.childrenState.value
-        if (state !is ChildrenState.Success) return
+        if (state !is LoadState.Success) return
 
         isChildrenExpanded = !isChildrenExpanded
 
@@ -398,9 +406,7 @@ class SettingsPage : Fragment() {
     private fun logout() {
         settingsViewModel.logout()
 
-        val intent = Intent(requireContext(), LoginActivity::class.java)
-        startActivity(intent)
-        requireActivity().finish()
+        LoginActivity.openLoginActivity(requireActivity())
     }
 
     /**
@@ -438,7 +444,7 @@ class SettingsPage : Fragment() {
     private fun selectChild(childId: Long) {
         collapse()
 
-        val state = settingsViewModel.childrenState.value as? ChildrenState.Success
+        val state = settingsViewModel.childrenState.value as? LoadState.Success
         val active = state?.data?.children?.find { it.childId == childId }
         ui.activeChildText.text = active?.name ?: getString(
             R.string.no_child)
@@ -586,26 +592,26 @@ class SettingsPage : Fragment() {
         dialog.show()
     }
 
-    private fun switchChildrenState(state: ChildrenState) {
-        ui.childrenLoading.visibility = if (state is ChildrenState.Loading) View.VISIBLE else View.GONE
-        ui.childrenArrow.visibility = if (state is ChildrenState.Success) View.VISIBLE else View.GONE
-        ui.childrenError.visibility = if (state is ChildrenState.Error) View.VISIBLE else View.GONE
+    private fun switchChildrenState(state: LoadState<ChildrenResult>) {
+        ui.childrenLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
+        ui.childrenArrow.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
+        ui.childrenError.visibility = if (state is LoadState.Error) View.VISIBLE else View.GONE
 
-        ui.childrenHeader.isEnabled = state is ChildrenState.Success
+        ui.childrenHeader.isEnabled = state is LoadState.Success
     }
 
-    private fun switchDNState(state: StatusDnevnikNotificationsState) {
-        ui.dnevnikNotificationsLoading.visibility = if (state is StatusDnevnikNotificationsState.Loading) View.VISIBLE else View.GONE
-        ui.settingsDnevnikNotifications.visibility = if (state is StatusDnevnikNotificationsState.Success) View.VISIBLE else View.GONE
-        ui.dnevnikNotificationsError.visibility = if (state is StatusDnevnikNotificationsState.Error) View.VISIBLE else View.GONE
+    private fun switchDNState(state: LoadState<StatusDnevnikNotificationsResult>) {
+        ui.dnevnikNotificationsLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
+        ui.settingsDnevnikNotifications.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
+        ui.dnevnikNotificationsError.visibility = if (state is LoadState.Error) View.VISIBLE else View.GONE
     }
 
-    private fun switchReviewState(state: ReviewState) {
-        ui.buttonRefreshReview.visibility = if (state is ReviewState.Success) View.VISIBLE else View.GONE
-        ui.reviewLoading.visibility = if (state is ReviewState.Loading) View.VISIBLE else View.GONE
-        ui.reviewError.visibility = if (state is ReviewState.Error) View.VISIBLE else View.GONE
+    private fun switchReviewState(state: LoadState<MyReviewResult>) {
+        ui.buttonRefreshReview.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
+        ui.reviewLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
+        ui.reviewError.visibility = if (state is LoadState.Error) View.VISIBLE else View.GONE
 
-        if (state is ReviewState.Success && state.data.review != null) {
+        if (state is LoadState.Success && state.data.review != null) {
             ui.reviewMeta.visibility = View.VISIBLE
             ui.reviewStars.visibility = View.VISIBLE
             ui.reviewText.visibility = View.VISIBLE
@@ -622,18 +628,7 @@ class SettingsPage : Fragment() {
 
             ui.buttonEditReview.visibility = View.GONE
             ui.buttonDeleteReview.visibility = View.GONE
-            ui.buttonWriteReview.visibility = if (state is ReviewState.Success && state.data.review == null) View.VISIBLE else View.GONE
-        }
-    }
-
-    private fun showUiMessage(message: UiText) {
-        when (message) {
-            is UiText.DynamicString -> {
-                Utilities.showText(requireContext(), message.value)
-            }
-            is UiText.StringResource -> {
-                Utilities.showText(requireContext(), message.resId, *message.args.toTypedArray())
-            }
+            ui.buttonWriteReview.visibility = if (state is LoadState.Success && state.data.review == null) View.VISIBLE else View.GONE
         }
     }
 }

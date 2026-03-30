@@ -18,6 +18,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.ui.core.UiText
 
 /**
  * Утилиты приложения
@@ -71,6 +72,17 @@ object Utilities {
             context.getString(resId, formatArgs),
             if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
         ).show()
+    }
+
+    fun showUiMessage(context: Context, message: UiText) {
+        when (message) {
+            is UiText.DynamicString -> {
+                showText(context, message.value)
+            }
+            is UiText.StringResource -> {
+                showText(context, message.resId, *message.args.toTypedArray())
+            }
+        }
     }
 
     /**

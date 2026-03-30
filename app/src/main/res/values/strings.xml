@@ -3,6 +3,7 @@
     <string name="app_name">Активиум</string>
     <string name="error_api">Произошла ошибка на сервере…</string>
     <string name="error_internet">Нет подключения к интернету</string>
+    <string name="error_tls">Сервер в данное время недоступен</string>
 
     <string name="title_dialog_permission_dnevnik_notifications">Разрешение на уведомления</string>
     <string name="message_dialog_permission_dnevnik_notifications">Предоставьте разрешения на уведомления. Если окно не откроется, посетите настройки</string>

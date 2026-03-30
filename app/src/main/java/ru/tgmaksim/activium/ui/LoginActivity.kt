@@ -1,11 +1,15 @@
 package ru.tgmaksim.activium.ui
 
-import android.view.View
 import android.os.Bundle
+import android.view.View
+import android.app.Activity
+import android.content.Intent
 
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 import java.util.concurrent.CancellationException
 
@@ -14,6 +18,7 @@ import ru.tgmaksim.activium.api.Login
 import ru.tgmaksim.activium.api.Request
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.databinding.ActivityLoginBinding
+import ru.tgmaksim.activium.utilities.datastore.CacheManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
@@ -25,6 +30,20 @@ class LoginActivity : ParentActivity() {
     private lateinit var ui: ActivityLoginBinding
     companion object {
         var loginUrl: String? = null
+
+        suspend fun logout() {
+            MemoryDataManager.sessionId.value = null
+            SettingsManager.setSessionId(null)
+            withContext(Dispatchers.IO) {
+                CacheManager.clear()
+            }
+        }
+
+        fun openLoginActivity(nowActivity: Activity) {
+            val intent = Intent(nowActivity, LoginActivity::class.java)
+            nowActivity.startActivity(intent)
+            nowActivity.finish()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

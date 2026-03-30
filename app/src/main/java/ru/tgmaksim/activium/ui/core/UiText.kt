@@ -1,4 +1,4 @@
-package ru.tgmaksim.activium.pages
+package ru.tgmaksim.activium.ui.core
 
 sealed class UiText {
     data class StringResource(

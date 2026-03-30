@@ -17,14 +17,15 @@ import androidx.lifecycle.repeatOnLifecycle
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.BuildConfig
-import ru.tgmaksim.activium.pages.UiText
-import ru.tgmaksim.activium.pages.SchoolPage
 import ru.tgmaksim.activium.ui.ParentActivity
+import ru.tgmaksim.activium.ui.core.LoadState
+import ru.tgmaksim.activium.api.VersionsResult
+import ru.tgmaksim.activium.ui.pages.school.SchoolPage
 import ru.tgmaksim.activium.utilities.Utilities
-import ru.tgmaksim.activium.pages.marks.MarksPage
-import ru.tgmaksim.activium.pages.schedule.SchedulePage
-import ru.tgmaksim.activium.pages.settings.SettingsPage
+import ru.tgmaksim.activium.ui.pages.marks.MarksPage
 import ru.tgmaksim.activium.utilities.NotificationManager
+import ru.tgmaksim.activium.ui.pages.schedule.SchedulePage
+import ru.tgmaksim.activium.ui.pages.settings.SettingsPage
 import ru.tgmaksim.activium.databinding.ActivityMainBinding
 
 /**
@@ -137,18 +138,12 @@ class MainActivity : ParentActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activityViewModel.versionState.collect { state ->
                     when (state) {
-                        is VersionState.Success -> {
-                            showNewVersionInfo(state)
+                        is LoadState.Success -> {
+                            if (state.data.latestVersionNumber > BuildConfig.VERSION_CODE)
+                                showNewVersionInfo(state)
                         }
-                        is VersionState.Error -> {
-                            when (val message = state.message) {
-                                is UiText.DynamicString -> {
-                                    Utilities.showText(this@MainActivity, message.value)
-                                }
-                                is UiText.StringResource -> {
-                                    Utilities.showText(this@MainActivity, message.resId, *message.args.toTypedArray())
-                                }
-                            }
+                        is LoadState.Error -> {
+                            Utilities.showUiMessage(this@MainActivity, state.message)
                         }
                         else -> {}
                     }
@@ -157,7 +152,7 @@ class MainActivity : ParentActivity() {
         }
     }
 
-    private fun showNewVersionInfo(state: VersionState.Success) {
+    private fun showNewVersionInfo(state: LoadState.Success<VersionsResult>) {
         // Показ красной точки возле иконки настроек
         ui.bottomMenu.getOrCreateBadge(R.id.it_settings).apply {
             isVisible = true
