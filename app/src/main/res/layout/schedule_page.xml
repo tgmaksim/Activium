@@ -1,17 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/main_bg">
 
-    <!-- Название страницы -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Расписание"
-        android:textSize="30sp"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="10dp"
-        android:fontFamily="sans-serif-medium"
-        android:textColor="@color/text_primary" />
+    <LinearLayout
+        android:id="@+id/scheduleContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="5dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:paddingHorizontal="5dp"
+            android:scrollbars="none" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/dayRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            android:overScrollMode="never"
+            android:scrollbars="none" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/skeletonShimmer"
+        android:layout_width="160dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:alpha="0.65"
+        android:background="@drawable/skeleton_shimmer_band" />
 
 </FrameLayout>

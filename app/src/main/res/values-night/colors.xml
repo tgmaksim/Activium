@@ -33,6 +33,10 @@
     <color name="review_like_filled">#FFD95A</color>
     <color name="review_like_outline">#D7B44A</color>
 
+    <color name="skeleton_base">#334C8DB3</color>
+    <color name="skeleton_highlight">#80FFFFFF</color>
+    <color name="skeleton_shimmer_center">#40FFFFFF</color>
+
 <!--    <color name="lesson_time">#4FC3F7</color>-->
 <!--    <color name="lesson_subject">#FFFFFF</color>-->
 <!--    <color name="lesson_place">#CCCCCC</color>-->

@@ -29,6 +29,10 @@
     <color name="review_like_filled">#F4C542</color>
     <color name="review_like_outline">#C9A63A</color>
 
+    <color name="skeleton_base">#66FFFFFF</color>
+    <color name="skeleton_highlight">#CCFFFFFF</color>
+    <color name="skeleton_shimmer_center">#80FFFFFF</color>
+
 <!--    <color name="calendar_today">#4B9A25</color>-->
 <!--    <color name="lesson_time">#7B1FA2</color>-->
 <!--    <color name="lesson_subject">#000000</color>-->

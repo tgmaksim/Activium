@@ -23,14 +23,12 @@ object SettingsManager {
     private val KEY_FIREBASE_MESSAGING_TOKEN = stringPreferencesKey("firebase_messaging_token")
     private val KEY_ACTIVE_CHILD_ID = longPreferencesKey("active_child_id")
     private val KEY_DARK_THEME = booleanPreferencesKey("dark_theme")
-    private val KEY_OPEN_WEBVIEW = booleanPreferencesKey("open_webview")
     private val KEY_EA_NOTIFICATIONS = booleanPreferencesKey("ea_notifications")
     private val KEY_BEFORE_SCHEDULE = intPreferencesKey("before_schedule")
     private val KEY_AFTER_SCHEDULE = intPreferencesKey("after_schedule")
 
     private const val DEFAULT_ACTIVE_CHILD_ID = -1L
     private const val DEFAULT_DARK_THEME = false
-    private const val DEFAULT_OPEN_WEBVIEW = true
     private const val DEFAULT_EA_NOTIFICATIONS = false
     private const val DEFAULT_BEFORE_SCHEDULE = 3
     private const val DEFAULT_AFTER_SCHEDULE = 3
@@ -111,22 +109,6 @@ object SettingsManager {
         }
     }
 
-    suspend fun getOpenWebView(): Boolean {
-        return appContext.settingsDataStore.data.first()[KEY_OPEN_WEBVIEW] ?: DEFAULT_OPEN_WEBVIEW
-    }
-
-    suspend fun setOpenWebView(value: Boolean) {
-        appContext.settingsDataStore.edit { prefs ->
-            prefs[KEY_OPEN_WEBVIEW] = value
-        }
-    }
-
-    fun openWebViewFlow(): Flow<Boolean> {
-        return appContext.settingsDataStore.data.map { prefs ->
-            prefs[KEY_OPEN_WEBVIEW] ?: DEFAULT_OPEN_WEBVIEW
-        }
-    }
-
     suspend fun getEaNotifications(): Boolean {
         return appContext.settingsDataStore.data.first()[KEY_EA_NOTIFICATIONS] ?: DEFAULT_EA_NOTIFICATIONS
     }
@@ -186,7 +168,6 @@ object SettingsManager {
         return SettingsSnapshot(
             sessionId = prefs[KEY_SESSION_ID],
             darkTheme = prefs[KEY_DARK_THEME] ?: DEFAULT_DARK_THEME,
-            openWebView = prefs[KEY_OPEN_WEBVIEW] ?: DEFAULT_OPEN_WEBVIEW,
             eaNotifications = prefs[KEY_EA_NOTIFICATIONS] ?: DEFAULT_EA_NOTIFICATIONS,
             beforeSchedule = prefs[KEY_BEFORE_SCHEDULE] ?: DEFAULT_BEFORE_SCHEDULE,
             afterSchedule = prefs[KEY_AFTER_SCHEDULE] ?: DEFAULT_AFTER_SCHEDULE

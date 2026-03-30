@@ -12,39 +12,41 @@ import com.google.firebase.messaging.FirebaseMessaging
 
 import ru.tgmaksim.activium.api.Settings
 import ru.tgmaksim.activium.utilities.datastore.CacheManager
-import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
+import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         SettingsManager.init(this)
+        CacheManager.init(this)
 
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         applicationScope.launch {
             MemoryDataManager.sessionId.value = SettingsManager.getSessionId()
             MemoryDataManager.darkTheme.value = SettingsManager.getDarkTheme()
+            MemoryDataManager.themeInitialized = true
         }
 
-        CacheManager.init(this)
-
         // Загрузка Firebase
-        FirebaseApp.initializeApp(this)
+        applicationScope.launch {
+            FirebaseApp.initializeApp(this@App)
 
-        // Проверка изменений firebaseToken
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (!task.isSuccessful)
-                return@addOnCompleteListener
+            // Проверка изменений firebaseToken
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (!task.isSuccessful)
+                    return@addOnCompleteListener
 
-            applicationScope.launch {
-                val firebaseMessagingToken = task.result
+                applicationScope.launch {
+                    val firebaseMessagingToken = task.result
 
-                if (SettingsManager.getFirebaseMessagingToken() != firebaseMessagingToken) {
-                    SettingsManager.setFirebaseMessagingToken(firebaseMessagingToken)
+                    if (SettingsManager.getFirebaseMessagingToken() != firebaseMessagingToken) {
+                        SettingsManager.setFirebaseMessagingToken(firebaseMessagingToken)
 
-                    if (MemoryDataManager.sessionId.value != null)
-                        Settings.updateFirebase(firebaseMessagingToken)
+                        if (MemoryDataManager.sessionId.value != null)
+                            Settings.updateFirebase(firebaseMessagingToken)
+                    }
                 }
             }
         }

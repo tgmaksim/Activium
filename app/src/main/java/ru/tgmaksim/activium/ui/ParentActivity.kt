@@ -4,12 +4,14 @@ import android.os.Build
 import android.view.ViewGroup
 
 import androidx.core.view.ViewCompat
+import kotlinx.coroutines.runBlocking
 import androidx.core.view.updatePadding
 import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
 /**
@@ -23,6 +25,11 @@ open class ParentActivity : AppCompatActivity() {
      * */
     fun setupActivityTheme() {
         setTheme(R.style.Theme_Activium)
+
+        if (!MemoryDataManager.themeInitialized) {
+            MemoryDataManager.darkTheme.value = runBlocking { SettingsManager.getDarkTheme() }
+            MemoryDataManager.themeInitialized = true
+        }
 
         val darkTheme = MemoryDataManager.darkTheme.value
         if (darkTheme)

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_base" />
+            <corners android:radius="15dp" />
+        </shape>
+    </item>
+
+    <!-- Номер -->
+    <item
+        android:left="14dp"
+        android:top="14dp"
+        android:right="250dp"
+        android:bottom="86dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_highlight" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+
+    <!-- Предмет -->
+    <item
+        android:left="44dp"
+        android:top="14dp"
+        android:right="92dp"
+        android:bottom="86dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_highlight" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+
+    <!-- Время -->
+    <item
+        android:left="14dp"
+        android:top="42dp"
+        android:right="190dp"
+        android:bottom="64dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_highlight" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+
+    <!-- Место -->
+    <item
+        android:left="202dp"
+        android:top="42dp"
+        android:right="14dp"
+        android:bottom="64dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_highlight" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+
+    <!-- Домашнее -->
+    <item
+        android:left="14dp"
+        android:top="68dp"
+        android:right="40dp"
+        android:bottom="44dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_highlight" />
+            <corners android:radius="5dp" />
+        </shape>
+    </item>
+
+    <item
+        android:left="46dp"
+        android:top="68dp"
+        android:right="18dp"
+        android:bottom="44dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_highlight" />
+            <corners android:radius="5dp" />
+        </shape>
+    </item>
+
+    <!-- Заметка -->
+    <item
+        android:left="14dp"
+        android:top="95dp"
+        android:right="88dp"
+        android:bottom="14dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_highlight" />
+            <corners android:radius="5dp" />
+        </shape>
+    </item>
+
+    <!-- Оценки / логи -->
+    <item
+        android:left="278dp"
+        android:top="18dp"
+        android:right="14dp"
+        android:bottom="18dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/skeleton_highlight" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+
+</layer-list>

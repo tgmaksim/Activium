@@ -45,12 +45,6 @@ class SettingsViewModel : UiViewModel() {
         }
     }
 
-    fun setOpenWebView(openWebView: Boolean) {
-        viewModelScope.launch {
-            SettingsManager.setOpenWebView(openWebView)
-        }
-    }
-
     fun setRangeSchedule(before: Int, after: Int) {
         viewModelScope.launch {
             SettingsManager.setBeforeSchedule(before)

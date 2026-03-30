@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 object MemoryDataManager {
     val darkTheme = MutableStateFlow(false)
+    var themeInitialized = false
     val sessionId = MutableStateFlow<String?>(null)
     val versionStatus = MutableStateFlow<VersionsResult?>(null)
 }

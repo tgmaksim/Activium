@@ -105,8 +105,6 @@ class SettingsPage : Fragment() {
         val settings = SettingsManager.snapshot()
 
         // Установка Switch в нужное положение
-        ui.settingsDocumentView.isChecked = settings.openWebView
-        ui.settingsDocumentView.visibility = View.VISIBLE
         ui.settingsEANotifications.isChecked = settings.eaNotifications
         ui.settingsEANotifications.visibility = View.VISIBLE
         ui.settingsTheme.isChecked = settings.darkTheme
@@ -184,11 +182,6 @@ class SettingsPage : Fragment() {
 
         ui.settingsDnevnikNotifications.setOnCheckedChangeListener { _, isChecked ->
             dnevnikNotificationsListener(isChecked)
-        }
-
-        // Смена настройки для открытия документов в домашнем задании
-        ui.settingsDocumentView.setOnCheckedChangeListener { _, isChecked ->
-            settingsViewModel.setOpenWebView(isChecked)
         }
 
         // Смена периода загружаемого расписания
