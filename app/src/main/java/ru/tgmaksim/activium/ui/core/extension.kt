@@ -26,3 +26,8 @@ fun <T> MutableStateFlow<LoadState<T>>.setError(
     value = error
     return error
 }
+
+fun <T> MutableStateFlow<LoadState<T>>.setShownError(): LoadState<Nothing> {
+    value = LoadState.ShownError
+    return LoadState.ShownError
+}

@@ -33,20 +33,20 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.Child
 import ru.tgmaksim.activium.api.Review
 import ru.tgmaksim.activium.BuildConfig
-import ru.tgmaksim.activium.api.ChildrenResult
-import ru.tgmaksim.activium.api.MyReviewResult
-import ru.tgmaksim.activium.api.StatusDnevnikNotificationsResult
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.ui.ParentActivity
+import ru.tgmaksim.activium.ui.core.LoadState
+import ru.tgmaksim.activium.api.ChildrenResult
+import ru.tgmaksim.activium.api.MyReviewResult
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.main.MainActivity
 import ru.tgmaksim.activium.databinding.ChildItemBinding
 import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.databinding.SettingsPageBinding
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
+import ru.tgmaksim.activium.api.StatusDnevnikNotificationsResult
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 import ru.tgmaksim.activium.databinding.DialogReviewEditorBinding
-import ru.tgmaksim.activium.ui.core.LoadState
 
 /**
  * Fragment-страница с настройками приложения
@@ -326,6 +326,7 @@ class SettingsPage : Fragment() {
                             renderChildren(state.data.children, state.data.activeChildId)
                         else if (state is LoadState.Error) {
                             Utilities.showUiMessage(requireContext(), state.message)
+                            settingsViewModel.reset(SettingsViewModel.StateType.Children)
                             if (state.unauthorized)
                                 logout()
                         }
@@ -337,6 +338,7 @@ class SettingsPage : Fragment() {
                             renderSwitchDnevnikNotifications(state.data.status)
                         else if (state is LoadState.Error) {
                             Utilities.showUiMessage(requireContext(), state.message)
+                            settingsViewModel.reset(SettingsViewModel.StateType.StatusDN)
                             if (state.unauthorized)
                                 logout()
                         }
@@ -350,6 +352,7 @@ class SettingsPage : Fragment() {
                             renderReview(state.data.review, state.data.onModeration)
                         else if (state is LoadState.Error) {
                             Utilities.showUiMessage(requireContext(), state.message)
+                            settingsViewModel.reset(SettingsViewModel.StateType.Review)
                             if (state.unauthorized)
                                 logout()
                         }
@@ -595,7 +598,7 @@ class SettingsPage : Fragment() {
     private fun switchChildrenState(state: LoadState<ChildrenResult>) {
         ui.childrenLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
         ui.childrenArrow.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
-        ui.childrenError.visibility = if (state is LoadState.Error) View.VISIBLE else View.GONE
+        ui.childrenError.visibility = if (state.isError()) View.VISIBLE else View.GONE
 
         ui.childrenHeader.isEnabled = state is LoadState.Success
     }
@@ -603,13 +606,13 @@ class SettingsPage : Fragment() {
     private fun switchDNState(state: LoadState<StatusDnevnikNotificationsResult>) {
         ui.dnevnikNotificationsLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
         ui.settingsDnevnikNotifications.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
-        ui.dnevnikNotificationsError.visibility = if (state is LoadState.Error) View.VISIBLE else View.GONE
+        ui.dnevnikNotificationsError.visibility = if (state.isError()) View.VISIBLE else View.GONE
     }
 
     private fun switchReviewState(state: LoadState<MyReviewResult>) {
         ui.buttonRefreshReview.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
         ui.reviewLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
-        ui.reviewError.visibility = if (state is LoadState.Error) View.VISIBLE else View.GONE
+        ui.reviewError.visibility = if (state.isError()) View.VISIBLE else View.GONE
 
         if (state is LoadState.Success && state.data.review != null) {
             ui.reviewMeta.visibility = View.VISIBLE

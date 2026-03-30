@@ -20,9 +20,9 @@ import ru.tgmaksim.activium.BuildConfig
 import ru.tgmaksim.activium.ui.ParentActivity
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.api.VersionsResult
-import ru.tgmaksim.activium.ui.pages.school.SchoolPage
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.pages.marks.MarksPage
+import ru.tgmaksim.activium.ui.pages.school.SchoolPage
 import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.ui.pages.schedule.SchedulePage
 import ru.tgmaksim.activium.ui.pages.settings.SettingsPage
@@ -137,15 +137,12 @@ class MainActivity : ParentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activityViewModel.versionState.collect { state ->
-                    when (state) {
-                        is LoadState.Success -> {
-                            if (state.data.latestVersionNumber > BuildConfig.VERSION_CODE)
-                                showNewVersionInfo(state)
-                        }
-                        is LoadState.Error -> {
-                            Utilities.showUiMessage(this@MainActivity, state.message)
-                        }
-                        else -> {}
+                    if (state is LoadState.Success) {
+                        if (state.data.latestVersionNumber > BuildConfig.VERSION_CODE)
+                            showNewVersionInfo(state)
+                    } else if (state is LoadState.Error) {
+                        Utilities.showUiMessage(this@MainActivity, state.message)
+                        activityViewModel.reset(MainActivityViewModel.StateType.Version)
                     }
                 }
             }

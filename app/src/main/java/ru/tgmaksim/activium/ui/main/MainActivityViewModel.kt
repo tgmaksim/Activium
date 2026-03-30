@@ -11,11 +11,20 @@ import ru.tgmaksim.activium.api.Status
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.api.VersionsResult
 import ru.tgmaksim.activium.ui.core.UiViewModel
+import ru.tgmaksim.activium.ui.core.setShownError
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 
 class MainActivityViewModel : UiViewModel() {
+    enum class StateType { Version }
+
     private val _versionState = MutableStateFlow<LoadState<VersionsResult>>(LoadState.Empty)
     val versionState = _versionState.asStateFlow()
+
+    fun reset(stateType: StateType) {
+        when (stateType) {
+            StateType.Version -> _versionState.setShownError()
+        }
+    }
 
     fun checkVersion(version: Int) {
         viewModelScope.launch {

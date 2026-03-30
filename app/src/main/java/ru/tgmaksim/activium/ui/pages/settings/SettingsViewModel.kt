@@ -10,14 +10,18 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.Reviews
 import ru.tgmaksim.activium.api.Settings
 import ru.tgmaksim.activium.ui.LoginActivity
+import ru.tgmaksim.activium.ui.core.setEmpty
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.api.MyReviewResult
 import ru.tgmaksim.activium.api.ChildrenResult
 import ru.tgmaksim.activium.ui.core.UiViewModel
+import ru.tgmaksim.activium.ui.core.setShownError
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 import ru.tgmaksim.activium.api.StatusDnevnikNotificationsResult
 
 class SettingsViewModel : UiViewModel() {
+    enum class StateType { Children, StatusDN, Review }
+
     private val _childrenState = MutableStateFlow<LoadState<ChildrenResult>>(LoadState.Empty)
     val childrenState = _childrenState.asStateFlow()
 
@@ -26,6 +30,14 @@ class SettingsViewModel : UiViewModel() {
 
     private val _reviewState = MutableStateFlow<LoadState<MyReviewResult>>(LoadState.Empty)
     val reviewState = _reviewState.asStateFlow()
+
+    fun reset(stateType: StateType) {
+        when (stateType) {
+            StateType.Children -> _childrenState.setShownError()
+            StateType.StatusDN -> _statusDNState.setShownError()
+            StateType.Review -> _reviewState.setShownError()
+        }
+    }
 
     fun updateTheme(darkTheme: Boolean) {
         viewModelScope.launch {
@@ -48,9 +60,9 @@ class SettingsViewModel : UiViewModel() {
 
     fun logout() {
         viewModelScope.launch {
-            _childrenState.value = LoadState.Empty
-            _statusDNState.value = LoadState.Empty
-            _reviewState.value = LoadState.Empty
+            _childrenState.setEmpty()
+            _statusDNState.setEmpty()
+            _reviewState.setEmpty()
 
             LoginActivity.logout()
         }
