@@ -47,7 +47,7 @@ object CacheManager {
     suspend fun read(
         childId: Long,
         name: String,
-        param: String? = null
+        param: String = ""
     ): DnevnikCacheEntity? {
         return withContext(Dispatchers.IO) {
             db().cacheDao().read(

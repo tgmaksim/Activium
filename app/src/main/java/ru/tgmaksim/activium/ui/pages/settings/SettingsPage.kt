@@ -84,15 +84,6 @@ class SettingsPage : Fragment() {
         setupSettingsListener()  // Настройка обработчиков настроек
         setupButtonsListener()  // Настройка кнопок после настроек
 
-        if (settingsViewModel.childrenState.value is LoadState.Empty)
-            settingsViewModel.loadChildren()
-
-        if (settingsViewModel.statusDNState.value is LoadState.Empty)
-            settingsViewModel.loadDnevnikNotifications()
-
-        if (settingsViewModel.reviewState.value is LoadState.Empty)
-            settingsViewModel.loadReview()
-
         setupStatesListener()
     }
 
@@ -313,44 +304,56 @@ class SettingsPage : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     settingsViewModel.childrenState.collect { state ->
-                        switchChildrenState(state)
+                        if (state is LoadState.Empty) {
+                            settingsViewModel.loadChildren()
+                        } else {
+                            switchChildrenState(state)
 
-                        if (state is LoadState.Success)
-                            renderChildren(state.data.children, state.data.activeChildId)
-                        else if (state is LoadState.Error) {
-                            Utilities.showUiMessage(requireContext(), state.message)
-                            settingsViewModel.reset(SettingsViewModel.StateType.Children)
-                            if (state.unauthorized)
-                                logout()
+                            if (state is LoadState.Success)
+                                renderChildren(state.data.children, state.data.activeChildId)
+                            else if (state is LoadState.Error) {
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                settingsViewModel.resetError(SettingsViewModel.StateType.Children)
+                                if (state.unauthorized)
+                                    logout()
+                            }
                         }
                     }
                 }
                 launch {
                     settingsViewModel.statusDNState.collect { state ->
-                        if (state is LoadState.Success)
-                            renderSwitchDnevnikNotifications(state.data.status)
-                        else if (state is LoadState.Error) {
-                            Utilities.showUiMessage(requireContext(), state.message)
-                            settingsViewModel.reset(SettingsViewModel.StateType.StatusDN)
-                            if (state.unauthorized)
-                                logout()
-                        }
+                        if (state is LoadState.Empty) {
+                            settingsViewModel.loadDnevnikNotifications()
+                        } else {
+                            if (state is LoadState.Success)
+                                renderSwitchDnevnikNotifications(state.data.status)
+                            else if (state is LoadState.Error) {
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                settingsViewModel.resetError(SettingsViewModel.StateType.StatusDN)
+                                if (state.unauthorized)
+                                    logout()
+                            }
 
-                        switchDNState(state)
+                            switchDNState(state)
+                        }
                     }
                 }
                 launch {
                     settingsViewModel.reviewState.collect { state ->
-                        if (state is LoadState.Success && state.data.review != null)
-                            renderReview(state.data.review, state.data.onModeration)
-                        else if (state is LoadState.Error) {
-                            Utilities.showUiMessage(requireContext(), state.message)
-                            settingsViewModel.reset(SettingsViewModel.StateType.Review)
-                            if (state.unauthorized)
-                                logout()
-                        }
+                        if (state is LoadState.Empty) {
+                            settingsViewModel.loadReview()
+                        } else {
+                            if (state is LoadState.Success && state.data.review != null)
+                                renderReview(state.data.review, state.data.onModeration)
+                            else if (state is LoadState.Error) {
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                settingsViewModel.resetError(SettingsViewModel.StateType.Review)
+                                if (state.unauthorized)
+                                    logout()
+                            }
 
-                        switchReviewState(state)
+                            switchReviewState(state)
+                        }
                     }
                 }
                 launch {

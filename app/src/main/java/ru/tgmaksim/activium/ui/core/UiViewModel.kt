@@ -55,7 +55,7 @@ open class UiViewModel : ViewModel() {
                 onSuccess(answer)
             }
         } catch (_: CancellationException) {
-            onNewState(state.setEmpty())
+            onNewState(state.setError(UiText.StringResource(errorRes)))
             loading = false
         } catch (_: TlsException) {
             onNewState(state.setError(UiText.StringResource(R.string.error_tls)))
@@ -68,6 +68,56 @@ open class UiViewModel : ViewModel() {
         } finally {
             if (loading)
                 onNewState(state.setError(UiText.StringResource(errorRes)))
+        }
+    }
+
+    protected suspend fun <R: ApiResponse, T> executeRequest(
+        state: MutableStateFlow<CacheDataLoadState>,
+        dataState: MutableStateFlow<T?>,
+        apiName: String,
+        errorRes: Int,
+        request: suspend () -> R,
+        mapSuccess: (R) -> T?,
+        onSuccess: suspend (R) -> Unit = {}
+    ) {
+        state.setCloudLoading()
+        var loading = true
+
+        try {
+            val response = request()
+            val answer = mapSuccess(response)
+
+            if (!response.status || answer == null) {
+                if (response.error != null)
+                    Utilities.log("API error(${response.error?.type}) at $apiName: ${response.error?.errorMessage}")
+
+                val unauthorized = response.error?.type == "UnauthorizedError"
+                val message = response.error?.errorMessage?.let {
+                    UiText.DynamicString(it)
+                } ?: UiText.StringResource(errorRes)
+
+                state.setCloudError(message, unauthorized)
+                loading = false
+            } else {
+                dataState.value = answer
+                state.setCloudSuccess()
+                loading = false
+                onSuccess(response)
+            }
+        } catch (_: CancellationException) {
+            state.setCacheSuccess()
+            loading = false
+        } catch (_: TlsException) {
+            state.setCloudError(UiText.StringResource(R.string.error_tls))
+            loading = false
+        } catch (e: Exception) {
+            Utilities.log(e)
+            val messageRes = if (!Request.checkInternet()) R.string.error_internet else errorRes
+            state.setCloudError(UiText.StringResource(messageRes))
+            loading = false
+        } finally {
+            if (loading)
+                state.setCloudError(UiText.StringResource(errorRes))
         }
     }
 }

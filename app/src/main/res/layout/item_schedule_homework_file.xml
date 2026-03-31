@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvHomeworkDocumentGroup"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:fontFamily="sans-serif"
+        android:text="@string/homework_document_emoji"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/homeworkDocumentName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:ellipsize="middle"
+        android:fontFamily="sans-serif"
+        android:lineSpacingExtra="2dp"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:text="@string/homework_document_not_found"
+        android:textColor="@color/lesson_homework_file_name"
+        android:textSize="14sp" />
+
+</LinearLayout>

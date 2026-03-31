@@ -115,8 +115,8 @@ data class MarkLog(
     override val classId: Int = CLASS_ID,
     val mood: String,
     val value: String,
-    val work: WorkType? = null,
-    val created: Instant? = null
+    val work: WorkType?,
+    val created: Instant?
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0xE
@@ -138,7 +138,7 @@ data class MarkLog(
 @Serializable
 data class MarksOther(
     override val classId: Int = CLASS_ID,
-    val number: Int? = null,
+    val number: Int?,
     val name: String,
     val marks: List<MarkLog>
 ) : ApiBase() {
@@ -180,11 +180,11 @@ data class ScheduleLesson(
     val works: List<WorkType>,
     val logs: List<MarkLog>,
     val othersMarks: List<MarksOther>,
-    val avgGroupLessonMark: MarkLog? = null,
-    val homework: String? = null,
-    val note: String? = null,
+    val avgGroupLessonMark: MarkLog?,
+    val homework: String?,
+    val note: String?,
     val files: List<ScheduleHomeworkDocument>,
-    val ratingKey: String? = null
+    val ratingKey: String?
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x10
@@ -279,8 +279,8 @@ data class ScheduleApiResponse(
 @Serializable
 data class LessonRatingStatsResult(
     override val classId: Int = CLASS_ID,
-    val oldAvgMark: MarkLog? = null,
-    val newAvgMark: MarkLog? = null
+    val oldAvgMark: MarkLog?,
+    val newAvgMark: MarkLog?
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x14
@@ -330,8 +330,8 @@ data class MarkLast(
     override val classId: Int = CLASS_ID,
     val mark: MarkLog,
     val subject: String,
-    val lessonDate: LocalDate? = null,
-    val humanLessonDate: String? = null,
+    val lessonDate: LocalDate?,
+    val humanLessonDate: String?,
     val ratingKey: String
 ) : ApiBase() {
     companion object {
@@ -358,8 +358,8 @@ data class MarksSubjectPeriod(
     override val classId: Int = CLASS_ID,
     val subject: String,
     val marks: List<MarkLog>,
-    val averageMark: MarkLog? = null,
-    val periodMark: MarkLog? = null,
+    val averageMark: MarkLog?,
+    val periodMark: MarkLog?,
     val ratingKey: String
 ) : ApiBase() {
     companion object {
@@ -434,9 +434,9 @@ data class MarksApiResponse(
 data class MarksRatingStatsResult(
     override val classId: Int = CLASS_ID,
     val othersMarks: List<MarksOther>,
-    val avgGroupMark: MarkLog? = null,
-    val oldAvgMark: MarkLog? = null,
-    val newAvgMark: MarkLog? = null
+    val avgGroupMark: MarkLog?,
+    val oldAvgMark: MarkLog?,
+    val newAvgMark: MarkLog?
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x1A
@@ -483,7 +483,7 @@ data class MarksRatingStatsApiResponse(
 data class MarksSubjectRatingResult(
     override val classId: Int = CLASS_ID,
     val rating: List<MarksOther>,
-    val oldMark: MarksOther? = null
+    val oldMark: MarksOther?
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x1C
@@ -531,7 +531,7 @@ data class MarksSubjectFinal(
     override val classId: Int = CLASS_ID,
     val subject: String,
     val marks: List<MarkLog?>,
-    val finalMark: MarkLog? = null
+    val finalMark: MarkLog
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x1E

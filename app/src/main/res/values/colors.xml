@@ -33,6 +33,33 @@
     <color name="skeleton_highlight">#CCFFFFFF</color>
     <color name="skeleton_shimmer_center">#80FFFFFF</color>
 
+    <color name="lesson_bg">#40FFFFFF</color>
+    <color name="lesson_bg_extra">#35E3F2FD</color>
+    <color name="lesson_subject">#000000</color>
+    <color name="lesson_time">#555555</color>
+    <color name="lesson_place">#666666</color>
+    <color name="lesson_homework_text">#1B1B1B</color>
+    <color name="lesson_note_text">#0E4D8B</color>
+    <color name="lesson_work_type">#0D6EAF</color>
+    <color name="lesson_homework_file_name">#0D6EAF</color>
+    <color name="lesson_like_icon">#C9A63A</color>
+
+    <color name="mark_log_bg">#80FFFFFF</color>
+    <color name="mark_log_pressed">#A8FFFFFF</color>
+
+    <color name="calendar_day_fill">#10FFFFFF</color>
+    <color name="calendar_day_stroke">#30FFFFFF</color>
+    <color name="calendar_day_selected_fill">#40FFFFFF</color>
+    <color name="calendar_day_selected_stroke">#80FFFFFF</color>
+    <color name="calendar_day_activated_fill">#10FFFFFF</color>
+    <color name="calendar_day_activated_stroke">#FF4CAF50</color>
+    <color name="calendar_day_hovered_fill">#10FFFFFF</color>
+    <color name="calendar_day_hovered_stroke">#B3FF8A80</color>
+    <color name="calendar_day_selected_activated_fill">#40FFFFFF</color>
+    <color name="calendar_day_selected_activated_stroke">#FF4CAF50</color>
+    <color name="calendar_day_selected_hovered_fill">#40FFFFFF</color>
+    <color name="calendar_day_selected_hovered_stroke">#B3FF8A80</color>
+
 <!--    <color name="calendar_today">#4B9A25</color>-->
 <!--    <color name="lesson_time">#7B1FA2</color>-->
 <!--    <color name="lesson_subject">#000000</color>-->
@@ -45,10 +72,10 @@
     <color name="dialog_button_positive">#0066CC</color>
     <color name="dialog_button_negative">#555555</color>
 
-<!--    <color name="lesson_log_good">#4B9A25</color>-->
-<!--    <color name="lesson_log_average">#FF8F00</color>-->
-<!--    <color name="lesson_log_bad">#CF3838</color>-->
-<!--    <color name="lesson_log_more">#94ACC8</color>-->
+    <color name="mark_log_good">#4B9A25</color>
+    <color name="mark_log_average">#FF8F00</color>
+    <color name="mark_log_bad">#CF3838</color>
+    <color name="mark_log_more">#94ACC8</color>
 
     <color name="slider_accent">#0288D1</color>
     <color name="slider_track_off">#D1E9F6</color>

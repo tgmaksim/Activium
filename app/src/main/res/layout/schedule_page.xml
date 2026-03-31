@@ -4,32 +4,39 @@
     android:layout_height="match_parent"
     android:background="@color/main_bg">
 
-    <LinearLayout
-        android:id="@+id/scheduleContent"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="5dp">
+        android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/calendarRecycler"
+        <LinearLayout
+            android:id="@+id/scheduleContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            android:paddingHorizontal="5dp"
-            android:scrollbars="none" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="5dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/dayRecycler"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="10dp"
-            android:overScrollMode="never"
-            android:scrollbars="none" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/calendarRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingHorizontal="5dp"
+                android:scrollbars="none" />
 
-    </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/dayRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="10dp"
+                android:overScrollMode="never"
+                android:scrollbars="none" />
+
+        </LinearLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <View
         android:id="@+id/skeletonShimmer"

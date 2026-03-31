@@ -10,7 +10,6 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.Reviews
 import ru.tgmaksim.activium.api.Settings
 import ru.tgmaksim.activium.ui.LoginActivity
-import ru.tgmaksim.activium.ui.core.setEmpty
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.api.MyReviewResult
 import ru.tgmaksim.activium.api.ChildrenResult
@@ -31,7 +30,7 @@ class SettingsViewModel : UiViewModel() {
     private val _reviewState = MutableStateFlow<LoadState<MyReviewResult>>(LoadState.Empty)
     val reviewState = _reviewState.asStateFlow()
 
-    fun reset(stateType: StateType) {
+    fun resetError(stateType: StateType) {
         when (stateType) {
             StateType.Children -> _childrenState.setShownError()
             StateType.StatusDN -> _statusDNState.setShownError()
@@ -54,10 +53,6 @@ class SettingsViewModel : UiViewModel() {
 
     fun logout() {
         viewModelScope.launch {
-            _childrenState.setEmpty()
-            _statusDNState.setEmpty()
-            _reviewState.setEmpty()
-
             LoginActivity.logout()
         }
     }

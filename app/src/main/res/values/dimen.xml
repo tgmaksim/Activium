@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="schedule_calendar_day_width">45dp</dimen>
+</resources>
