@@ -13,8 +13,9 @@
             android:id="@+id/scheduleContent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            style="@style/AppSwipeRefreshStyle"
             android:orientation="vertical"
-            android:paddingTop="5dp">
+            android:paddingTop="5dp"> <!-- Другие стили применяются в коде -->
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/calendarRecycler"

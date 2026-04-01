@@ -45,4 +45,8 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <style name="AppSwipeRefreshStyle">
+        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">@color/main_bg</item>
+    </style>
+
 </resources>

@@ -46,6 +46,11 @@ class ScheduleViewModel : UiViewModel() {
         private const val CACHE_TIMEZONE_NAME = "timezone"
     }
 
+    fun resetSchedule() {
+        _scheduleState.value = CacheDataLoadState.Empty
+        _scheduleData.value = null
+    }
+
     fun resetError(stateType: StateType) {
         when (stateType) {
             StateType.Schedule -> _scheduleState.setShownError()
@@ -58,19 +63,9 @@ class ScheduleViewModel : UiViewModel() {
         }
     }
 
-    fun cancelLoadingCacheSchedule() {
-        loadCacheScheduleJob?.cancel()
-        loadCacheScheduleJob = null
-    }
-
-    fun cancelLoadingCloudSchedule() {
-        loadCloudCacheScheduleJob?.cancel()
-        loadCloudCacheScheduleJob = null
-    }
-
     fun loadCacheSchedule() {
         val job = loadCacheScheduleJob
-        if (job != null && !job.isCancelled)
+        if (job?.isActive == true)
             return
 
         loadCacheScheduleJob = viewModelScope.launch {
@@ -142,7 +137,7 @@ class ScheduleViewModel : UiViewModel() {
 
     fun loadCloudSchedule() {
         val job = loadCloudCacheScheduleJob
-        if (job != null && !job.isCancelled)
+        if (job?.isActive == true)
             return
 
         loadCloudCacheScheduleJob = viewModelScope.launch {

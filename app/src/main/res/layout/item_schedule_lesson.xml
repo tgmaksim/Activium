@@ -49,12 +49,23 @@
                 android:textColor="@color/lesson_subject"
                 android:textSize="18sp" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/time_place"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="1dp">
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.helper.widget.Flow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="time,place"
+                    app:flow_horizontalBias="0"
+                    app:flow_horizontalStyle="packed"
+                    app:flow_wrapMode="chain"
+                    app:flow_horizontalGap="10dp"
+                    app:flow_verticalGap="2dp"
+                    app:flow_maxElementsWrap="2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/time"
@@ -68,12 +79,13 @@
                     android:id="@+id/place"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
                     android:fontFamily="sans-serif"
                     android:textColor="@color/lesson_place"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

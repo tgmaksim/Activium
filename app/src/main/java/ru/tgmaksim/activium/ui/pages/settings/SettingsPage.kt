@@ -179,6 +179,15 @@ class SettingsPage : Fragment() {
         ui.settingsScheduleRange.addOnChangeListener { slider, _, _ ->
             settingsScheduleRangeListener(slider)
         }
+        ui.settingsScheduleRange.addOnSliderTouchListener(object : RangeSlider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(p0: RangeSlider) {}
+
+            override fun onStopTrackingTouch(slider: RangeSlider) {
+                val left = slider.values[0].toInt()
+                val right = slider.values[1].toInt()
+                settingsViewModel.setRangeSchedule(-left, right)
+            }
+        })
     }
 
     /**
@@ -215,8 +224,6 @@ class SettingsPage : Fragment() {
             after = right
 
             ui.rangeSliderStatus.visibility = if (-left > 7 || right > 14) View.VISIBLE else View.GONE
-
-            settingsViewModel.setRangeSchedule(-left, right)
         } else {
             slider.values = listOf(-before.toFloat(), after.toFloat())
         }
@@ -555,7 +562,7 @@ class SettingsPage : Fragment() {
             if ((it?.length ?: 0) > REVIEW_TEXT_LIMIT)
                 view.textCounter.setTextColor(Color.RED)
             else if ((it?.length ?: 0) == REVIEW_TEXT_LIMIT)
-                view.textCounter.setTextColor(resources.getColor(R.color.text_secondary, requireContext().theme))
+                view.textCounter.setTextColor(requireContext().getColor(R.color.text_secondary))
         }
 
         val dialog = MaterialAlertDialogBuilder(

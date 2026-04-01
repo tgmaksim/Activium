@@ -53,6 +53,21 @@ import kotlinx.serialization.Serializable
     }
 }
 
+@Serializable data class HealthApiResponse(
+    override val classId: Int = CLASS_ID,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: ApiResponse?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x5
+    }
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
 /**
  * API-singleton для запросов группы status
  * @property PATH_STATUS Название группы API-запросов
@@ -62,7 +77,10 @@ import kotlinx.serialization.Serializable
 object Status {
     private const val PATH_STATUS = "status"
     private const val PATH_CHECK_VERSION = "checkVersion"
+    private const val PATH_HEALTH = "health"
+
     private const val CHECK_VERSION_VERSION = 0
+    private const val HEALTH_VERSION = 0
 
     /**
      * Получение данных о последней доступной версии приложения
@@ -78,4 +96,25 @@ object Status {
 
         return response
     }
+
+    /**
+     * Проверка работоспособности сервера
+     * @return Ответ сервера в виде [HealthApiResponse]
+     * @exception Exception
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    suspend fun health(): HealthApiResponse {
+        val response = Request.get<HealthApiResponse>(
+            listOf(PATH_STATUS, PATH_HEALTH, HEALTH_VERSION).joinToString("/")
+        )
+
+        return response
+    }
+
+    suspend fun checkHealth(): Boolean =
+        try {
+            health().status
+        } catch (_: Exception) {
+            false
+        }
 }

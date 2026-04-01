@@ -8,6 +8,7 @@ import java.util.concurrent.CancellationException
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.Request
 import ru.tgmaksim.activium.api.ApiResponse
+import ru.tgmaksim.activium.api.Status
 import ru.tgmaksim.activium.utilities.Utilities
 
 open class UiViewModel : ViewModel() {
@@ -58,11 +59,15 @@ open class UiViewModel : ViewModel() {
             onNewState(state.setError(UiText.StringResource(errorRes)))
             loading = false
         } catch (_: TlsException) {
-            onNewState(state.setError(UiText.StringResource(R.string.error_tls)))
+            onNewState(state.setError(UiText.StringResource(R.string.error_server)))
             loading = false
         } catch (e: Exception) {
             Utilities.log(e)
-            val messageRes = if (!Request.checkInternet()) R.string.error_internet else errorRes
+            val messageRes = when {
+                !Request.checkInternet() -> R.string.error_internet
+                !Status.checkHealth() -> R.string.error_server
+                else -> errorRes
+            }
             onNewState(state.setError(UiText.StringResource(messageRes)))
             loading = false
         } finally {
@@ -108,11 +113,15 @@ open class UiViewModel : ViewModel() {
             state.setCacheSuccess()
             loading = false
         } catch (_: TlsException) {
-            state.setCloudError(UiText.StringResource(R.string.error_tls))
+            state.setCloudError(UiText.StringResource(R.string.error_server))
             loading = false
         } catch (e: Exception) {
             Utilities.log(e)
-            val messageRes = if (!Request.checkInternet()) R.string.error_internet else errorRes
+            val messageRes = when {
+                !Request.checkInternet() -> R.string.error_internet
+                !Status.checkHealth() -> R.string.error_server
+                else -> errorRes
+            }
             state.setCloudError(UiText.StringResource(messageRes))
             loading = false
         } finally {

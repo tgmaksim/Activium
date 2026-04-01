@@ -82,4 +82,6 @@
     <color name="slider_label_text">#000000</color>
     <color name="slider_halo_static">#204FC3F7</color>
     <color name="schedule_slider_warning">#FFCC0000</color>
+
+    <color name="swipe_refresh_scheme">#4FC3F7</color>
 </resources>

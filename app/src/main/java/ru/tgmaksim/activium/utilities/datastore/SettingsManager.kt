@@ -167,6 +167,7 @@ object SettingsManager {
         val prefs = appContext.settingsDataStore.data.first()
         return SettingsSnapshot(
             sessionId = prefs[KEY_SESSION_ID],
+            activeChildId = prefs[KEY_ACTIVE_CHILD_ID] ?: DEFAULT_ACTIVE_CHILD_ID,
             darkTheme = prefs[KEY_DARK_THEME] ?: DEFAULT_DARK_THEME,
             eaNotifications = prefs[KEY_EA_NOTIFICATIONS] ?: DEFAULT_EA_NOTIFICATIONS,
             beforeSchedule = prefs[KEY_BEFORE_SCHEDULE] ?: DEFAULT_BEFORE_SCHEDULE,

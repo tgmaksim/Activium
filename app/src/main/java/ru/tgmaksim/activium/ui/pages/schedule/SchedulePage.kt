@@ -31,6 +31,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.LocalDate
+import kotlin.properties.Delegates
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.toKotlinMonth
 import java.time.format.DateTimeFormatter
@@ -67,8 +68,9 @@ class SchedulePage : Fragment() {
     private val pagerSnapHelper = PagerSnapHelper()
 
     private var currentData: UiScheduleResult? = null
-    private var currentBefore = 0
-    private var currentAfter = 0
+    private var currentBefore by Delegates.notNull<Int>()
+    private var currentAfter by Delegates.notNull<Int>()
+    private var currentActiveChildId by Delegates.notNull<Long>()
     private var currentSelectedDate: LocalDate? = null
     private var currentDates: List<LocalDate> = emptyList()
     private var shouldAnimateShimmer = true
@@ -77,6 +79,7 @@ class SchedulePage : Fragment() {
         private const val SKELETON_CALENDAR_COUNT = 7
         private const val SKELETON_DAYS_COUNT = 1
         private const val SKELETON_LESSONS_COUNT = 5
+        private const val OPEN_NEXT_DAY_SINCE_HOURS = 15
     }
 
     override fun onCreateView(
@@ -85,8 +88,6 @@ class SchedulePage : Fragment() {
     ): View {
         ui = SchedulePageBinding.inflate(inflater, container, false)
 
-        startShimmer()
-
         return ui.root
     }
 
@@ -94,10 +95,13 @@ class SchedulePage : Fragment() {
         val settings = runBlocking { SettingsManager.snapshot() }
         currentBefore = settings.beforeSchedule
         currentAfter = settings.afterSchedule
+        currentActiveChildId = settings.activeChildId
 
         setupRecyclerViews()
 
         setupCollectors()
+
+        setupSwipeRefresh()
     }
 
     override fun onResume() {
@@ -114,6 +118,36 @@ class SchedulePage : Fragment() {
     override fun onDestroyView() {
         stopShimmer()
         super.onDestroyView()
+    }
+
+    private fun startShimmer() {
+        ui.skeletonShimmer.visibility = View.VISIBLE
+        ui.skeletonShimmer.doOnLayout {
+            val startX = -ui.skeletonShimmer.width.toFloat()
+            val endX = ui.root.width.toFloat()
+
+            ui.skeletonShimmer.translationX = startX
+
+            shimmerAnimator?.cancel()
+            shimmerAnimator = ObjectAnimator.ofFloat(
+                ui.skeletonShimmer,
+                View.TRANSLATION_X,
+                startX,
+                endX
+            ).apply {
+                duration = 600L
+                repeatCount = ValueAnimator.INFINITE
+                repeatMode = ValueAnimator.RESTART
+                interpolator = LinearInterpolator()
+                start()
+            }
+        }
+    }
+
+    private fun stopShimmer() {
+        shimmerAnimator?.cancel()
+        shimmerAnimator = null
+        ui.skeletonShimmer.visibility = View.GONE
     }
 
     private fun setupRecyclerViews() {
@@ -196,6 +230,23 @@ class SchedulePage : Fragment() {
         )
     }
 
+    @Suppress("DEPRECATION")
+    private fun formatWeekday(date: LocalDate): String {
+        val javaDate = java.time.LocalDate.of(date.year, date.month.number, date.day)
+        return javaDate.format(DateTimeFormatter.ofPattern("EE", Locale("ru"))).uppercase()
+    }
+
+    private fun onCalendarDayClick(date: LocalDate) {
+        val position = currentDates.indexOf(date)
+        if (position < 0) return
+
+        currentSelectedDate = date
+        submitCalendar(currentData, position)
+        ui.dayRecycler.post {
+            ui.dayRecycler.scrollToPosition(position)
+        }
+    }
+
     private fun centerCalendarItem(position: Int) {
         ui.calendarRecycler.post {
             val layoutManager = ui.calendarRecycler.layoutManager as? LinearLayoutManager ?: return@post
@@ -207,6 +258,11 @@ class SchedulePage : Fragment() {
 
             layoutManager.scrollToPositionWithOffset(position, offset)
         }
+    }
+
+    private fun onPraiseLesson(lessonKey: String) {
+        // позже сюда будет вызов API похвалы
+        Utilities.log("praise lesson: $lessonKey", tag = "schedule")
     }
 
     private fun setupCollectors() {
@@ -221,23 +277,44 @@ class SchedulePage : Fragment() {
                         Triple(childId, before, after)
                     }
                         .distinctUntilChanged()
-                        .collect {
-                            // TODO: обработать изменения
+                        .collect { (activeChildId, scheduleBefore, scheduleAfter) ->
+                            val childChanged = activeChildId != currentActiveChildId
+                            val rangeChanged = scheduleBefore != currentBefore || scheduleAfter != currentAfter
 
-                            scheduleViewModel.loadCacheSchedule()
+                            currentActiveChildId = activeChildId
+                            currentBefore = scheduleBefore
+                            currentAfter = scheduleAfter
+
+                            if (childChanged) {
+                                restartScheduleFromScratch()
+                            } else if (rangeChanged) {
+                                val oldData = currentData
+
+                                if (oldData != null) {
+                                    val resized = resizeSchedule(oldData, scheduleBefore, scheduleAfter)
+                                    currentData = resized
+                                    renderSchedule(resized)
+                                    if (resized.schedule.any { it == null })
+                                        scheduleViewModel.loadCacheSchedule()
+                                } else {
+                                    restartScheduleFromScratch()
+                                }
+                            }
                         }
                 }
                 launch {
                     scheduleViewModel.scheduleState.collect { state ->
                         when (state) {
                             CacheDataLoadState.Empty -> {
-                                // Загрузка кэша начинается выше
-                            }
-                            CacheDataLoadState.CacheLoading -> {
+                                scheduleViewModel.loadCacheSchedule()
+
                                 if (!shouldAnimateShimmer) {
                                     shouldAnimateShimmer = true
                                     showSkeletonMode()
                                 }
+                            }
+                            CacheDataLoadState.CacheLoading -> {
+                                updateCloudLoading(false)
                             }
                             CacheDataLoadState.CacheSuccess -> {
                                 shouldAnimateShimmer = false
@@ -246,7 +323,7 @@ class SchedulePage : Fragment() {
                             }
                             is CacheDataLoadState.CacheError -> {
                                 Utilities.showUiMessage(requireContext(), state.message)
-                                scheduleViewModel.resetError(ScheduleViewModel.StateType.Schedule)
+                                scheduleViewModel.loadCloudSchedule()
                             }
                             CacheDataLoadState.CloudLoading -> {
                                 updateCloudLoading(true)
@@ -255,6 +332,7 @@ class SchedulePage : Fragment() {
                                 updateCloudLoading(false)
                             }
                             is CacheDataLoadState.CloudError -> {
+                                updateCloudLoading(false)
                                 Utilities.showUiMessage(requireContext(), state.message)
                                 scheduleViewModel.resetError(ScheduleViewModel.StateType.Schedule)
                                 if (state.unauthorized)
@@ -268,13 +346,35 @@ class SchedulePage : Fragment() {
                 }
                 launch {
                     scheduleViewModel.scheduleData.collect { data ->
-                        currentData = data
-                        if (data != null)
-                            renderSchedule(data)
+                        if (currentData != data) {
+                            currentData = data
+                            if (data != null)
+                                renderSchedule(data)
+                        }
                     }
                 }
             }
         }
+    }
+
+    private fun restartScheduleFromScratch() {
+        currentDates = emptyList()
+        currentSelectedDate = null
+        showSkeletonMode()
+        scheduleViewModel.resetSchedule()
+    }
+
+    private fun resizeSchedule(data: UiScheduleResult, before: Int, after: Int): UiScheduleResult {
+        val today = currentDateInTimezone(data.timezone)
+        val firstDate = today.minus(DatePeriod(days = before))
+        val byDate = data.schedule.filterNotNull().associateBy { it.date }
+
+        val newSchedule = List(before + 1 + after) { index ->
+            val date = firstDate.plus(DatePeriod(days = index))
+            byDate[date]
+        }
+
+        return data.copy(schedule = newSchedule)
     }
 
     private fun showSkeletonMode() {
@@ -308,13 +408,10 @@ class SchedulePage : Fragment() {
         }
 
         currentDates = buildDates(data.timezone)
-        val selected = currentSelectedDate?.takeIf { it in currentDates }
-            ?: getDefaultDate(data.timezone).takeIf { it in currentDates }
-            ?: currentDates.getOrNull(currentBefore.coerceIn(0, currentDates.lastIndex))
-            ?: currentDates.first()
+        val selected = getSelectedDate(data.timezone)
 
         currentSelectedDate = selected
-        val selectedIndex = currentDates.indexOf(selected).coerceAtLeast(0)
+        val selectedIndex = getSelectedDateIndex(selected)
 
         dayAdapter.setHasAbilityPraise(data.hasAbilityPraise)
         dayAdapter.submitList(data.schedule)
@@ -323,22 +420,6 @@ class SchedulePage : Fragment() {
         ui.dayRecycler.post {
             ui.dayRecycler.scrollToPosition(selectedIndex)
         }
-    }
-
-    private fun onCalendarDayClick(date: LocalDate) {
-        val position = currentDates.indexOf(date)
-        if (position < 0) return
-
-        currentSelectedDate = date
-        submitCalendar(currentData, position)
-        ui.dayRecycler.post {
-            ui.dayRecycler.scrollToPosition(position)
-        }
-    }
-
-    private fun onPraiseLesson(lessonKey: String) {
-        // позже сюда будет вызов API похвалы
-        Utilities.log("praise lesson: $lessonKey", tag = "schedule")
     }
 
     private fun buildDates(timezone: Int): List<LocalDate> {
@@ -357,42 +438,46 @@ class SchedulePage : Fragment() {
             zoned.dayOfMonth
         )
 
-        return if (zoned.hour >= 15) today.plus(DatePeriod(days = 1)) else today
+        return if (zoned.hour >= OPEN_NEXT_DAY_SINCE_HOURS) today.plus(DatePeriod(days = 1)) else today
     }
 
-    @Suppress("DEPRECATION")
-    private fun formatWeekday(date: LocalDate): String {
-        val javaDate = java.time.LocalDate.of(date.year, date.month.number, date.day)
-        return javaDate.format(DateTimeFormatter.ofPattern("EE", Locale("ru"))).uppercase()
+    private fun getSelectedDate(timezone: Int): LocalDate {
+        val selected = currentSelectedDate?.takeIf { it in currentDates }
+            ?: getDefaultDate(timezone).takeIf { it in currentDates }
+            ?: currentDates.getOrNull(currentBefore.coerceIn(0, currentDates.lastIndex))
+            ?: currentDates.first()
+
+        return selected
     }
 
-    private fun startShimmer() {
-        ui.skeletonShimmer.visibility = View.VISIBLE
-        ui.skeletonShimmer.doOnLayout {
-            val startX = -ui.skeletonShimmer.width.toFloat()
-            val endX = ui.root.width.toFloat()
+    private fun getSelectedDateIndex(selected: LocalDate): Int {
+        return currentDates.indexOf(selected).coerceAtLeast(0)
+    }
 
-            ui.skeletonShimmer.translationX = startX
+    private fun setupSwipeRefresh() {
+        ui.swipeRefresh.setColorSchemeColors(requireContext().getColor(R.color.swipe_refresh_scheme))
+        ui.swipeRefresh.setProgressBackgroundColorSchemeColor(requireContext().getColor(R.color.main_bg))
 
-            shimmerAnimator?.cancel()
-            shimmerAnimator = ObjectAnimator.ofFloat(
-                ui.skeletonShimmer,
-                View.TRANSLATION_X,
-                startX,
-                endX
-            ).apply {
-                duration = 600L
-                repeatCount = ValueAnimator.INFINITE
-                repeatMode = ValueAnimator.RESTART
-                interpolator = LinearInterpolator()
-                start()
+        ui.swipeRefresh.setDistanceToTriggerSync((150 * resources.displayMetrics.density).toInt())
+        ui.swipeRefresh.setOnChildScrollUpCallback { _, _ ->
+            val layoutManager = ui.dayRecycler.layoutManager as? LinearLayoutManager
+            val selectedIndex = currentData?.let { getSelectedDateIndex(getSelectedDate(it.timezone)) }
+            val view = selectedIndex?.let { layoutManager?.findViewByPosition(it) }
+
+            val lessonsRecycler = view?.findViewById<RecyclerView>(R.id.lessonsRecycler)
+
+            lessonsRecycler?.canScrollVertically(-1) ?: true
+        }
+
+        ui.swipeRefresh.setOnRefreshListener {
+            when (scheduleViewModel.scheduleState.value) {
+                is CacheDataLoadState.CloudSuccess, is CacheDataLoadState.CloudError, is CacheDataLoadState.ShownError -> {
+                    scheduleViewModel.loadCloudSchedule()
+                }
+                else -> {
+                    updateCloudLoading(false)
+                }
             }
         }
-    }
-
-    private fun stopShimmer() {
-        shimmerAnimator?.cancel()
-        shimmerAnimator = null
-        ui.skeletonShimmer.visibility = View.GONE
     }
 }
