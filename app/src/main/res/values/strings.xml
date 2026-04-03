@@ -32,9 +32,10 @@
     <string name="settings">Настройки</string>
 
     <string name="settings_theme">Использовать темную тему</string>
-    <string name="settings_ea">Уведомлять о внеурочных занятиях</string>
-    <string name="settings_dnevnik">Уведомлять о новых оценках</string>
-    <string name="error_dnevnik_notifications">Произошла ошибка при загрузке статуса учебных уведомлений</string>
+    <string name="settings_ea_notifications">Напоминать о внеурочных занятиях</string>
+    <string name="settings_marks_notifications">Уведомлять о новых оценках</string>
+    <string name="error_marks_notifications">Произошла ошибка при загрузке статуса уведомлений о новых оценках</string>
+    <string name="error_ea_notifications">Произошла ошибка при загрузке статуса уведомлений о внеурочных занятиях</string>
     <string name="settings_schedule_period">Диапазон расписания</string>
     <string name="schedule_range_label_today">сегодня</string>
     <string name="schedule_range_label_tomorrow">завтра</string>

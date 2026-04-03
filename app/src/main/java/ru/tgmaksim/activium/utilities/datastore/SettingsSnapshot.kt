@@ -4,7 +4,6 @@ data class SettingsSnapshot(
     val sessionId: String?,
     val activeChildId: Long,
     val darkTheme: Boolean,
-    val eaNotifications: Boolean,
     val beforeSchedule: Int,
     val afterSchedule: Int
 )

@@ -11,7 +11,6 @@ import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
  * @param classId Идентификатор класса
  * @param fileName Название файла
  * @param downloadUrl Ссылка для загрузки файла
- * @param insideOpenUrl Ссылка для открытия документа во внутреннем браузере приложения
  * @author Максим Дрючин (tgmaksim)
  * @see ScheduleLesson
  */
@@ -19,8 +18,7 @@ import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 data class ScheduleHomeworkDocument(
     override val classId: Int = CLASS_ID,
     val fileName: String,
-    val downloadUrl: String,
-    val insideOpenUrl: String?
+    val downloadUrl: String
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0xA

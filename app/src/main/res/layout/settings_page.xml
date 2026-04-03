@@ -49,7 +49,7 @@
                     android:id="@+id/settingsTheme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="invisible"
+                    android:visibility="gone"
                     app:thumbTint="@color/thumb_switch_colors"
                     app:trackTint="@color/track_switch_colors" />
 
@@ -65,7 +65,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/settings_ea"
+                    android:text="@string/settings_ea_notifications"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -73,9 +73,23 @@
                     android:id="@+id/settingsEANotifications"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="invisible"
+                    android:visibility="gone"
                     app:thumbTint="@color/thumb_switch_colors"
                     app:trackTint="@color/track_switch_colors" />
+
+                <ProgressBar
+                    android:id="@+id/eaNotificationsLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/eaNotificationsError"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/error"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -89,12 +103,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/settings_dnevnik"
+                    android:text="@string/settings_marks_notifications"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/settingsDnevnikNotifications"
+                    android:id="@+id/settingsMarksNotifications"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
@@ -102,13 +116,13 @@
                     app:trackTint="@color/track_switch_colors" />
 
                 <ProgressBar
-                    android:id="@+id/dnevnikNotificationsLoading"
+                    android:id="@+id/marksNotificationsLoading"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="20dp"
                     android:visibility="gone" />
 
                 <ImageView
-                    android:id="@+id/dnevnikNotificationsError"
+                    android:id="@+id/marksNotificationsError"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginEnd="10dp"

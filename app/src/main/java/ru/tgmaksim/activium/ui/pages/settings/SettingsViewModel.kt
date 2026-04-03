@@ -15,17 +15,21 @@ import ru.tgmaksim.activium.api.MyReviewResult
 import ru.tgmaksim.activium.api.ChildrenResult
 import ru.tgmaksim.activium.ui.core.UiViewModel
 import ru.tgmaksim.activium.ui.core.setShownError
+import ru.tgmaksim.activium.api.StatusEANotificationsResult
+import ru.tgmaksim.activium.api.StatusMarksNotificationsResult
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
-import ru.tgmaksim.activium.api.StatusDnevnikNotificationsResult
 
 class SettingsViewModel : UiViewModel() {
-    enum class StateType { Children, StatusDN, Review }
+    enum class StateType { Children, StatusMarksNotifications, StatusEANotifications, Review }
 
     private val _childrenState = MutableStateFlow<LoadState<ChildrenResult>>(LoadState.Empty)
     val childrenState = _childrenState.asStateFlow()
 
-    private val _statusDNState = MutableStateFlow<LoadState<StatusDnevnikNotificationsResult>>(LoadState.Empty)
-    val statusDNState = _statusDNState.asStateFlow()
+    private val _statusMarksNotificationsState = MutableStateFlow<LoadState<StatusMarksNotificationsResult>>(LoadState.Empty)
+    val statusMarksNotificationsState = _statusMarksNotificationsState.asStateFlow()
+
+    private val _statusEANotificationsState = MutableStateFlow<LoadState<StatusEANotificationsResult>>(LoadState.Empty)
+    val statusEANotificationsState = _statusEANotificationsState.asStateFlow()
 
     private val _reviewState = MutableStateFlow<LoadState<MyReviewResult>>(LoadState.Empty)
     val reviewState = _reviewState.asStateFlow()
@@ -33,7 +37,8 @@ class SettingsViewModel : UiViewModel() {
     fun resetError(stateType: StateType) {
         when (stateType) {
             StateType.Children -> _childrenState.setShownError()
-            StateType.StatusDN -> _statusDNState.setShownError()
+            StateType.StatusMarksNotifications -> _statusMarksNotificationsState.setShownError()
+            StateType.StatusEANotifications -> _statusEANotificationsState.setShownError()
             StateType.Review -> _reviewState.setShownError()
         }
     }
@@ -70,26 +75,50 @@ class SettingsViewModel : UiViewModel() {
         }
     }
 
-    fun loadDnevnikNotifications() {
+    fun loadMarksNotifications() {
         viewModelScope.launch {
             executeRequest(
-                _statusDNState,
-                "dnevnikNotifications",
-                R.string.error_dnevnik_notifications,
-                Settings::getStatusDnevnikNotifications,
+                _statusMarksNotificationsState,
+                "marksNotifications",
+                R.string.error_marks_notifications,
+                Settings::getStatusMarksNotifications,
                 { it.answer }
             )
         }
     }
 
-    fun switchDnevnikNotifications(status: Boolean) {
+    fun loadEANotifications() {
         viewModelScope.launch {
             executeRequest(
-                _statusDNState,
-                "switchDnevnikNotifications",
-                R.string.error_dnevnik_notifications,
-                { Settings.switchDnevnikNotifications(status) },
-                { StatusDnevnikNotificationsResult(status = status) }
+                _statusEANotificationsState,
+                "eaNotifications",
+                R.string.error_ea_notifications,
+                Settings::getStatusEANotifications,
+                { it.answer }
+            )
+        }
+    }
+
+    fun switchMarksNotifications(status: Boolean) {
+        viewModelScope.launch {
+            executeRequest(
+                _statusMarksNotificationsState,
+                "switchMarksNotifications",
+                R.string.error_marks_notifications,
+                { Settings.switchMarksNotifications(status) },
+                { StatusMarksNotificationsResult(status = status) }
+            )
+        }
+    }
+
+    fun switchEANotifications(status: Boolean) {
+        viewModelScope.launch {
+            executeRequest(
+                _statusEANotificationsState,
+                "switchEANotifications",
+                R.string.error_ea_notifications,
+                { Settings.switchEANotifications(status) },
+                { StatusEANotificationsResult(status = status) }
             )
         }
     }
@@ -98,7 +127,10 @@ class SettingsViewModel : UiViewModel() {
         viewModelScope.launch {
             executeRequest(
                 _childrenState,
-                { state -> _statusDNState.value = state },
+                { state ->
+                    _statusMarksNotificationsState.value = state
+                    _statusEANotificationsState.value = state
+                },
                 "selectChild",
                 R.string.error_children,
                 { Settings.setActiveChild(childId) },
@@ -106,10 +138,17 @@ class SettingsViewModel : UiViewModel() {
             ) {
                 SettingsManager.setActiveChildId(childId)
                 executeRequest(
-                    _statusDNState,
-                    "dnevnikNotifications",
-                    R.string.error_dnevnik_notifications,
-                    Settings::getStatusDnevnikNotifications,
+                    _statusMarksNotificationsState,
+                    "marksNotifications",
+                    R.string.error_marks_notifications,
+                    Settings::getStatusMarksNotifications,
+                    { it.answer }
+                )
+                executeRequest(
+                    _statusEANotificationsState,
+                    "eaNotifications",
+                    R.string.error_ea_notifications,
+                    Settings::getStatusEANotifications,
                     { it.answer }
                 )
             }

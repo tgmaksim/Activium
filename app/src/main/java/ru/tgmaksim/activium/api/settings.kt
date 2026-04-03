@@ -94,13 +94,13 @@ import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 }
 
 /**
- * Результат запроса получения статуса настройки уведомлений
+ * Результат запроса получения статуса настройки уведомлений о новых оценках
  * @param classId Идентификатор класса
  * @param status Статус функции уведомлений о новых оценках
  * @author Максим Дрючин (tgmaksim)
- * @see StatusDnevnikNotificationsApiResponse
+ * @see StatusMarksNotificationsApiResponse
  * */
-@Serializable data class StatusDnevnikNotificationsResult(
+@Serializable data class StatusMarksNotificationsResult(
     override val classId: Int = CLASS_ID,
     val status: Boolean
 ) : ApiBase() {
@@ -114,18 +114,18 @@ import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 }
 
 /**
- * Ответ на запрос получения статуса настройки уведомлений
+ * Ответ на запрос получения статуса настройки уведомлений о новых оценках
  * @param classId Идентификатор класса
  * @param status Статус выполненного запроса
  * @param error Объект ошибки
  * @param answer Статус настройки уведомлений
  * @author Максим Дрючин (tgmaksim)
  * */
-@Serializable data class StatusDnevnikNotificationsApiResponse(
+@Serializable data class StatusMarksNotificationsApiResponse(
     override val classId: Int = CLASS_ID,
     override val status: Boolean,
     override val error: ApiError?,
-    override val answer: StatusDnevnikNotificationsResult?
+    override val answer: StatusMarksNotificationsResult?
 ) : ApiResponse() {
     companion object {
         const val CLASS_ID = 0x26
@@ -137,14 +137,14 @@ import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 }
 
 /**
- * Ответ на запрос изменения настройки уведомлений
+ * Ответ на запрос изменения настройки уведомлений о новых оценках
  * @param classId Идентификатор класса
  * @param status Статус выполненного запроса
  * @param error Объект ошибки
  * @param answer Всегда null
  * @author Максим Дрючин (tgmaksim)
  * */
-@Serializable data class SwitchDnevnikNotificationsApiResponse(
+@Serializable data class SwitchMarksNotificationsApiResponse(
     override val classId: Int = CLASS_ID,
     override val status: Boolean,
     override val error: ApiError?,
@@ -187,6 +187,74 @@ import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 }
 
 /**
+ * Результат запроса получения статуса настройки уведомлений о внеурочных занятиях
+ * @param classId Идентификатор класса
+ * @param status Статус функции уведомлений о новых оценках
+ * @author Максим Дрючин (tgmaksim)
+ * @see StatusEANotificationsApiResponse
+ * */
+@Serializable data class StatusEANotificationsResult(
+    override val classId: Int = CLASS_ID,
+    val status: Boolean
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x3B
+    }
+    init {
+        if (classId != CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
+ * Ответ на запрос получения статуса настройки уведомлений о внеурочных занятиях
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект ошибки
+ * @param answer Статус настройки уведомлений
+ * @author Максим Дрючин (tgmaksim)
+ * */
+@Serializable data class StatusEANotificationsApiResponse(
+    override val classId: Int = CLASS_ID,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: StatusEANotificationsResult?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x3C
+    }
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
+ * Ответ на запрос изменения настройки уведомлений о внеурочных занятиях
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект ошибки
+ * @param answer Всегда null
+ * @author Максим Дрючин (tgmaksim)
+ * */
+@Serializable data class SwitchEANotificationsApiResponse(
+    override val classId: Int = CLASS_ID,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: ApiBase?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x3D
+    }
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+        if (answer != null)
+            throw ClassCastException()
+    }
+}
+
+/**
  * API-singleton для запросов группы settings
  * @property PATH_PREFIX Группа API-запросов
  * @author Максим Дрючин (tgmaksim)
@@ -195,15 +263,19 @@ object Settings {
     private const val PATH_PREFIX = "settings"
     private const val PATH_CHILDREN = "getChildren"
     private const val PATH_ACTIVE_CHILD = "setActiveChild"
-    private const val PATH_DNEVNIK_NOTIFICATIONS = "getStatusDnevnikNotifications"
-    private const val PATH_SWITCH_DNEVNIK_NOTIFICATIONS = "switchDnevnikNotifications"
+    private const val PATH_MARKS_NOTIFICATIONS = "getStatusMarksNotifications"
+    private const val PATH_SWITCH_MARKS_NOTIFICATIONS = "switchMarksNotifications"
     private const val PATH_UPDATE_FIREBASE = "updateFirebase"
+    private const val PATH_EA_NOTIFICATIONS = "getStatusEANotifications"
+    private const val PATH_SWITCH_EA_NOTIFICATIONS = "switchEANotifications"
 
     private const val CHILDREN_VERSION = 0
     private const val ACTIVE_CHILD_VERSION = 0
-    private const val DNEVNIK_NOTIFICATIONS_VERSION = 0
-    private const val SWITCH_DNEVNIK_NOTIFICATIONS_VERSION = 0
+    private const val MARKS_NOTIFICATIONS_VERSION = 0
+    private const val SWITCH_MARKS_NOTIFICATIONS_VERSION = 0
     private const val UPDATE_FIREBASE_VERSION = 0
+    private const val EA_NOTIFICATIONS_VERSION = 0
+    private const val SWITCH_EA_NOTIFICATIONS_VERSION = 0
 
     /**
      * Получение списка детей, привязанных к пользователю сессии, и активного ребенка.
@@ -240,13 +312,13 @@ object Settings {
 
     /**
      * Получение статуса (включена или выключена) настройки уведомлений о новых оценках для активного ребенка
-     * @return Ответ сервера в виде [StatusDnevnikNotificationsApiResponse]
+     * @return Ответ сервера в виде [StatusMarksNotificationsApiResponse]
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
      * */
-    suspend fun getStatusDnevnikNotifications(): StatusDnevnikNotificationsApiResponse {
-        val response = Request.get<StatusDnevnikNotificationsApiResponse>(
-            listOf(PATH_PREFIX, PATH_DNEVNIK_NOTIFICATIONS, DNEVNIK_NOTIFICATIONS_VERSION).joinToString("/"),
+    suspend fun getStatusMarksNotifications(): StatusMarksNotificationsApiResponse {
+        val response = Request.get<StatusMarksNotificationsApiResponse>(
+            listOf(PATH_PREFIX, PATH_MARKS_NOTIFICATIONS, MARKS_NOTIFICATIONS_VERSION).joinToString("/"),
             sessionId = MemoryDataManager.sessionId.value
         )
 
@@ -255,13 +327,13 @@ object Settings {
 
     /**
      * Включение или выключение уведомлений о новых оценках для активного ребенка
-     * @return Ответ сервера в виде [SwitchDnevnikNotificationsApiResponse]
+     * @return Ответ сервера в виде [SwitchActiveChildApiResponse]
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
      * */
-    suspend fun switchDnevnikNotifications(status: Boolean): SwitchDnevnikNotificationsApiResponse {
-        val response = Request.put<SwitchDnevnikNotificationsApiResponse>(
-            listOf(PATH_PREFIX, PATH_SWITCH_DNEVNIK_NOTIFICATIONS, SWITCH_DNEVNIK_NOTIFICATIONS_VERSION).joinToString("/"),
+    suspend fun switchMarksNotifications(status: Boolean): SwitchMarksNotificationsApiResponse {
+        val response = Request.put<SwitchMarksNotificationsApiResponse>(
+            listOf(PATH_PREFIX, PATH_SWITCH_MARKS_NOTIFICATIONS, SWITCH_MARKS_NOTIFICATIONS_VERSION).joinToString("/"),
             params = mapOf("status" to status),
             sessionId = MemoryDataManager.sessionId.value
         )
@@ -280,6 +352,37 @@ object Settings {
         val response = Request.put<UpdateFirebaseApiResponse>(
             listOf(PATH_PREFIX, PATH_UPDATE_FIREBASE, UPDATE_FIREBASE_VERSION).joinToString("/"),
             params = mapOf("firebaseToken" to firebaseToken),
+            sessionId = MemoryDataManager.sessionId.value
+        )
+
+        return response
+    }
+
+    /**
+     * Получение статуса (включена или выключена) настройки уведомлений о внеурочных занятиях для активного ребенка
+     * @return Ответ сервера в виде [StatusEANotificationsApiResponse]
+     * @exception Exception
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    suspend fun getStatusEANotifications(): StatusEANotificationsApiResponse {
+        val response = Request.get<StatusEANotificationsApiResponse>(
+            listOf(PATH_PREFIX, PATH_EA_NOTIFICATIONS, EA_NOTIFICATIONS_VERSION).joinToString("/"),
+            sessionId = MemoryDataManager.sessionId.value
+        )
+
+        return response
+    }
+
+    /**
+     * Включение или выключение уведомлений о внеурочных занятияхдля активного ребенка
+     * @return Ответ сервера в виде [SwitchEANotificationsApiResponse]
+     * @exception Exception
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    suspend fun switchEANotifications(status: Boolean): SwitchEANotificationsApiResponse {
+        val response = Request.put<SwitchEANotificationsApiResponse>(
+            listOf(PATH_PREFIX, PATH_SWITCH_EA_NOTIFICATIONS, SWITCH_EA_NOTIFICATIONS_VERSION).joinToString("/"),
+            params = mapOf("status" to status),
             sessionId = MemoryDataManager.sessionId.value
         )
 

@@ -23,13 +23,11 @@ object SettingsManager {
     private val KEY_FIREBASE_MESSAGING_TOKEN = stringPreferencesKey("firebase_messaging_token")
     private val KEY_ACTIVE_CHILD_ID = longPreferencesKey("active_child_id")
     private val KEY_DARK_THEME = booleanPreferencesKey("dark_theme")
-    private val KEY_EA_NOTIFICATIONS = booleanPreferencesKey("ea_notifications")
     private val KEY_BEFORE_SCHEDULE = intPreferencesKey("before_schedule")
     private val KEY_AFTER_SCHEDULE = intPreferencesKey("after_schedule")
 
     private const val DEFAULT_ACTIVE_CHILD_ID = -1L
     private const val DEFAULT_DARK_THEME = false
-    private const val DEFAULT_EA_NOTIFICATIONS = false
     private const val DEFAULT_BEFORE_SCHEDULE = 3
     private const val DEFAULT_AFTER_SCHEDULE = 3
 
@@ -109,22 +107,6 @@ object SettingsManager {
         }
     }
 
-    suspend fun getEaNotifications(): Boolean {
-        return appContext.settingsDataStore.data.first()[KEY_EA_NOTIFICATIONS] ?: DEFAULT_EA_NOTIFICATIONS
-    }
-
-    suspend fun setEaNotifications(value: Boolean) {
-        appContext.settingsDataStore.edit { prefs ->
-            prefs[KEY_EA_NOTIFICATIONS] = value
-        }
-    }
-
-    fun eaNotificationsFlow(): Flow<Boolean> {
-        return appContext.settingsDataStore.data.map { prefs ->
-            prefs[KEY_EA_NOTIFICATIONS] ?: DEFAULT_EA_NOTIFICATIONS
-        }
-    }
-
     suspend fun getBeforeSchedule(): Int {
         return appContext.settingsDataStore.data.first()[KEY_BEFORE_SCHEDULE] ?: DEFAULT_BEFORE_SCHEDULE
     }
@@ -169,7 +151,6 @@ object SettingsManager {
             sessionId = prefs[KEY_SESSION_ID],
             activeChildId = prefs[KEY_ACTIVE_CHILD_ID] ?: DEFAULT_ACTIVE_CHILD_ID,
             darkTheme = prefs[KEY_DARK_THEME] ?: DEFAULT_DARK_THEME,
-            eaNotifications = prefs[KEY_EA_NOTIFICATIONS] ?: DEFAULT_EA_NOTIFICATIONS,
             beforeSchedule = prefs[KEY_BEFORE_SCHEDULE] ?: DEFAULT_BEFORE_SCHEDULE,
             afterSchedule = prefs[KEY_AFTER_SCHEDULE] ?: DEFAULT_AFTER_SCHEDULE
         )

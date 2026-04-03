@@ -43,8 +43,9 @@ import ru.tgmaksim.activium.ui.main.MainActivity
 import ru.tgmaksim.activium.databinding.ChildItemBinding
 import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.databinding.SettingsPageBinding
+import ru.tgmaksim.activium.api.StatusEANotificationsResult
+import ru.tgmaksim.activium.api.StatusMarksNotificationsResult
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
-import ru.tgmaksim.activium.api.StatusDnevnikNotificationsResult
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
 import ru.tgmaksim.activium.databinding.DialogReviewEditorBinding
 
@@ -96,8 +97,6 @@ class SettingsPage : Fragment() {
         val settings = SettingsManager.snapshot()
 
         // Установка Switch в нужное положение
-        ui.settingsEANotifications.isChecked = settings.eaNotifications
-        ui.settingsEANotifications.visibility = View.VISIBLE
         ui.settingsTheme.isChecked = settings.darkTheme
         ui.settingsTheme.visibility = View.VISIBLE
 
@@ -148,31 +147,12 @@ class SettingsPage : Fragment() {
             (requireActivity() as ParentActivity).setupActivityTheme()
         }
 
-        // Смена настройки для уведомлений с напоминанием о внеурочном занятии
-        /*ui.settingsEANotifications.setOnCheckedChangeListener { switch, isChecked ->
-            if (!isChecked) {
-                lifecycleScope.launch {
-                    SettingsManager.setEaNotifications(false)
-                }
-                return@setOnCheckedChangeListener
-            }
+        ui.settingsMarksNotifications.setOnCheckedChangeListener { _, isChecked ->
+            marksNotificationsListener(isChecked)
+        }
 
-            val context = requireContext()
-            if (NotificationManager.checkPermission(context) && NotificationManager.canScheduleExactAlarms(context)) {
-                CacheManager.EANotifications = true
-                Utilities.log("EANotifications = true", tag="settings") {
-                    param("name", "ea_notifications")
-                    param("is_checked", "true")
-                }
-                SchedulePage.createRemindEA(context)
-            } else {
-                switch.isChecked = false
-                NotificationManager.setupPostNotifications(requireActivity())
-            }
-        }*/
-
-        ui.settingsDnevnikNotifications.setOnCheckedChangeListener { _, isChecked ->
-            dnevnikNotificationsListener(isChecked)
+        ui.settingsEANotifications.setOnCheckedChangeListener { _, isChecked ->
+            eaNotificationsListener(isChecked)
         }
 
         // Смена периода загружаемого расписания
@@ -191,11 +171,11 @@ class SettingsPage : Fragment() {
     }
 
     /**
-     * Обработчик переключателя учебных уведомлений
+     * Обработчик переключателя уведомлений о новых оценках
      * @param isChecked Новый статус настройки
      * @author Максим Дрючин (tgmaksim)
      * */
-    private fun dnevnikNotificationsListener(isChecked: Boolean) {
+    private fun marksNotificationsListener(isChecked: Boolean) {
         if (!NotificationManager.checkPermission(requireContext())) {
             Utilities.showAlertDialog(
                 requireContext(),
@@ -207,7 +187,27 @@ class SettingsPage : Fragment() {
             }
         }
 
-        settingsViewModel.switchDnevnikNotifications(isChecked)
+        settingsViewModel.switchMarksNotifications(isChecked)
+    }
+
+    /**
+     * Обработчик переключателя уведомлений о внеурочных занятиях
+     * @param isChecked Новый статус настройки
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun eaNotificationsListener(isChecked: Boolean) {
+        if (!NotificationManager.checkPermission(requireContext())) {
+            Utilities.showAlertDialog(
+                requireContext(),
+                getString(R.string.title_dialog_permission_dnevnik_notifications),
+                getString(R.string.message_dialog_permission_dnevnik_notifications),
+                getString(R.string.button_dialog_permission_dnevnik_notifications)
+            ) { _, _ ->
+                NotificationManager.setupPostNotifications(requireActivity())
+            }
+        }
+
+        settingsViewModel.switchEANotifications(isChecked)
     }
 
     /**
@@ -235,8 +235,11 @@ class SettingsPage : Fragment() {
      * */
     private fun setupButtonsListener() {
         // Нажатие на кнопку ошибки для обновления профилей и статуса настройки учебных уведомлений
-        ui.dnevnikNotificationsError.setOnClickListener {
-            settingsViewModel.loadDnevnikNotifications()
+        ui.marksNotificationsError.setOnClickListener {
+            settingsViewModel.loadMarksNotifications()
+        }
+        ui.eaNotificationsError.setOnClickListener {
+            settingsViewModel.loadEANotifications()
         }
         ui.childrenError.setOnClickListener {
             settingsViewModel.loadChildren()
@@ -328,20 +331,38 @@ class SettingsPage : Fragment() {
                     }
                 }
                 launch {
-                    settingsViewModel.statusDNState.collect { state ->
+                    settingsViewModel.statusMarksNotificationsState.collect { state ->
                         if (state is LoadState.Empty) {
-                            settingsViewModel.loadDnevnikNotifications()
+                            settingsViewModel.loadMarksNotifications()
                         } else {
                             if (state is LoadState.Success)
-                                renderSwitchDnevnikNotifications(state.data.status)
+                                renderSwitchMarksNotifications(state.data.status)
                             else if (state is LoadState.Error) {
                                 Utilities.showUiMessage(requireContext(), state.message)
-                                settingsViewModel.resetError(SettingsViewModel.StateType.StatusDN)
+                                settingsViewModel.resetError(SettingsViewModel.StateType.StatusMarksNotifications)
                                 if (state.unauthorized)
                                     logout()
                             }
 
-                            switchDNState(state)
+                            switchMarksNotificationsState(state)
+                        }
+                    }
+                }
+                launch {
+                    settingsViewModel.statusEANotificationsState.collect { state ->
+                        if (state is LoadState.Empty) {
+                            settingsViewModel.loadEANotifications()
+                        } else {
+                            if (state is LoadState.Success)
+                                renderSwitchEANotifications(state.data.status)
+                            else if (state is LoadState.Error) {
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                settingsViewModel.resetError(SettingsViewModel.StateType.StatusEANotifications)
+                                if (state.unauthorized)
+                                    logout()
+                            }
+
+                            switchEANotificationsState(state)
                         }
                     }
                 }
@@ -474,17 +495,32 @@ class SettingsPage : Fragment() {
     }
 
     /**
-     * Установление переключателя настройки учебных уведомлений в нужное положение
+     * Установление переключателя настройки уведомлений о новых оценках в нужное положение
      * @param isChecked Новый статус настройки
      * @author Максим Дрючин (tgmaksim)
      * */
-    private fun renderSwitchDnevnikNotifications(isChecked: Boolean) {
-        ui.settingsDnevnikNotifications.setOnCheckedChangeListener(null)
+    private fun renderSwitchMarksNotifications(isChecked: Boolean) {
+        ui.settingsMarksNotifications.setOnCheckedChangeListener(null)
 
-        ui.settingsDnevnikNotifications.isChecked = isChecked
+        ui.settingsMarksNotifications.isChecked = isChecked
 
-        ui.settingsDnevnikNotifications.setOnCheckedChangeListener { _, isChecked ->
-            dnevnikNotificationsListener(isChecked)
+        ui.settingsMarksNotifications.setOnCheckedChangeListener { _, isChecked ->
+            marksNotificationsListener(isChecked)
+        }
+    }
+
+    /**
+     * Установление переключателя настройки уведомлений о внеурочных занятиях в нужное положение
+     * @param isChecked Новый статус настройки
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun renderSwitchEANotifications(isChecked: Boolean) {
+        ui.settingsEANotifications.setOnCheckedChangeListener(null)
+
+        ui.settingsEANotifications.isChecked = isChecked
+
+        ui.settingsEANotifications.setOnCheckedChangeListener { _, isChecked ->
+            eaNotificationsListener(isChecked)
         }
     }
 
@@ -606,10 +642,16 @@ class SettingsPage : Fragment() {
         ui.childrenHeader.isEnabled = state is LoadState.Success
     }
 
-    private fun switchDNState(state: LoadState<StatusDnevnikNotificationsResult>) {
-        ui.dnevnikNotificationsLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
-        ui.settingsDnevnikNotifications.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
-        ui.dnevnikNotificationsError.visibility = if (state.isError()) View.VISIBLE else View.GONE
+    private fun switchMarksNotificationsState(state: LoadState<StatusMarksNotificationsResult>) {
+        ui.marksNotificationsLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
+        ui.settingsMarksNotifications.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
+        ui.marksNotificationsError.visibility = if (state.isError()) View.VISIBLE else View.GONE
+    }
+
+    private fun switchEANotificationsState(state: LoadState<StatusEANotificationsResult>) {
+        ui.eaNotificationsLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
+        ui.settingsEANotifications.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
+        ui.eaNotificationsError.visibility = if (state.isError()) View.VISIBLE else View.GONE
     }
 
     private fun switchReviewState(state: LoadState<MyReviewResult>) {
