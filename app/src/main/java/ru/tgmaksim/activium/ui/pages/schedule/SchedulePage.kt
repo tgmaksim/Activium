@@ -3,6 +3,7 @@ package ru.tgmaksim.activium.ui.pages.schedule
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.animation.ValueAnimator
 import android.animation.ObjectAnimator
@@ -11,6 +12,8 @@ import android.view.animation.LinearInterpolator
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.core.widget.addTextChangedListener
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -40,12 +43,15 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
+import ru.tgmaksim.activium.databinding.DialogPraiseBinding
 import ru.tgmaksim.activium.databinding.SchedulePageBinding
+import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleDayAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarDayUi
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.skeletone.CalendarSkeletonAdapter
+import kotlin.collections.get
 
 /**
  * Страница с расписанием, оценками на уроках
@@ -68,6 +74,7 @@ class SchedulePage : Fragment() {
     private val pagerSnapHelper = PagerSnapHelper()
 
     private var currentData: UiScheduleResult? = null
+    private var currentPraiseStates: Map<String, LoadState<Unit>> = emptyMap()
     private var currentBefore by Delegates.notNull<Int>()
     private var currentAfter by Delegates.notNull<Int>()
     private var currentActiveChildId by Delegates.notNull<Long>()
@@ -76,6 +83,7 @@ class SchedulePage : Fragment() {
     private var shouldAnimateShimmer = true
 
     companion object {
+        private const val PRAISE_TEXT_LIMIT = 64
         private const val SKELETON_CALENDAR_COUNT = 7
         private const val SKELETON_DAYS_COUNT = 1
         private const val SKELETON_LESSONS_COUNT = 5
@@ -261,8 +269,32 @@ class SchedulePage : Fragment() {
     }
 
     private fun onPraiseLesson(lessonKey: String) {
-        // позже сюда будет вызов API похвалы
-        Utilities.log("praise lesson: $lessonKey", tag = "schedule")
+        val view = DialogPraiseBinding.inflate(layoutInflater, ui.root, false)
+
+        view.textCounter.text = getString(R.string.praise_text_counter, view.text.text?.length ?: 0, PRAISE_TEXT_LIMIT)
+
+        view.text.addTextChangedListener {
+            view.textCounter.text = getString(R.string.praise_text_counter, view.text.text?.length ?: 0, PRAISE_TEXT_LIMIT)
+            if ((it?.length ?: 0) > PRAISE_TEXT_LIMIT)
+                view.textCounter.setTextColor(Color.RED)
+            else if ((it?.length ?: 0) == PRAISE_TEXT_LIMIT)
+                view.textCounter.setTextColor(requireContext().getColor(R.color.text_secondary))
+        }
+
+        val dialog = MaterialAlertDialogBuilder(
+            requireContext(),
+            R.style.AppDialogTheme
+        ).setView(view.root).create()
+
+        view.buttonSendPraise.setOnClickListener {
+            val text = view.text.text?.toString()?.trim()?.ifEmpty { null }
+
+            dialog.dismiss()
+
+            scheduleViewModel.sendPraise(lessonKey, text)
+        }
+
+        dialog.show()
     }
 
     private fun setupCollectors() {
@@ -293,7 +325,7 @@ class SchedulePage : Fragment() {
                                 if (oldData != null) {
                                     val resized = resizeSchedule(oldData, scheduleBefore, scheduleAfter)
                                     currentData = resized
-                                    renderSchedule(resized)
+                                    renderSchedule(resized, currentPraiseStates)
                                     if (resized.schedule.any { it == null })
                                         scheduleViewModel.loadCacheSchedule()
                                 } else {
@@ -349,7 +381,27 @@ class SchedulePage : Fragment() {
                         if (currentData != data) {
                             currentData = data
                             if (data != null)
-                                renderSchedule(data)
+                                renderSchedule(data, currentPraiseStates)
+                        }
+                    }
+                }
+                launch {
+                    scheduleViewModel.praiseStates.collect { states ->
+                        currentPraiseStates = states
+                        currentData?.let { renderSchedule(it, currentPraiseStates) }
+
+                        for ((lessonKey, state) in states) {
+                            if (state is LoadState.Error) {
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                scheduleViewModel.resetError(lessonKey)
+                                if (state.unauthorized) {
+                                    logout()
+                                    break
+                                }
+                            } else if (state is LoadState.Success) {
+                                Utilities.showText(requireContext(), R.string.praise_sent)
+                                scheduleViewModel.reset(lessonKey)
+                            }
                         }
                     }
                 }
@@ -379,6 +431,7 @@ class SchedulePage : Fragment() {
 
     private fun showSkeletonMode() {
         currentData = null
+        currentPraiseStates = emptyMap()
         shouldAnimateShimmer = true
 
         ui.calendarRecycler.adapter = calendarSkeletonAdapter
@@ -397,8 +450,10 @@ class SchedulePage : Fragment() {
         LoginActivity.openLoginActivity(requireActivity())
     }
 
-    private fun renderSchedule(data: UiScheduleResult) {
-        if (data.schedule.isEmpty()) return
+    private fun renderSchedule(rawData: UiScheduleResult, praiseStates: Map<String, LoadState<Unit>>) {
+        if (rawData.schedule.isEmpty()) return
+
+        val data = if (praiseStates.isNotEmpty()) rawData.withPraiseStates(praiseStates) else rawData
 
         if (ui.calendarRecycler.adapter !== calendarAdapter) {
             ui.calendarRecycler.adapter = calendarAdapter
@@ -413,13 +468,22 @@ class SchedulePage : Fragment() {
         currentSelectedDate = selected
         val selectedIndex = getSelectedDateIndex(selected)
 
-        dayAdapter.setHasAbilityPraise(data.hasAbilityPraise)
         dayAdapter.submitList(data.schedule)
 
         submitCalendar(data, selectedIndex)
         ui.dayRecycler.post {
             ui.dayRecycler.scrollToPosition(selectedIndex)
         }
+    }
+
+    private fun UiScheduleResult.withPraiseStates(praiseStates: Map<String, LoadState<Unit>>): UiScheduleResult {
+        return this.copy(
+            schedule = schedule.map {day ->
+                day?.copy(lessons = day.lessons.map { lesson ->
+                    lesson.copy(praiseState = praiseStates[lesson.lessonKey] ?: lesson.praiseState)
+                })
+            }
+        )
     }
 
     private fun buildDates(timezone: Int): List<LocalDate> {

@@ -9,16 +9,19 @@ import kotlinx.datetime.toKotlinMonth
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.Dnevnik
+import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.ui.core.UiText
 import ru.tgmaksim.activium.api.ScheduleDay
 import ru.tgmaksim.activium.ui.LoginActivity
+import ru.tgmaksim.activium.api.DnevnikTools
+import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.ui.core.UiViewModel
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.core.setCacheError
@@ -26,6 +29,7 @@ import ru.tgmaksim.activium.ui.core.setShownError
 import ru.tgmaksim.activium.ui.core.setCacheLoading
 import ru.tgmaksim.activium.ui.core.setCacheSuccess
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
+import ru.tgmaksim.activium.ui.core.resetSuccess
 import ru.tgmaksim.activium.utilities.datastore.CacheManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
@@ -37,6 +41,9 @@ class ScheduleViewModel : UiViewModel() {
 
     private val _scheduleState = MutableStateFlow<CacheDataLoadState>(CacheDataLoadState.Empty)
     val scheduleState = _scheduleState.asStateFlow()
+
+    private val _praiseStates = MutableStateFlow<Map<String, LoadState<Unit>>>(emptyMap())
+    val praiseStates = _praiseStates.asStateFlow()
 
     private var loadCacheScheduleJob: Job? = null
     private var loadCloudCacheScheduleJob: Job? = null
@@ -55,6 +62,14 @@ class ScheduleViewModel : UiViewModel() {
         when (stateType) {
             StateType.Schedule -> _scheduleState.setShownError()
         }
+    }
+
+    fun resetError(lessonKey: String) {
+        _praiseStates.setShownError(lessonKey)
+    }
+
+    fun reset(lessonKey: String) {
+        _praiseStates.resetSuccess(lessonKey)
     }
 
     fun logout() {
@@ -86,10 +101,11 @@ class ScheduleViewModel : UiViewModel() {
                         ?: throw CacheNullException()
                     val schedule = json.decodeFromString<List<ScheduleDay>>(entity.value)
 
+                    val hasAbilityPraise = false
                     _scheduleData.value = UiScheduleResult(
-                        schedule = normalizeSchedule(schedule, before, after, timezone),
+                        schedule = normalizeSchedule(schedule, before, after, timezone, hasAbilityPraise),
                         timezone = timezone,
-                        hasAbilityPraise = false
+                        hasAbilityPraise = hasAbilityPraise
                     )
                     _scheduleState.setCacheSuccess()
                 } catch (e: Exception) {
@@ -114,16 +130,18 @@ class ScheduleViewModel : UiViewModel() {
         schedule: List<ScheduleDay>,
         before: Int,
         after: Int,
-        timezone: Int
-    ): List<ScheduleDay?> {
+        timezone: Int,
+        hasAbilityPraise: Boolean
+    ): List<UiScheduleDay?> {
         val currentDate = todayInTimezone(timezone)
         val firstDate = currentDate.minusDays(before.toLong())
         val byDate = schedule.associateBy { it.date }
 
-        val days = ArrayList<ScheduleDay?>(before + 1 + after)
+        val days = ArrayList<UiScheduleDay?>(before + 1 + after)
         for (i in 0..<before + 1 + after) {
             val date = firstDate.plusDays(i.toLong())
-            days += byDate[LocalDate(date.year, date.month.toKotlinMonth(), date.dayOfMonth)]
+            val praiseState = if (hasAbilityPraise) LoadState.Empty else null
+            days += byDate[LocalDate(date.year, date.month.toKotlinMonth(), date.dayOfMonth)]?.toUi(praiseState)
         }
 
         return days
@@ -153,7 +171,7 @@ class ScheduleViewModel : UiViewModel() {
                 { Dnevnik.getSchedule(before, after) },
                 { it.answer?.let { answer ->
                     UiScheduleResult(
-                        schedule = normalizeSchedule(answer.schedule, before, after, answer.timezone),
+                        schedule = normalizeSchedule(answer.schedule, before, after, answer.timezone, answer.hasAbilityPraise),
                         timezone = answer.timezone,
                         hasAbilityPraise = answer.hasAbilityPraise
                     )
@@ -171,6 +189,19 @@ class ScheduleViewModel : UiViewModel() {
                     value = json.encodeToString(it.answer.schedule)
                 )
             }
+        }
+    }
+
+    fun sendPraise(lessonKey: String, text: String?) {
+        viewModelScope.launch {
+            executeRequest(
+                _praiseStates,
+                lessonKey,
+                "praise",
+                R.string.error_praise,
+                { DnevnikTools.sendPraise(lessonKey, text) },
+                {}
+            )
         }
     }
 }

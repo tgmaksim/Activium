@@ -6,25 +6,19 @@ import android.view.LayoutInflater
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 
-import ru.tgmaksim.activium.api.ScheduleDay
-import ru.tgmaksim.activium.api.ScheduleLesson
+import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleDay
 import ru.tgmaksim.activium.databinding.ItemScheduleDayBinding
+import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleLesson
 import ru.tgmaksim.activium.api.ScheduleExtracurricularActivity
 import ru.tgmaksim.activium.ui.pages.schedule.skeletone.LessonSkeletonAdapter
 
 class ScheduleDayAdapter(
     private val skeletonLessonsCount: Int,
     private val onPraiseClick: (String) -> Unit
-) : ListAdapter<ScheduleDay?, ScheduleDayAdapter.VH>(Diff()) {
-    private var hasAbilityPraise = false
-
-    fun setHasAbilityPraise(value: Boolean) {
-        hasAbilityPraise = value
-    }
-
+) : ListAdapter<UiScheduleDay?, ScheduleDayAdapter.VH>(Diff()) {
     class VH(
         val ui: ItemScheduleDayBinding,
         skeletonLessonsCount: Int,
@@ -43,7 +37,7 @@ class ScheduleDayAdapter(
             ui.lessonsRecycler.itemAnimator = null
         }
 
-        fun bind(day: ScheduleDay?, hasAbilityPraise: Boolean) {
+        fun bind(day: UiScheduleDay?) {
             if (day == null) {
                 ui.weekendPhoto.visibility = View.GONE
                 ui.lessonsRecycler.visibility = View.VISIBLE
@@ -56,12 +50,10 @@ class ScheduleDayAdapter(
                 ui.lessonsRecycler.visibility = View.VISIBLE
                 ui.lessonsRecycler.adapter = lessonAdapter
 
-                lessonAdapter.setHasAbilityPraise(hasAbilityPraise)
-
                 val items = buildList {
                     addAll(day.lessons.sortedBy { it.number })
                     addAll(day.ea.mapIndexed { index, ea ->
-                        ea.toScheduleLesson(day.lessons.size + index)
+                        ea.toUiScheduleLesson(day.lessons.size + index)
                     })
                 }
 
@@ -80,18 +72,18 @@ class ScheduleDayAdapter(
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.bind(getItem(position), hasAbilityPraise)
+        holder.bind(getItem(position))
     }
 
-    class Diff : DiffUtil.ItemCallback<ScheduleDay>() {
-        override fun areItemsTheSame(a: ScheduleDay, b: ScheduleDay) = a.date == b.date
-        override fun areContentsTheSame(a: ScheduleDay, b: ScheduleDay) = a == b
+    class Diff : DiffUtil.ItemCallback<UiScheduleDay>() {
+        override fun areItemsTheSame(a: UiScheduleDay, b: UiScheduleDay) = a.date == b.date
+        override fun areContentsTheSame(a: UiScheduleDay, b: UiScheduleDay) = a == b
     }
 }
 
-private fun ScheduleExtracurricularActivity.toScheduleLesson(number: Int): ScheduleLesson {
-    return ScheduleLesson(
-        lessonKey = "ea:",
+private fun ScheduleExtracurricularActivity.toUiScheduleLesson(number: Int): UiScheduleLesson {
+    return UiScheduleLesson(
+        lessonKey = null,
         number = number,
         subject = subject,
         place = place,
@@ -103,6 +95,8 @@ private fun ScheduleExtracurricularActivity.toScheduleLesson(number: Int): Sched
         homework = null,
         note = null,
         files = emptyList(),
-        ratingKey = null
+        ratingKey = null,
+        praiseState = null,
+        isExtra = true
     )
 }

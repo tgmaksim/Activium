@@ -21,22 +21,17 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import ru.tgmaksim.activium.R
-import ru.tgmaksim.activium.api.ScheduleLesson
+import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.api.ScheduleHomeworkDocument
+import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleLesson
 import ru.tgmaksim.activium.databinding.ItemScheduleLessonBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleWorkTypeBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleHomeworkFileBinding
 
 class ScheduleLessonAdapter(
     private val onPraiseClick: (String) -> Unit
-) : ListAdapter<ScheduleLesson, ScheduleLessonAdapter.VH>(Diff()) {
-    private var hasAbilityPraise = false
-
-    fun setHasAbilityPraise(value: Boolean) {
-        hasAbilityPraise = value
-    }
-
+) : ListAdapter<UiScheduleLesson, ScheduleLessonAdapter.VH>(Diff()) {
     class VH(val ui: ItemScheduleLessonBinding) : RecyclerView.ViewHolder(ui.root) {
         init {
             ui.logsRecycler.layoutManager = LinearLayoutManager(
@@ -59,19 +54,18 @@ class ScheduleLessonAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val lesson = getItem(position)
-        val isExtra = lesson.lessonKey.startsWith("ea:")
 
-        holder.ui.number.text = holder.ui.root.context.getString(R.string.lesson_number, position + 1)
+        holder.ui.number.text = if (!lesson.isExtra) holder.ui.root.context.getString(R.string.lesson_number, position + 1) else ""
         holder.ui.subject.text = lesson.subject
         holder.ui.place.text = lesson.place
         holder.ui.time.text = lesson.hours.string
 
         holder.ui.root.background = ContextCompat.getDrawable(
             holder.ui.root.context,
-            if (isExtra) R.drawable.lesson_bg_extra else R.drawable.lesson_bg
+            if (lesson.isExtra) R.drawable.lesson_bg_extra else R.drawable.lesson_bg
         )
 
-        if (isExtra) {
+        if (lesson.isExtra) {
             holder.ui.homeworkGroup.visibility = View.GONE
             holder.ui.noteGroup.visibility = View.GONE
             holder.ui.filesContainer.visibility = View.GONE
@@ -119,10 +113,19 @@ class ScheduleLessonAdapter(
         }
         logsAdapter.submitList(lesson.logs)
 
-        holder.ui.praiseButton.visibility =
-            if (hasAbilityPraise && lesson.logs.isNotEmpty()) View.VISIBLE else View.GONE
-        holder.ui.praiseButton.setOnClickListener {
-            onPraiseClick(lesson.lessonKey)
+        if (lesson.praiseState != null && lesson.logs.isNotEmpty() && lesson.praiseState !is LoadState.Success) {
+            holder.ui.praise.visibility = View.VISIBLE
+            holder.ui.praiseLoading.visibility =
+                if (lesson.praiseState is LoadState.Loading) View.VISIBLE else View.GONE
+            holder.ui.praiseError.visibility =
+                if (lesson.praiseState.isError()) View.VISIBLE else View.GONE
+            holder.ui.praiseButton.visibility =
+                if (lesson.praiseState is LoadState.Empty) View.VISIBLE else View.GONE
+            holder.ui.praiseButton.setOnClickListener {
+                onPraiseClick(lesson.lessonKey!!)  // Проверка при создании объекта
+            }
+        } else {
+            holder.ui.praise.visibility = View.GONE
         }
     }
 
@@ -149,8 +152,9 @@ class ScheduleLessonAdapter(
         return ui.root
     }
 
-    class Diff : DiffUtil.ItemCallback<ScheduleLesson>() {
-        override fun areItemsTheSame(a: ScheduleLesson, b: ScheduleLesson) = a.lessonKey == b.lessonKey
-        override fun areContentsTheSame(a: ScheduleLesson, b: ScheduleLesson) = a == b
+    class Diff : DiffUtil.ItemCallback<UiScheduleLesson>() {
+        override fun areItemsTheSame(a: UiScheduleLesson, b: UiScheduleLesson) =
+            a.lessonKey == b.lessonKey && a.lessonKey != null
+        override fun areContentsTheSame(a: UiScheduleLesson, b: UiScheduleLesson) = a == b
     }
 }

@@ -167,23 +167,46 @@
         android:overScrollMode="never"
         android:scrollbars="none" />
 
-    <LinearLayout
-        android:id="@+id/praiseButton"
+    <FrameLayout
+        android:id="@+id/praise"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:padding="8dp"
-        android:gravity="center"
         android:background="@drawable/praise_button_bg"
         android:clickable="true"
         android:focusable="true">
 
-        <ImageView
+        <LinearLayout
+            android:id="@+id/praiseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/praiseIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/like_outline"
+                app:tint="@color/lesson_like_icon" />
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/praiseLoading"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/like_outline"
-            app:tint="@color/lesson_like_icon" />
+            android:layout_gravity="center"
+            android:visibility="gone" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/praiseError"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="center"
+            android:src="@drawable/error"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
 </LinearLayout>

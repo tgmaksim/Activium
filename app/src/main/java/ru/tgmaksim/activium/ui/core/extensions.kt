@@ -2,6 +2,11 @@ package ru.tgmaksim.activium.ui.core
 
 import kotlinx.coroutines.flow.MutableStateFlow
 
+import ru.tgmaksim.activium.api.ScheduleDay
+import ru.tgmaksim.activium.api.ScheduleLesson
+import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleDay
+import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleLesson
+
 fun <T> MutableStateFlow<LoadState<T>>.setLoading(): LoadState.Loading {
     value = LoadState.Loading
     return LoadState.Loading
@@ -65,4 +70,65 @@ fun MutableStateFlow<CacheDataLoadState>.setCloudError(
 fun MutableStateFlow<CacheDataLoadState>.setShownError(): CacheDataLoadState.ShownError {
     value = CacheDataLoadState.ShownError
     return CacheDataLoadState.ShownError
+}
+
+fun <K, V> MutableStateFlow<Map<K, LoadState<V>>>.setLoading(key: K): LoadState.Loading {
+    value = value.toMutableMap().apply { put(key, LoadState.Loading) }
+    return LoadState.Loading
+}
+
+fun <K, V> MutableStateFlow<Map<K, LoadState<V>>>.setSuccess(key: K, data: V): LoadState.Success<V> {
+    val success = LoadState.Success(data)
+    value = value.toMutableMap().apply { put(key, success) }
+    return success
+}
+
+fun <K, V> MutableStateFlow<Map<K, LoadState<V>>>.resetSuccess(key: K) {
+    value = value.toMutableMap().minus(key)
+}
+
+fun <K, V> MutableStateFlow<Map<K, LoadState<V>>>.setError(
+    key: K,
+    message: UiText,
+    unauthorized: Boolean = false
+): LoadState.Error {
+    val error = LoadState.Error(message, unauthorized)
+    value = value.toMutableMap().apply { put(key, error) }
+    return error
+}
+
+fun <K, V> MutableStateFlow<Map<K, LoadState<V>>>.setShownError(key: K): LoadState.ShownError {
+    value = value.toMutableMap().apply { put(key, LoadState.ShownError) }
+    return LoadState.ShownError
+}
+
+fun ScheduleLesson.toUi(praiseState: LoadState.Empty? = null): UiScheduleLesson {
+    return UiScheduleLesson(
+        lessonKey = lessonKey,
+        number = number,
+        subject = subject,
+        place = place,
+        hours = hours,
+        works = works,
+        logs = logs,
+        othersMarks = othersMarks,
+        avgGroupLessonMark = avgGroupLessonMark,
+        homework = homework,
+        note = note,
+        files = files,
+        ratingKey = ratingKey,
+        praiseState = praiseState
+    )
+}
+
+fun List<ScheduleLesson>.toUi(praiseState: LoadState.Empty? = null): List<UiScheduleLesson> {
+    return map { it.toUi(praiseState) }
+}
+
+fun ScheduleDay.toUi(praiseState: LoadState.Empty? = null): UiScheduleDay {
+    return UiScheduleDay(
+        date = date,
+        lessons = lessons.toUi(praiseState),
+        ea = ea
+    )
 }

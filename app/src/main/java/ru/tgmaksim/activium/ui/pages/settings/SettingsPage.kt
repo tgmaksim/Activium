@@ -578,8 +578,7 @@ class SettingsPage : Fragment() {
 
         var selectedStars = existing?.stars ?: 0
 
-        view.title.text = if (existing == null) getString(R.string.review_editor_new_title)
-        else getString(R.string.review_editor_edit_title)
+        view.title.text = if (existing == null) getString(R.string.review_editor_new_title) else getString(R.string.review_editor_edit_title)
 
         view.text.setText(existing?.text.orEmpty())
         view.textCounter.text = getString(R.string.review_text_counter, view.text.text?.length ?: 0, REVIEW_TEXT_LIMIT)

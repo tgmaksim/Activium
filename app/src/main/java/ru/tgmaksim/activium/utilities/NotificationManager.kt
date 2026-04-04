@@ -5,15 +5,12 @@ import android.os.Build
 import android.app.Activity
 import android.content.Intent
 import android.content.Context
-import android.app.AlarmManager
-import android.provider.Settings
 import android.app.PendingIntent
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.content.Context.NOTIFICATION_SERVICE
 
-import androidx.core.net.toUri
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.annotation.RequiresPermission
@@ -28,12 +25,10 @@ import ru.tgmaksim.activium.ui.main.MainActivity
  * */
 object NotificationManager {
     /** Название канала уведомлений о внеурочных занятиях */
-    const val CHANNEL_EA = "extracurricularActivities"
-    const val CHANNEL_DNEVNIK = "dnevnik"
+    const val CHANNEL_EA = "extracurricular_activities"
+    const val CHANNEL_MARKS = "marks"
     const val CHANNEL_SERVICE = "service"
     const val CHANNEL_PRAISE = "praise"
-    /** requestCode для планирования уведомлений для напоминания о внеурочных занятиях */
-    const val ALARM_REQUEST_CODE_EA = 1
 
     /**
      * Проверка разрешения на отправку уведомлений и запрос в случае необходимости
@@ -44,7 +39,7 @@ object NotificationManager {
         val notificationManager = activity.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         val existsEA = notificationManager.getNotificationChannel(CHANNEL_EA)
-        val existsDnevnik = notificationManager.getNotificationChannel(CHANNEL_DNEVNIK)
+        val existsDnevnik = notificationManager.getNotificationChannel(CHANNEL_MARKS)
         val existsService = notificationManager.getNotificationChannel(CHANNEL_SERVICE)
         val existsPraise = notificationManager.getNotificationChannel(CHANNEL_PRAISE)
 
@@ -61,11 +56,11 @@ object NotificationManager {
         }
 
         if (existsDnevnik == null) {
-            val channelName = "Учебная деятельность"
+            val channelName = "Новые оценки"
             val channelDescription = "Уведомления о выставлении новых оценок"
             val importance = NotificationManager.IMPORTANCE_HIGH
 
-            val channel = NotificationChannel(CHANNEL_DNEVNIK, channelName, importance)
+            val channel = NotificationChannel(CHANNEL_MARKS, channelName, importance)
             channel.description = channelDescription
 
             notificationManager.createNotificationChannel(channel)
@@ -73,7 +68,7 @@ object NotificationManager {
 
         if (existsService == null) {
             val channelName = "Сервисные события"
-            val channelDescription = "Сервисные уведомления о прохождении модерации Ваших отзывов, важные оповещения от Активиум"
+            val channelDescription = "Сервисные уведомления о прохождении модерации Ваших отзывов и важные оповещения от Активиум"
             val importance = NotificationManager.IMPORTANCE_HIGH
 
             val channel = NotificationChannel(CHANNEL_SERVICE, channelName, importance)
@@ -103,15 +98,6 @@ object NotificationManager {
                 )
             }
         }
-
-        // Запрос разрешения на создание напоминаний для SDK >= 31
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!canScheduleExactAlarms(activity)) {
-                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-                intent.data = "package:${activity.packageName}".toUri()
-                activity.startActivity(intent)
-            }
-        }
     }
 
     /**
@@ -125,16 +111,6 @@ object NotificationManager {
             context,
             Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
-
-    /**
-     * Проверка разрешения на создание напоминаний
-     * @param context Android-контекст
-     * @return true, если разрешение есть, иначе - false
-     * @author Максим Дрючин (tgmaksim)
-     * */
-    fun canScheduleExactAlarms(context: Context): Boolean =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
-                context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
 
     /**
      * Показ уведомления
@@ -171,49 +147,4 @@ object NotificationManager {
         val manager = NotificationManagerCompat.from(context)
         manager.notify(System.currentTimeMillis().toInt(), builder.build())
     }
-
-//    /**
-//     * Планирование уведомления на время
-//     * @param context Android-контекст
-//     * @param channel название канала уведомлений
-//     * @param title заголовок уведомления
-//     * @param message текст уведомления
-//     * @param priority приоритет уведомления
-//     * @param timestamp время в миллисекундах
-//     * @param requestCode requestCode для планирования
-//     * @author Максим Дрючин (tgmaksim)
-//     * */
-//    fun addAlarmNotification(
-//        context: Context,
-//        channel: String,
-//        title: String,
-//        message: String,
-//        priority: Int,
-//        timestamp: Long,
-//        requestCode: Int
-//    ) {
-//        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//
-//        val intent = Intent(context, AlarmReceiver::class.java).apply {
-//            Intent.putExtra("type", "notification")
-//            Intent.putExtra("timestamp", timestamp)
-//            Intent.putExtra("channel", channel)
-//            Intent.putExtra("title", title)
-//            Intent.putExtra("message", message)
-//            Intent.putExtra("priority", priority)
-//        }
-//
-//        val pendingIntent = PendingIntent.getBroadcast(
-//            context,
-//            requestCode,
-//            intent,
-//            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-//        )
-//
-//        alarmManager.setExactAndAllowWhileIdle(
-//            AlarmManager.RTC_WAKEUP,
-//            timestamp,
-//            pendingIntent
-//        )
-//    }
 }

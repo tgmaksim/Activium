@@ -19,11 +19,16 @@
     <string name="homework_document_emoji">📎</string>
     <string name="homework_document_not_found">Файл</string>
     <string name="note_emoji">📝</string>
+    <string name="error_schedule">Произошла ошибка при загрузке расписания</string>
+
     <string name="note_not_found">Заметка отсутствует</string>
-    <string name="praise">Похвалить</string>
+
+    <string name="title_dialog_send_praise">Похвалить ребенка</string>
+    <string name="message_dialog_send_praise">Напишите сообщение (необязательно)</string>
+    <string name="button_dialog_send_praise">Похвалить</string>
+    <string name="praise_text_counter">%1$d/%2$d</string>
     <string name="praise_sent">Похвала отправлена</string>
     <string name="error_praise">Произошла ошибка при отправке похвалы</string>
-    <string name="error_schedule">Произошла ошибка при загрузке расписания</string>
 
     <string name="menu_item_marks">Оценки</string>
     <string name="menu_item_school">Школа</string>
