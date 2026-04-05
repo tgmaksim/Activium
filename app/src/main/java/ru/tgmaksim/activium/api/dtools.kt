@@ -28,14 +28,14 @@ data class Note(
 }
 
 /**
- * Ответ на запрос создания заметки к уроку
+ * Результат запроса создания или получения заметки к уроку
  * @param classId Идентификатор класса
  * @param note Созданная заметка к уроку
  */
 @Serializable
-data class CreateNoteResult(
+data class NoteResult(
     override val classId: Int = CLASS_ID,
-    val note: Note
+    val note: Note?
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x35
@@ -58,7 +58,7 @@ data class CreateNoteApiResponse(
     override val classId: Int = CLASS_ID,
     override val status: Boolean,
     override val error: ApiError?,
-    override val answer: CreateNoteResult?
+    override val answer: NoteResult?
 ) : ApiResponse() {
     companion object {
         const val CLASS_ID = 0x36
@@ -66,25 +66,6 @@ data class CreateNoteApiResponse(
 
     init {
         if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID) throw ClassCastException()
-    }
-}
-
-/**
- * Результат запроса получения заметки к уроку
- * @param classId Идентификатор класса
- * @param note Заметка к уроку, если есть
- */
-@Serializable
-data class NoteResult(
-    override val classId: Int = CLASS_ID,
-    val note: Note?
-) : ApiBase() {
-    companion object {
-        const val CLASS_ID = 0x37
-    }
-
-    init {
-        if (classId != CLASS_ID) throw ClassCastException()
     }
 }
 

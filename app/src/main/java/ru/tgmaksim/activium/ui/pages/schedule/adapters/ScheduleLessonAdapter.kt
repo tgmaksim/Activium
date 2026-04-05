@@ -30,7 +30,8 @@ import ru.tgmaksim.activium.databinding.ItemScheduleWorkTypeBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleHomeworkFileBinding
 
 class ScheduleLessonAdapter(
-    private val onPraiseClick: (String) -> Unit
+    private val onPraiseClick: (String) -> Unit,
+    private val onMenuLesson: (UiScheduleLesson) -> Unit
 ) : ListAdapter<UiScheduleLesson, ScheduleLessonAdapter.VH>(Diff()) {
     class VH(val ui: ItemScheduleLessonBinding) : RecyclerView.ViewHolder(ui.root) {
         init {
@@ -66,15 +67,17 @@ class ScheduleLessonAdapter(
         )
 
         if (lesson.isExtra) {
+            holder.ui.number.visibility = View.GONE
             holder.ui.homeworkGroup.visibility = View.GONE
             holder.ui.noteGroup.visibility = View.GONE
             holder.ui.filesContainer.visibility = View.GONE
             holder.ui.worksContainer.visibility = View.GONE
             holder.ui.logsRecycler.visibility = View.GONE
-            holder.ui.praiseButton.visibility = View.GONE
+            holder.ui.praise.visibility = View.GONE
             return
         }
 
+        holder.ui.number.visibility = View.VISIBLE
         holder.ui.homeworkGroup.visibility =
             if (lesson.homework.isNullOrBlank()) View.GONE else View.VISIBLE
         holder.ui.noteGroup.visibility =
@@ -126,6 +129,11 @@ class ScheduleLessonAdapter(
             }
         } else {
             holder.ui.praise.visibility = View.GONE
+        }
+
+        holder.ui.root.setOnLongClickListener {
+            onMenuLesson(lesson)
+            true
         }
     }
 

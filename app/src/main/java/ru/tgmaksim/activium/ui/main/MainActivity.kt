@@ -119,17 +119,16 @@ class MainActivity : ParentActivity() {
      * */
     private fun setupBackListener() {
         onBackPressedDispatcher.addCallback(this) {
-            moveTaskToBack(true)
-//            when (ui.bottomMenu.selectedItemId) {
-//                R.id.it_schedule ->
-//                    if ((pages[R.id.it_schedule] as? SchedulePage)?.onBackPressed() != true)
-//                        moveTaskToBack(true)
+            when (ui.bottomMenu.selectedItemId) {
+                R.id.it_schedule ->
+                    if (!(getOrCreateFragment(R.id.it_schedule) as SchedulePage).onBackPressed())
+                        moveTaskToBack(true)
 //                R.id.it_marks ->
 //                    if ((pages[R.id.it_marks] as? MarksPage)?.onBackPressed() != true)
 //                        ui.bottomMenu.selectedItemId = R.id.it_schedule
 
-//                else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
-//            }
+                else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
+            }
         }
     }
 

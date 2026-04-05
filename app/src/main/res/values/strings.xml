@@ -23,6 +23,28 @@
 
     <string name="note_not_found">Заметка отсутствует</string>
 
+    <string name="lesson_note_add">Добавить заметку</string>
+    <string name="lesson_note_edit">Изменить заметку</string>
+    <string name="lesson_note_delete">Удалить заметку</string>
+    <string name="send_praise">Похвалить ребенка</string>
+    <string name="open_lesson_dnevnikru">Открыть в Дневнике.ру</string>
+
+    <string name="title_dialog_create_note">Добавить заметку</string>
+    <string name="title_dialog_edit_note">Изменить заметку</string>
+    <string name="message_dialog_create_note">Напишите текст заметки</string>
+    <string name="switch_public_note">Показывать заметку родителю</string>
+    <string name="button_dialog_create_note">Сохранить заметку</string>
+    <string name="error_note">Произошла ошибка при сохранении заметки</string>
+    <string name="error_delete_note">Произошла ошибка при удалении заметки</string>
+
+    <string name="title_dialog_no_note_text">Пустая заметка</string>
+    <string name="message_dialog_no_note_text">Нельзя создать заметку с пустым текстом</string>
+    <string name="button_dialog_no_note_text">А, точно!</string>
+
+    <string name="title_dialog_delete_note">Удалить заметку</string>
+    <string name="message_dialog_delete_note">Удалить заметку об уроке? Это действие нельзя отменить!</string>
+    <string name="button_dialog_delete_note">Да, удалить</string>
+
     <string name="title_dialog_send_praise">Похвалить ребенка</string>
     <string name="message_dialog_send_praise">Напишите сообщение (необязательно)</string>
     <string name="button_dialog_send_praise">Похвалить</string>

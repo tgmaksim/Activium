@@ -37,6 +37,7 @@ data class UiScheduleLesson(
     val note: String?,
     val files: List<ScheduleHomeworkDocument>,
     val ratingKey: String?,
+    val dnevnikruUrl: String?,
     val praiseState: LoadState<Unit>?,
     val isExtra: Boolean = false
 ) {

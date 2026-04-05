@@ -165,6 +165,7 @@ data class MarksOther(
  * @param note Заметка к уроку
  * @param files Дополнительные файлы к домашнему заданию
  * @param ratingKey Ключ для получения дополнительной информации по оценкам
+ * @param dnevnikruUrl Ссылка для открытия урока в Дневнике.ру
  * @author Максим Дрючин (tgmaksim)
  */
 @Serializable
@@ -182,7 +183,8 @@ data class ScheduleLesson(
     val homework: String?,
     val note: String?,
     val files: List<ScheduleHomeworkDocument>,
-    val ratingKey: String?
+    val ratingKey: String?,
+    val dnevnikruUrl: String
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x10

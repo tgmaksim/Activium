@@ -32,6 +32,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import kotlinx.datetime.plus
 import kotlinx.datetime.minus
+import kotlin.collections.get
 import kotlinx.datetime.number
 import kotlinx.datetime.LocalDate
 import kotlin.properties.Delegates
@@ -40,6 +41,7 @@ import kotlinx.datetime.toKotlinMonth
 import java.time.format.DateTimeFormatter
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.databinding.DialogLessonNoteEditorBinding
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
@@ -51,7 +53,7 @@ import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleDayAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarDayUi
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.skeletone.CalendarSkeletonAdapter
-import kotlin.collections.get
+import java.time.OffsetDateTime
 
 /**
  * Страница с расписанием, оценками на уроках
@@ -68,7 +70,8 @@ class SchedulePage : Fragment() {
     private val calendarAdapter = ScheduleCalendarAdapter { date -> onCalendarDayClick(date) }
     private val dayAdapter = ScheduleDayAdapter(
         skeletonLessonsCount = SKELETON_LESSONS_COUNT,
-        onPraiseClick = ::onPraiseLesson
+        onPraiseClick = ::onPraiseLesson,
+        onMenuLesson = ::onMenuLesson
     )
 
     private val pagerSnapHelper = PagerSnapHelper()
@@ -80,10 +83,11 @@ class SchedulePage : Fragment() {
     private var currentActiveChildId by Delegates.notNull<Long>()
     private var currentSelectedDate: LocalDate? = null
     private var currentDates: List<LocalDate> = emptyList()
-    private var shouldAnimateShimmer = true
+    private var shouldAnimateShimmer = false
 
     companion object {
         private const val PRAISE_TEXT_LIMIT = 64
+        private const val NOTE_TEXT_LIMIT = 256
         private const val SKELETON_CALENDAR_COUNT = 7
         private const val SKELETON_DAYS_COUNT = 1
         private const val SKELETON_LESSONS_COUNT = 5
@@ -126,6 +130,18 @@ class SchedulePage : Fragment() {
     override fun onDestroyView() {
         stopShimmer()
         super.onDestroyView()
+    }
+
+    fun onBackPressed(): Boolean {
+        val timezone = currentData?.timezone ?: return false
+
+        val defaultDate = getDefaultDate(timezone)
+        if (currentSelectedDate != defaultDate) {
+            onCalendarDayClick(defaultDate)
+            return true
+        }
+
+        return false
     }
 
     private fun startShimmer() {
@@ -297,6 +313,72 @@ class SchedulePage : Fragment() {
         dialog.show()
     }
 
+    private fun onMenuLesson(lesson: UiScheduleLesson) {
+        if (lesson.lessonKey == null || lesson.dnevnikruUrl == null) return
+        LessonMenuDialog(
+            lesson,
+            { openLessonNoteEditor(lesson) },
+            { openDeleteNoteDialog(lesson) },
+            { onPraiseLesson(lesson.lessonKey) },
+            { Utilities.openUrl(requireContext(), lesson.dnevnikruUrl) }
+        ).show(childFragmentManager, LessonMenuDialog.TAG)
+    }
+
+    private fun openLessonNoteEditor(lesson: UiScheduleLesson) {
+        val view = DialogLessonNoteEditorBinding.inflate(layoutInflater, ui.root, false)
+
+        view.text.setText(lesson.note)
+
+        view.textCounter.text = getString(R.string.praise_text_counter, view.text.text?.length ?: 0, NOTE_TEXT_LIMIT)
+
+        view.text.addTextChangedListener {
+            view.textCounter.text = getString(R.string.praise_text_counter, view.text.text?.length ?: 0, NOTE_TEXT_LIMIT)
+            if ((it?.length ?: 0) > NOTE_TEXT_LIMIT)
+                view.textCounter.setTextColor(Color.RED)
+            else if ((it?.length ?: 0) == NOTE_TEXT_LIMIT)
+                view.textCounter.setTextColor(requireContext().getColor(R.color.text_secondary))
+        }
+
+        val dialog = MaterialAlertDialogBuilder(
+            requireContext(),
+            R.style.AppDialogTheme
+        ).setView(view.root).create()
+
+        view.titleCreate.visibility = if (lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
+        view.titleEdit.visibility = if (!lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
+
+        view.buttonCreateNote.setOnClickListener {
+            val text = view.text.text?.toString()?.trim()?.ifEmpty { null }
+
+            if (text == null) {
+                Utilities.showAlertDialog(
+                    requireContext(),
+                    getString(R.string.title_dialog_no_note_text),
+                    getString(R.string.message_dialog_no_note_text),
+                    getString(R.string.button_dialog_no_note_text)
+                )
+                return@setOnClickListener
+            }
+
+            dialog.dismiss()
+
+            scheduleViewModel.createLessonNote(lesson.lessonKey!!, text, view.settingsPublic.isChecked)
+        }
+
+        dialog.show()
+    }
+
+    private fun openDeleteNoteDialog(lesson: UiScheduleLesson) {
+        Utilities.showAlertDialog(
+            requireContext(),
+            getString(R.string.title_dialog_delete_note),
+            getString(R.string.message_dialog_delete_note),
+            getString(R.string.button_dialog_delete_note)
+        ) { _, _ ->
+            scheduleViewModel.deleteLessonNote(lesson.lessonKey!!)
+        }
+    }
+
     private fun setupCollectors() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -341,7 +423,6 @@ class SchedulePage : Fragment() {
                                 scheduleViewModel.loadCacheSchedule()
 
                                 if (!shouldAnimateShimmer) {
-                                    shouldAnimateShimmer = true
                                     showSkeletonMode()
                                 }
                             }
@@ -393,7 +474,7 @@ class SchedulePage : Fragment() {
                         for ((lessonKey, state) in states) {
                             if (state is LoadState.Error) {
                                 Utilities.showUiMessage(requireContext(), state.message)
-                                scheduleViewModel.resetError(lessonKey)
+                                scheduleViewModel.resetError(ScheduleViewModel.MapStateType.Praises, lessonKey)
                                 if (state.unauthorized) {
                                     logout()
                                     break
@@ -401,6 +482,20 @@ class SchedulePage : Fragment() {
                             } else if (state is LoadState.Success) {
                                 Utilities.showText(requireContext(), R.string.praise_sent)
                                 scheduleViewModel.reset(lessonKey)
+                            }
+                        }
+                    }
+                }
+                launch {
+                    scheduleViewModel.noteStates.collect { states ->
+                        for ((lessonKey, state) in states) {
+                            if (state is LoadState.Error) {
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                scheduleViewModel.resetError(ScheduleViewModel.MapStateType.Notes, lessonKey)
+                                if (state.unauthorized) {
+                                    logout()
+                                    break
+                                }
                             }
                         }
                     }

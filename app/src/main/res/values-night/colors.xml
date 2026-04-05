@@ -60,9 +60,9 @@
     <color name="calendar_day_selected_hovered_fill">#40FFFFFF</color>
     <color name="calendar_day_selected_hovered_stroke">#B3FF8A80</color>
 
-    <color name="dialog_background">#B3E5FC</color>
-    <color name="dialog_button_positive">#0066CC</color>
-    <color name="dialog_button_negative">#555555</color>
+    <color name="dialog_background">#004080</color>
+    <color name="dialog_button_positive">#4DA3FF</color>
+    <color name="dialog_button_negative">#AAAAAA</color>
 
     <color name="mark_log_good">#4B9A25</color>
     <color name="mark_log_average">#FF8F00</color>
@@ -84,4 +84,6 @@
     <color name="schedule_slider_warning">#FFCC0000</color>
 
     <color name="swipe_refresh_scheme">#4FC3F7</color>
+
+    <color name="dialog_menu_background">#C0001C38</color>
 </resources>

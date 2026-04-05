@@ -85,4 +85,6 @@
     <color name="schedule_slider_warning">#FFFF4444</color>
 
     <color name="swipe_refresh_scheme">#0288D1</color>
+
+    <color name="dialog_menu_background">#C0B3E5FC</color>
 </resources>

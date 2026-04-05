@@ -18,23 +18,25 @@ import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.Dnevnik
 import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.ui.core.UiText
+import ru.tgmaksim.activium.api.NoteResult
 import ru.tgmaksim.activium.api.ScheduleDay
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.api.DnevnikTools
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.ui.core.UiViewModel
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.core.resetSuccess
 import ru.tgmaksim.activium.ui.core.setCacheError
 import ru.tgmaksim.activium.ui.core.setShownError
 import ru.tgmaksim.activium.ui.core.setCacheLoading
 import ru.tgmaksim.activium.ui.core.setCacheSuccess
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
-import ru.tgmaksim.activium.ui.core.resetSuccess
 import ru.tgmaksim.activium.utilities.datastore.CacheManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 class ScheduleViewModel : UiViewModel() {
     enum class StateType { Schedule }
+    enum class MapStateType { Praises, Notes }
 
     private val _scheduleData = MutableStateFlow<UiScheduleResult?>(null)
     val scheduleData = _scheduleData.asStateFlow()
@@ -44,6 +46,9 @@ class ScheduleViewModel : UiViewModel() {
 
     private val _praiseStates = MutableStateFlow<Map<String, LoadState<Unit>>>(emptyMap())
     val praiseStates = _praiseStates.asStateFlow()
+
+    private val _noteStates = MutableStateFlow<Map<String, LoadState<NoteResult>>>(emptyMap())
+    val noteStates = _noteStates.asStateFlow()
 
     private var loadCacheScheduleJob: Job? = null
     private var loadCloudCacheScheduleJob: Job? = null
@@ -64,8 +69,11 @@ class ScheduleViewModel : UiViewModel() {
         }
     }
 
-    fun resetError(lessonKey: String) {
-        _praiseStates.setShownError(lessonKey)
+    fun resetError(stateType: MapStateType, lessonKey: String) {
+        when (stateType) {
+            MapStateType.Praises -> _praiseStates.setShownError(lessonKey)
+            MapStateType.Notes -> _noteStates.setShownError(lessonKey)
+        }
     }
 
     fun reset(lessonKey: String) {
@@ -202,6 +210,50 @@ class ScheduleViewModel : UiViewModel() {
                 { DnevnikTools.sendPraise(lessonKey, text) },
                 {}
             )
+        }
+    }
+
+    fun createLessonNote(lessonKey: String, text: String, public: Boolean) {
+        viewModelScope.launch {
+            executeRequest(
+                _noteStates,
+                lessonKey,
+                "note",
+                R.string.error_note,
+                { DnevnikTools.createNote(lessonKey, text, public) },
+                { it.answer }
+            ) { noteResult ->
+                val data = _scheduleData.value
+                _scheduleData.value = data?.copy(
+                    schedule = data.schedule.map {day ->
+                        day?.copy(lessons = day.lessons.map { lesson ->
+                            lesson.copy(note = if (lesson.lessonKey == lessonKey) noteResult.note?.text else lesson.note)
+                        })
+                    }
+                )
+            }
+        }
+    }
+
+    fun deleteLessonNote(lessonKey: String) {
+        viewModelScope.launch {
+            executeRequest(
+                _noteStates,
+                lessonKey,
+                "deleteNote",
+                R.string.error_delete_note,
+                { DnevnikTools.deleteNote(lessonKey) },
+                { NoteResult(note = null) }
+            ) { noteResult ->
+                val data = _scheduleData.value
+                _scheduleData.value = data?.copy(
+                    schedule = data.schedule.map {day ->
+                        day?.copy(lessons = day.lessons.map { lesson ->
+                            lesson.copy(note = if (lesson.lessonKey == lessonKey) noteResult.note?.text else lesson.note)
+                        })
+                    }
+                )
+            }
         }
     }
 }

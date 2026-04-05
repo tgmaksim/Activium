@@ -43,6 +43,7 @@
         android:id="@+id/skeletonShimmer"
         android:layout_width="160dp"
         android:layout_height="match_parent"
+        android:visibility="gone"
         android:layout_gravity="start"
         android:alpha="0.65"
         android:background="@drawable/skeleton_shimmer_band" />

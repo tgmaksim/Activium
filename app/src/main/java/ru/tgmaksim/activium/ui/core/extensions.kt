@@ -117,6 +117,7 @@ fun ScheduleLesson.toUi(praiseState: LoadState.Empty? = null): UiScheduleLesson 
         note = note,
         files = files,
         ratingKey = ratingKey,
+        dnevnikruUrl = dnevnikruUrl,
         praiseState = praiseState
     )
 }

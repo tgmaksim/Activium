@@ -141,8 +141,7 @@ object Utilities {
             setPositiveButton(buttonText, buttonListener)
             if (back) setNegativeButton("Отмена", null)
             setCancelable(back)
-            show()
-        }
+        }.show()
     }
 
     fun localDate(timezone: Int): OffsetDateTime {
