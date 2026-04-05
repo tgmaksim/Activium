@@ -138,6 +138,8 @@ data class MarksOther(
     override val classId: Int = CLASS_ID,
     val number: Int?,
     val name: String,
+    val personKey: String?,
+    val isHighlighting: Boolean?,
     val marks: List<MarkLog>
 ) : ApiBase() {
     companion object {

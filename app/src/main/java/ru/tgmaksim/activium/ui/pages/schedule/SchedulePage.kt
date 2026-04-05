@@ -41,19 +41,19 @@ import kotlinx.datetime.toKotlinMonth
 import java.time.format.DateTimeFormatter
 
 import ru.tgmaksim.activium.R
-import ru.tgmaksim.activium.databinding.DialogLessonNoteEditorBinding
 import ru.tgmaksim.activium.ui.LoginActivity
+import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.pages.RatingDialog
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.DialogPraiseBinding
 import ru.tgmaksim.activium.databinding.SchedulePageBinding
-import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
+import ru.tgmaksim.activium.databinding.DialogLessonNoteEditorBinding
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleDayAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarDayUi
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.skeletone.CalendarSkeletonAdapter
-import java.time.OffsetDateTime
 
 /**
  * Страница с расписанием, оценками на уроках
@@ -71,7 +71,8 @@ class SchedulePage : Fragment() {
     private val dayAdapter = ScheduleDayAdapter(
         skeletonLessonsCount = SKELETON_LESSONS_COUNT,
         onPraiseClick = ::onPraiseLesson,
-        onMenuLesson = ::onMenuLesson
+        onMenuLesson = ::onMenuLesson,
+        onRating = ::onRating
     )
 
     private val pagerSnapHelper = PagerSnapHelper()
@@ -320,7 +321,8 @@ class SchedulePage : Fragment() {
             { openLessonNoteEditor(lesson) },
             { openDeleteNoteDialog(lesson) },
             { onPraiseLesson(lesson.lessonKey) },
-            { Utilities.openUrl(requireContext(), lesson.dnevnikruUrl) }
+            { Utilities.openUrl(requireContext(), lesson.dnevnikruUrl) },
+            { onRating(lesson) }
         ).show(childFragmentManager, LessonMenuDialog.TAG)
     }
 
@@ -377,6 +379,13 @@ class SchedulePage : Fragment() {
         ) { _, _ ->
             scheduleViewModel.deleteLessonNote(lesson.lessonKey!!)
         }
+    }
+
+    private fun onRating(lesson: UiScheduleLesson) {
+        RatingDialog(
+            lesson,
+            showNumber = false
+        ).show(parentFragmentManager, RatingDialog.TAG)
     }
 
     private fun setupCollectors() {

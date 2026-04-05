@@ -13,7 +13,9 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.MarkLog
 import ru.tgmaksim.activium.databinding.ItemMarkLogBinding
 
-class MarkLogAdapter : ListAdapter<MarkLog, MarkLogAdapter.VH>(Diff()) {
+class MarkLogAdapter(
+    private val onRating: (() -> Unit)? = null
+) : ListAdapter<MarkLog, MarkLogAdapter.VH>(Diff()) {
     class VH(val ui: ItemMarkLogBinding) : RecyclerView.ViewHolder(ui.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -44,6 +46,11 @@ class MarkLogAdapter : ListAdapter<MarkLog, MarkLogAdapter.VH>(Diff()) {
         )
         DrawableCompat.setTint(drawable, ContextCompat.getColor(holder.ui.root.context, bgColor))
         holder.ui.root.background = drawable
+
+        if (onRating != null)
+            holder.ui.root.setOnClickListener {
+                onRating()
+            }
     }
 
     class Diff : DiffUtil.ItemCallback<MarkLog>() {

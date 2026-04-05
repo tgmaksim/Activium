@@ -31,7 +31,8 @@ import ru.tgmaksim.activium.databinding.ItemScheduleHomeworkFileBinding
 
 class ScheduleLessonAdapter(
     private val onPraiseClick: (String) -> Unit,
-    private val onMenuLesson: (UiScheduleLesson) -> Unit
+    private val onMenuLesson: (UiScheduleLesson) -> Unit,
+    private val onRating: (UiScheduleLesson) -> Unit
 ) : ListAdapter<UiScheduleLesson, ScheduleLessonAdapter.VH>(Diff()) {
     class VH(val ui: ItemScheduleLessonBinding) : RecyclerView.ViewHolder(ui.root) {
         init {
@@ -111,7 +112,7 @@ class ScheduleLessonAdapter(
             holder.ui.worksContainer.addView(item.root)
         }
 
-        val logsAdapter = (holder.ui.logsRecycler.adapter as? MarkLogAdapter) ?: MarkLogAdapter().also {
+        val logsAdapter = (holder.ui.logsRecycler.adapter as? MarkLogAdapter) ?: MarkLogAdapter { onRating(lesson) }.also {
             holder.ui.logsRecycler.adapter = it
         }
         logsAdapter.submitList(lesson.logs)

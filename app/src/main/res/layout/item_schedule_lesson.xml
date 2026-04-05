@@ -164,6 +164,8 @@
         android:id="@+id/logsRecycler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
         android:overScrollMode="never"
         android:scrollbars="none" />
 

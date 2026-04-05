@@ -195,4 +195,6 @@ open class UiViewModel : ViewModel() {
                 onNewState(state.setError(stateKey, UiText.StringResource(errorRes)))
         }
     }
+
+    protected class CacheNullException : Exception()
 }

@@ -22,14 +22,14 @@ import ru.tgmaksim.activium.databinding.DialogLessonMenuBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleLessonBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleWorkTypeBinding
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.MarkLogAdapter
-import ru.tgmaksim.activium.utilities.Utilities
 
 class LessonMenuDialog(
     private val lesson: UiScheduleLesson,
     private val onCreateNote: () -> Unit,
     private val onDeleteNote: () -> Unit,
     private val onPraise: () -> Unit,
-    private val onOpenDnevnikru: () -> Unit
+    private val onOpenDnevnikru: () -> Unit,
+    private val onRating: () -> Unit
 ) : DialogFragment() {
     private lateinit var ui: DialogLessonMenuBinding
 
@@ -199,6 +199,9 @@ class LessonMenuDialog(
         }
         ui.buttonPraise.setOnClickListener {
             dismissWithAnimation(onPraise)
+        }
+        ui.buttonRating.setOnClickListener {
+            dismissWithAnimation(onRating)
         }
         ui.buttonDnevnikru.setOnClickListener {
             dismissWithAnimation(onOpenDnevnikru)

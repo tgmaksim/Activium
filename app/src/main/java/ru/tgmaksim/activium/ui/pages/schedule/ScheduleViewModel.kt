@@ -116,6 +116,8 @@ class ScheduleViewModel : UiViewModel() {
                         hasAbilityPraise = hasAbilityPraise
                     )
                     _scheduleState.setCacheSuccess()
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     if (e !is CacheNullException) {
                         Utilities.log(e)
@@ -257,5 +259,3 @@ class ScheduleViewModel : UiViewModel() {
         }
     }
 }
-
-private class CacheNullException : Exception()

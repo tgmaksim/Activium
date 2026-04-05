@@ -27,6 +27,7 @@
     <string name="lesson_note_edit">Изменить заметку</string>
     <string name="lesson_note_delete">Удалить заметку</string>
     <string name="send_praise">Похвалить ребенка</string>
+    <string name="open_rating">Открыть рейтинг по уроку</string>
     <string name="open_lesson_dnevnikru">Открыть в Дневнике.ру</string>
 
     <string name="title_dialog_create_note">Добавить заметку</string>
@@ -51,6 +52,11 @@
     <string name="praise_text_counter">%1$d/%2$d</string>
     <string name="praise_sent">Похвала отправлена</string>
     <string name="error_praise">Произошла ошибка при отправке похвалы</string>
+
+    <string name="my_mark">Ваша оценка за урок:</string>
+    <string name="my_marks">Ваши оценки за урок:</string>
+    <string name="person_number">%1$d.</string>
+    <string name="error_lesson_rating_stats">Произошла ошибка при загрузке статистики урока</string>
 
     <string name="menu_item_marks">Оценки</string>
     <string name="menu_item_school">Школа</string>

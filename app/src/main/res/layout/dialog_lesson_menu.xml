@@ -148,6 +148,32 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/buttonRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:minHeight="32dp"
+                android:padding="10dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/star_filled" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:text="@string/open_rating"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/buttonDnevnikru"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
