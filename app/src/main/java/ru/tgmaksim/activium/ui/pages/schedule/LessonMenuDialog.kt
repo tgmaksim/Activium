@@ -21,7 +21,7 @@ import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.databinding.DialogLessonMenuBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleLessonBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleWorkTypeBinding
-import ru.tgmaksim.activium.ui.pages.schedule.adapters.MarkLogAdapter
+import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
 
 class LessonMenuDialog(
     private val lesson: UiScheduleLesson,
@@ -187,6 +187,8 @@ class LessonMenuDialog(
         ui.buttonDeleteNote.visibility = if (!lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
         ui.buttonPraise.visibility =
             if (lesson.praiseState is LoadState.Empty && lesson.logs.isNotEmpty()) View.VISIBLE else View.GONE
+        ui.buttonRating.visibility =
+            if (lesson.logs.isNotEmpty() || lesson.othersMarks.isNotEmpty()) View.VISIBLE else View.GONE
 
         ui.buttonNote.setOnClickListener {
             dismissWithAnimation(onCreateNote)

@@ -11,6 +11,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 
+import java.util.Locale
+import java.time.ZoneId
+import kotlin.time.toJavaInstant
+import java.time.format.DateTimeFormatter
+
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 import ru.tgmaksim.activium.R
@@ -18,14 +23,14 @@ import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
 import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleLesson
-import ru.tgmaksim.activium.databinding.ItemMarksRatingBinding
-import ru.tgmaksim.activium.ui.pages.schedule.adapters.MarkLogAdapter
 
 class RatingDialog(
     private val lesson: UiScheduleLesson,
     private val showNumber: Boolean
 ) : BottomSheetDialogFragment() {
     private lateinit var ui: RatingSheetBinding
+    private lateinit var oldAvgMarkAdapter: MarkLogAdapter
+    private lateinit var newAvgMarkAdapter: MarkLogAdapter
 
     private val ratingViewModel: RatingViewModel by viewModels()
 
@@ -46,7 +51,9 @@ class RatingDialog(
         ui = RatingSheetBinding.inflate(inflater, container, false)
 
         setupAvgMarks()
-        setupMyMark(inflater)
+        setupMyMark()
+        setupInfo()
+        setupAvgGroupMark()
         setupList()
 
         return ui.root
@@ -59,45 +66,67 @@ class RatingDialog(
     }
 
     private fun setupAvgMarks() {
-        ui.oldAvgMark.layoutManager = LinearLayoutManager(
-            requireContext(),
-            LinearLayoutManager.HORIZONTAL,
-            false
-        )
-        ui.oldAvgMark.itemAnimator = null
-        ui.oldAvgMark.adapter = MarkLogAdapter()
-
-        ui.newAvgMark.layoutManager = LinearLayoutManager(
-            requireContext(),
-            LinearLayoutManager.HORIZONTAL,
-            false
-        )
-        ui.newAvgMark.itemAnimator = null
-        ui.newAvgMark.adapter = MarkLogAdapter()
+        oldAvgMarkAdapter = MarkLogAdapter()
+        newAvgMarkAdapter = MarkLogAdapter()
     }
 
-    private fun setupMyMark(layoutInflater: LayoutInflater) {
+    private fun setupMyMark() {
         if (lesson.logs.isEmpty()) {
-            ui.myMark.visibility = View.GONE
+            ui.myMark.root.visibility = View.GONE
             return
         }
 
-        val view = ItemMarksRatingBinding.inflate(layoutInflater, ui.root, false)
+        ui.myMark.number.visibility = View.GONE
+        ui.myMark.studentName.text = getString(if (lesson.logs.size == 1) R.string.my_mark else R.string.my_marks)
 
-        view.number.visibility = View.GONE
-        view.studentName.text = getString(if (lesson.logs.size == 1) R.string.my_mark else R.string.my_marks)
-
-        view.logs.layoutManager = LinearLayoutManager(
+        ui.myMark.logs.layoutManager = LinearLayoutManager(
             requireContext(),
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        view.logs.itemAnimator = null
-        view.logs.adapter = MarkLogAdapter().apply {
+        ui.myMark.logs.itemAnimator = null
+        ui.myMark.logs.adapter = MarkLogAdapter().apply {
             submitList(lesson.logs)
         }
+    }
 
-        ui.myMark.addView(view.root)
+    private fun setupInfo() {
+        @Suppress("DEPRECATION")  // У Local нет России
+        val formatter = DateTimeFormatter.ofPattern("d MMMM в HH:mm")
+            .withLocale(Locale("ru")).withZone(ZoneId.systemDefault())
+        val datetime = lesson.logs
+            .filter { it.created != null }
+            .minByOrNull { it.created!!.epochSeconds }
+            ?.created
+            ?.toJavaInstant()
+        val datetimeFormat = datetime?.let { formatter.format(it) }
+
+        ui.info.text = getString(
+            R.string.rating_info,
+            lesson.subject,
+            lesson.works.joinToString(", ") { it.title },
+            datetimeFormat?.let { getString(R.string.rating_info_time, it) }.orEmpty()
+        )
+    }
+
+    private fun setupAvgGroupMark() {
+        if (lesson.othersMarks.isEmpty() || lesson.avgGroupLessonMark == null) {
+            ui.avgGroupMark.root.visibility = View.GONE
+            return
+        }
+
+        ui.avgGroupMark.number.visibility = View.GONE
+        ui.avgGroupMark.studentName.text = getString(R.string.avg_group_lesson_mark)
+
+        ui.avgGroupMark.logs.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        ui.avgGroupMark.logs.itemAnimator = null
+        ui.avgGroupMark.logs.adapter = MarkLogAdapter().apply {
+            submitList(listOf(lesson.avgGroupLessonMark))
+        }
     }
 
     private fun setupList() {
@@ -106,6 +135,7 @@ class RatingDialog(
             LinearLayoutManager.VERTICAL,
             false
         )
+        ui.ratingList.itemAnimator = null
         ui.ratingList.adapter = RatingAdapter(showNumber).apply {
             submitList(lesson.othersMarks)
         }
@@ -114,7 +144,7 @@ class RatingDialog(
     private fun setupCollectors() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                ratingViewModel.lessonRatingStates.collect { state ->
+                ratingViewModel.lessonRatingState.collect { state ->
                     when (state) {
                         is LoadState.Empty -> {
                             ratingViewModel.loadLessonRatingStats(lesson.ratingKey!!)
@@ -122,29 +152,34 @@ class RatingDialog(
                         is LoadState.Loading -> {
                             ui.oldAvgMarkLoading.visibility = View.VISIBLE
                             ui.newAvgMarkLoading.visibility = View.VISIBLE
-                            ui.oldAvgMark.visibility = View.GONE
-                            ui.newAvgMark.visibility = View.GONE
+                            ui.oldAvgMark.root.visibility = View.GONE
+                            ui.newAvgMark.root.visibility = View.GONE
                         }
                         is LoadState.Success -> {
                             ui.oldAvgMarkLoading.visibility = View.GONE
                             ui.newAvgMarkLoading.visibility = View.GONE
 
-                            (ui.oldAvgMark.adapter as MarkLogAdapter)
-                                .submitList(listOfNotNull(state.data.oldAvgMark))
-                            (ui.newAvgMark.adapter as MarkLogAdapter)
-                                .submitList(listOfNotNull(state.data.newAvgMark))
-
-                            ui.oldAvgMark.visibility = View.VISIBLE
-                            ui.newAvgMark.visibility = View.VISIBLE
+                            state.data.oldAvgMark?.let {
+                                oldAvgMarkAdapter.submitList(listOf(it))
+                                val holder = MarkLogAdapter.VH(ui.oldAvgMark)
+                                oldAvgMarkAdapter.onBindViewHolder(holder, 0)
+                                ui.oldAvgMark.root.visibility = View.VISIBLE
+                            }
+                            state.data.newAvgMark?.let {
+                                newAvgMarkAdapter.submitList(listOf(it))
+                                val holder = MarkLogAdapter.VH(ui.newAvgMark)
+                                newAvgMarkAdapter.onBindViewHolder(holder, 0)
+                                ui.newAvgMark.root.visibility = View.VISIBLE
+                            }
                         }
                         is LoadState.Error -> {
                             ui.stats.visibility = View.GONE
 
                             Utilities.showUiMessage(requireContext(), state.message)
-                            ratingViewModel.reset()
+                            ratingViewModel.resetLessonRating()
                         }
                         is LoadState.ShownError -> {
-
+                            // ОШибка уже показан
                         }
                     }
                 }

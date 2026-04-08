@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
 import ru.tgmaksim.activium.api.ScheduleHomeworkDocument
 import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleLesson
 import ru.tgmaksim.activium.databinding.ItemScheduleLessonBinding
@@ -31,8 +32,8 @@ import ru.tgmaksim.activium.databinding.ItemScheduleHomeworkFileBinding
 
 class ScheduleLessonAdapter(
     private val onPraiseClick: (String) -> Unit,
-    private val onMenuLesson: (UiScheduleLesson) -> Unit,
-    private val onRating: (UiScheduleLesson) -> Unit
+    private val onMenuLesson: (String) -> Unit,
+    private val onRating: (String) -> Unit
 ) : ListAdapter<UiScheduleLesson, ScheduleLessonAdapter.VH>(Diff()) {
     class VH(val ui: ItemScheduleLessonBinding) : RecyclerView.ViewHolder(ui.root) {
         init {
@@ -81,8 +82,6 @@ class ScheduleLessonAdapter(
         holder.ui.number.visibility = View.VISIBLE
         holder.ui.homeworkGroup.visibility =
             if (lesson.homework.isNullOrBlank()) View.GONE else View.VISIBLE
-        holder.ui.noteGroup.visibility =
-            if (lesson.note.isNullOrBlank()) View.GONE else View.VISIBLE
         holder.ui.filesContainer.visibility =
             if (lesson.files.isEmpty()) View.GONE else View.VISIBLE
         holder.ui.worksContainer.visibility =
@@ -112,7 +111,7 @@ class ScheduleLessonAdapter(
             holder.ui.worksContainer.addView(item.root)
         }
 
-        val logsAdapter = (holder.ui.logsRecycler.adapter as? MarkLogAdapter) ?: MarkLogAdapter { onRating(lesson) }.also {
+        val logsAdapter = (holder.ui.logsRecycler.adapter as? MarkLogAdapter) ?: MarkLogAdapter { onRating(lesson.lessonKey!!) }.also {
             holder.ui.logsRecycler.adapter = it
         }
         logsAdapter.submitList(lesson.logs)
@@ -132,8 +131,19 @@ class ScheduleLessonAdapter(
             holder.ui.praise.visibility = View.GONE
         }
 
+        if (!lesson.note.isNullOrBlank() || lesson.noteState != null && lesson.noteState !is LoadState.Success) {
+            holder.ui.noteGroup.visibility = View.VISIBLE
+            holder.ui.noteLoading.visibility = if (lesson.noteState is LoadState.Loading) View.VISIBLE else View.GONE
+            holder.ui.noteError.visibility = if (lesson.noteState?.isError() == true) View.VISIBLE else View.GONE
+            holder.ui.note.visibility = if (!lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
+
+            holder.ui.note.text = lesson.note
+        } else {
+            holder.ui.noteGroup.visibility = View.GONE
+        }
+
         holder.ui.root.setOnLongClickListener {
-            onMenuLesson(lesson)
+            onMenuLesson(lesson.lessonKey!!)
             true
         }
     }

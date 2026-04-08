@@ -23,13 +23,13 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 class RatingViewModel : UiViewModel() {
     private val _lessonRatingState = MutableStateFlow<LoadState<LessonRatingStatsResult>>(LoadState.Empty)
-    val lessonRatingStates = _lessonRatingState.asStateFlow()
+    val lessonRatingState = _lessonRatingState.asStateFlow()
 
     companion object {
         private const val CACHE_LESSON_RATING_STATS_NAME = "lesson_rating_stats"
     }
 
-    fun reset() {
+    fun resetLessonRating() {
         _lessonRatingState.setShownError()
     }
 
@@ -44,7 +44,6 @@ class RatingViewModel : UiViewModel() {
                     val entity = CacheManager.read(childId, CACHE_LESSON_RATING_STATS_NAME, ratingKey)
                         ?: throw CacheNullException()
                     val lessonRatingStats = json.decodeFromString<LessonRatingStatsResult>(entity.value)
-                    Utilities.log("$ratingKey; $lessonRatingStats", tag = "debug")
 
                     _lessonRatingState.setSuccess(lessonRatingStats)
                     return@launch

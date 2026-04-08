@@ -22,13 +22,10 @@
             android:gravity="center_horizontal"
             android:layout_marginTop="12dp">
 
-            <androidx.recyclerview.widget.RecyclerView
+            <include
                 android:id="@+id/oldAvgMark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:overScrollMode="never"
-                android:scrollbars="none" />
+                layout="@layout/item_mark_log"
+                android:visibility="gone" />
 
             <ProgressBar
                 android:id="@+id/oldAvgMarkLoading"
@@ -44,13 +41,10 @@
                 android:layout_marginHorizontal="8dp"
                 android:src="@drawable/ic_arrow_right_rating"/>
 
-            <androidx.recyclerview.widget.RecyclerView
+            <include
                 android:id="@+id/newAvgMark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:overScrollMode="never"
-                android:scrollbars="none" />
+                layout="@layout/item_mark_log"
+                android:visibility="gone" />
 
             <ProgressBar
                 android:id="@+id/newAvgMarkLoading"
@@ -61,10 +55,20 @@
 
         </LinearLayout>
 
-        <FrameLayout
+        <include
             android:id="@+id/myMark"
+            layout="@layout/item_marks_rating" />
+
+        <include
+            android:id="@+id/avgGroupMark"
+            layout="@layout/item_marks_rating" />
+
+        <TextView
+            android:id="@+id/info"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="10dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/ratingList"

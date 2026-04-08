@@ -7,6 +7,7 @@ import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.api.MarkLog
 import ru.tgmaksim.activium.api.WorkType
 import ru.tgmaksim.activium.api.MarksOther
+import ru.tgmaksim.activium.api.NoteResult
 import ru.tgmaksim.activium.api.ScheduleHours
 import ru.tgmaksim.activium.api.ScheduleHomeworkDocument
 import ru.tgmaksim.activium.api.ScheduleExtracurricularActivity
@@ -39,6 +40,7 @@ data class UiScheduleLesson(
     val ratingKey: String?,
     val dnevnikruUrl: String?,
     val praiseState: LoadState<Unit>?,
+    val noteState: LoadState<NoteResult>?,
     val isExtra: Boolean = false
 ) {
     init {

@@ -18,15 +18,15 @@ import ru.tgmaksim.activium.ui.pages.schedule.skeletone.LessonSkeletonAdapter
 class ScheduleDayAdapter(
     private val skeletonLessonsCount: Int,
     private val onPraiseClick: (String) -> Unit,
-    private val onMenuLesson: (UiScheduleLesson) -> Unit,
-    private val onRating: (UiScheduleLesson) -> Unit
+    private val onMenuLesson: (String) -> Unit,
+    private val onRating: (String) -> Unit
 ) : ListAdapter<UiScheduleDay?, ScheduleDayAdapter.VH>(Diff()) {
     class VH(
         val ui: ItemScheduleDayBinding,
         skeletonLessonsCount: Int,
         onPraiseClick: (String) -> Unit,
-        onMenuLesson: (UiScheduleLesson) -> Unit,
-        onRating: (UiScheduleLesson) -> Unit
+        onMenuLesson: (String) -> Unit,
+        onRating: (String) -> Unit
     ) : RecyclerView.ViewHolder(ui.root) {
         private val lessonAdapter = ScheduleLessonAdapter(onPraiseClick, onMenuLesson, onRating)
         private val skeletonAdapter = LessonSkeletonAdapter(skeletonLessonsCount)
@@ -102,6 +102,7 @@ private fun ScheduleExtracurricularActivity.toUiScheduleLesson(number: Int): UiS
         ratingKey = null,
         praiseState = null,
         dnevnikruUrl = null,
+        noteState = null,
         isExtra = true
     )
 }

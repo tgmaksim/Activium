@@ -54,8 +54,8 @@ class ScheduleViewModel : UiViewModel() {
     private var loadCloudCacheScheduleJob: Job? = null
 
     companion object {
-        private const val CACHE_SCHEDULE_NAME = "schedule"
-        private const val CACHE_TIMEZONE_NAME = "timezone"
+        const val CACHE_SCHEDULE_NAME = "schedule"
+        const val CACHE_TIMEZONE_NAME = "timezone"
     }
 
     fun resetSchedule() {
@@ -76,14 +76,15 @@ class ScheduleViewModel : UiViewModel() {
         }
     }
 
-    fun reset(lessonKey: String) {
-        _praiseStates.resetSuccess(lessonKey)
-    }
-
     fun logout() {
         viewModelScope.launch {
             LoginActivity.logout()
         }
+    }
+
+    fun emptyStates() {
+        _praiseStates.value = emptyMap()
+        _noteStates.value = emptyMap()
     }
 
     fun loadCacheSchedule() {
@@ -223,17 +224,9 @@ class ScheduleViewModel : UiViewModel() {
                 "note",
                 R.string.error_note,
                 { DnevnikTools.createNote(lessonKey, text, public) },
-                { it.answer }
-            ) { noteResult ->
-                val data = _scheduleData.value
-                _scheduleData.value = data?.copy(
-                    schedule = data.schedule.map {day ->
-                        day?.copy(lessons = day.lessons.map { lesson ->
-                            lesson.copy(note = if (lesson.lessonKey == lessonKey) noteResult.note?.text else lesson.note)
-                        })
-                    }
-                )
-            }
+                { it.answer },
+                { noteResult -> onSuccessEditLessonNote(lessonKey, noteResult) }
+            )
         }
     }
 
@@ -245,17 +238,48 @@ class ScheduleViewModel : UiViewModel() {
                 "deleteNote",
                 R.string.error_delete_note,
                 { DnevnikTools.deleteNote(lessonKey) },
-                { NoteResult(note = null) }
-            ) { noteResult ->
-                val data = _scheduleData.value
-                _scheduleData.value = data?.copy(
-                    schedule = data.schedule.map {day ->
-                        day?.copy(lessons = day.lessons.map { lesson ->
-                            lesson.copy(note = if (lesson.lessonKey == lessonKey) noteResult.note?.text else lesson.note)
-                        })
-                    }
-                )
+                { NoteResult(note = null) },
+                { noteResult -> onSuccessEditLessonNote(lessonKey, noteResult) }
+            )
+        }
+    }
+
+    private suspend fun onSuccessEditLessonNote(lessonKey: String, noteResult: NoteResult) {
+        val data = _scheduleData.value
+        _scheduleData.value = data?.copy(
+            schedule = data.schedule.map {day ->
+                if (day?.lessons?.find { it.lessonKey == lessonKey } != null) {
+                    day.copy(lessons = day.lessons.map { lesson ->
+                        if (lesson.lessonKey == lessonKey) lesson.copy(note = noteResult.note?.text) else lesson
+                    })
+                } else {
+                    day
+                }
             }
+        )
+
+        try {
+            val childId = SettingsManager.getActiveChildId()
+            val entity = CacheManager.read(childId, CACHE_SCHEDULE_NAME)
+                ?: throw CacheNullException()
+            val schedule = json.decodeFromString<List<ScheduleDay>>(entity.value)
+            val newSchedule = json.encodeToString(
+                schedule.map { day ->
+                    if (day.lessons.find { it.lessonKey == lessonKey } != null) {
+                        day.copy(lessons = day.lessons.map { lesson ->
+                            if (lesson.lessonKey == lessonKey) lesson.copy(note = noteResult.note?.text) else lesson
+                        })
+                    } else {
+                        day
+                    }
+                }
+            )
+
+            CacheManager.writeDnevnikCache(childId, CACHE_SCHEDULE_NAME, value = newSchedule)
+        } catch (_: CacheNullException) {
+        } catch (_: CancellationException) {
+        } catch (e: Exception) {
+            Utilities.log(e)
         }
     }
 }

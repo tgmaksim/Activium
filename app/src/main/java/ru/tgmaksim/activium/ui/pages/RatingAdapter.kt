@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.MarksOther
 import ru.tgmaksim.activium.databinding.ItemMarksRatingBinding
-import ru.tgmaksim.activium.ui.pages.schedule.adapters.MarkLogAdapter
 
 class RatingAdapter(
     private val showNumber: Boolean

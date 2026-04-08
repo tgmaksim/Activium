@@ -41,6 +41,7 @@ import kotlinx.datetime.toKotlinMonth
 import java.time.format.DateTimeFormatter
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.api.NoteResult
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
@@ -79,6 +80,7 @@ class SchedulePage : Fragment() {
 
     private var currentData: UiScheduleResult? = null
     private var currentPraiseStates: Map<String, LoadState<Unit>> = emptyMap()
+    private var currentNoteStates: Map<String, LoadState<NoteResult>> = emptyMap()
     private var currentBefore by Delegates.notNull<Int>()
     private var currentAfter by Delegates.notNull<Int>()
     private var currentActiveChildId by Delegates.notNull<Long>()
@@ -261,6 +263,14 @@ class SchedulePage : Fragment() {
         return javaDate.format(DateTimeFormatter.ofPattern("EE", Locale("ru"))).uppercase()
     }
 
+    private fun getLesson(lessonKey: String): UiScheduleLesson? {
+        return currentData
+            ?.schedule
+            ?.filterNotNull()
+            ?.flatMap { it.lessons }
+            ?.find { it.lessonKey == lessonKey }
+    }
+
     private fun onCalendarDayClick(date: LocalDate) {
         val position = currentDates.indexOf(date)
         if (position < 0) return
@@ -314,19 +324,21 @@ class SchedulePage : Fragment() {
         dialog.show()
     }
 
-    private fun onMenuLesson(lesson: UiScheduleLesson) {
-        if (lesson.lessonKey == null || lesson.dnevnikruUrl == null) return
+    private fun onMenuLesson(lessonKey: String) {
+        val lesson = getLesson(lessonKey).takeIf { it?.isExtra == false } ?: return
         LessonMenuDialog(
             lesson,
-            { openLessonNoteEditor(lesson) },
-            { openDeleteNoteDialog(lesson) },
-            { onPraiseLesson(lesson.lessonKey) },
-            { Utilities.openUrl(requireContext(), lesson.dnevnikruUrl) },
-            { onRating(lesson) }
+            { openLessonNoteEditor(lessonKey) },
+            { openDeleteNoteDialog(lessonKey) },
+            { onPraiseLesson(lessonKey) },
+            { Utilities.openUrl(requireContext(), lesson.dnevnikruUrl!!) },
+            { onRating(lessonKey) }
         ).show(childFragmentManager, LessonMenuDialog.TAG)
     }
 
-    private fun openLessonNoteEditor(lesson: UiScheduleLesson) {
+    private fun openLessonNoteEditor(lessonKey: String) {
+        val lesson = getLesson(lessonKey) ?: return
+
         val view = DialogLessonNoteEditorBinding.inflate(layoutInflater, ui.root, false)
 
         view.text.setText(lesson.note)
@@ -370,18 +382,20 @@ class SchedulePage : Fragment() {
         dialog.show()
     }
 
-    private fun openDeleteNoteDialog(lesson: UiScheduleLesson) {
+    private fun openDeleteNoteDialog(lessonKey: String) {
         Utilities.showAlertDialog(
             requireContext(),
             getString(R.string.title_dialog_delete_note),
             getString(R.string.message_dialog_delete_note),
             getString(R.string.button_dialog_delete_note)
         ) { _, _ ->
-            scheduleViewModel.deleteLessonNote(lesson.lessonKey!!)
+            scheduleViewModel.deleteLessonNote(lessonKey)
         }
     }
 
-    private fun onRating(lesson: UiScheduleLesson) {
+    private fun onRating(lessonKey: String) {
+        val lesson = getLesson(lessonKey) ?: return
+
         RatingDialog(
             lesson,
             showNumber = false
@@ -416,7 +430,7 @@ class SchedulePage : Fragment() {
                                 if (oldData != null) {
                                     val resized = resizeSchedule(oldData, scheduleBefore, scheduleAfter)
                                     currentData = resized
-                                    renderSchedule(resized, currentPraiseStates)
+                                    renderSchedule(resized, currentPraiseStates, currentNoteStates)
                                     if (resized.schedule.any { it == null })
                                         scheduleViewModel.loadCacheSchedule()
                                 } else {
@@ -448,6 +462,7 @@ class SchedulePage : Fragment() {
                                 scheduleViewModel.loadCloudSchedule()
                             }
                             CacheDataLoadState.CloudLoading -> {
+                                scheduleViewModel.emptyStates()
                                 updateCloudLoading(true)
                             }
                             CacheDataLoadState.CloudSuccess -> {
@@ -471,14 +486,14 @@ class SchedulePage : Fragment() {
                         if (currentData != data) {
                             currentData = data
                             if (data != null)
-                                renderSchedule(data, currentPraiseStates)
+                                renderSchedule(data, currentPraiseStates, currentNoteStates)
                         }
                     }
                 }
                 launch {
                     scheduleViewModel.praiseStates.collect { states ->
                         currentPraiseStates = states
-                        currentData?.let { renderSchedule(it, currentPraiseStates) }
+                        currentData?.let { renderSchedule(it, currentPraiseStates, currentNoteStates) }
 
                         for ((lessonKey, state) in states) {
                             if (state is LoadState.Error) {
@@ -490,13 +505,16 @@ class SchedulePage : Fragment() {
                                 }
                             } else if (state is LoadState.Success) {
                                 Utilities.showText(requireContext(), R.string.praise_sent)
-                                scheduleViewModel.reset(lessonKey)
+                                scheduleViewModel.resetError(ScheduleViewModel.MapStateType.Praises, lessonKey)
                             }
                         }
                     }
                 }
                 launch {
                     scheduleViewModel.noteStates.collect { states ->
+                        currentNoteStates = states
+                        currentData?.let { renderSchedule(it, currentPraiseStates, currentNoteStates) }
+
                         for ((lessonKey, state) in states) {
                             if (state is LoadState.Error) {
                                 Utilities.showUiMessage(requireContext(), state.message)
@@ -536,6 +554,7 @@ class SchedulePage : Fragment() {
     private fun showSkeletonMode() {
         currentData = null
         currentPraiseStates = emptyMap()
+        currentNoteStates = emptyMap()
         shouldAnimateShimmer = true
 
         ui.calendarRecycler.adapter = calendarSkeletonAdapter
@@ -554,10 +573,14 @@ class SchedulePage : Fragment() {
         LoginActivity.openLoginActivity(requireActivity())
     }
 
-    private fun renderSchedule(rawData: UiScheduleResult, praiseStates: Map<String, LoadState<Unit>>) {
+    private fun renderSchedule(
+        rawData: UiScheduleResult,
+        praiseStates: Map<String, LoadState<Unit>>,
+        noteStates: Map<String, LoadState<NoteResult>>
+    ) {
         if (rawData.schedule.isEmpty()) return
 
-        val data = if (praiseStates.isNotEmpty()) rawData.withPraiseStates(praiseStates) else rawData
+        val data = rawData.withPraiseStates(praiseStates).withNoteStates(noteStates)
 
         if (ui.calendarRecycler.adapter !== calendarAdapter) {
             ui.calendarRecycler.adapter = calendarAdapter
@@ -581,11 +604,35 @@ class SchedulePage : Fragment() {
     }
 
     private fun UiScheduleResult.withPraiseStates(praiseStates: Map<String, LoadState<Unit>>): UiScheduleResult {
+        if (praiseStates.isEmpty()) return this
+
         return this.copy(
-            schedule = schedule.map {day ->
-                day?.copy(lessons = day.lessons.map { lesson ->
-                    lesson.copy(praiseState = praiseStates[lesson.lessonKey] ?: lesson.praiseState)
-                })
+            schedule = schedule.map { day ->
+                if (day?.lessons?.find { praiseStates[it.lessonKey] != null } != null) {
+                    day.copy(lessons = day.lessons.map { lesson ->
+                        val state = praiseStates[lesson.lessonKey]
+                        if (state != null) lesson.copy(praiseState = state) else lesson
+                    })
+                } else {
+                    day
+                }
+            }
+        )
+    }
+
+    private fun UiScheduleResult.withNoteStates(noteStates: Map<String, LoadState<NoteResult>>): UiScheduleResult {
+        if (noteStates.isEmpty()) return this
+
+        return this.copy(
+            schedule = schedule.map { day ->
+                if (day?.lessons?.find { noteStates[it.lessonKey] != null } != null) {
+                    day.copy(lessons = day.lessons.map { lesson ->
+                        val state = noteStates[lesson.lessonKey]
+                        if (state != null) lesson.copy(noteState = state) else lesson
+                    })
+                } else {
+                    day
+                }
             }
         )
     }

@@ -139,6 +139,23 @@
                 android:text="@string/note_emoji"
                 android:textSize="14sp" />
 
+            <ProgressBar
+                android:id="@+id/noteLoading"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/noteError"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/error"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/note"
                 android:layout_width="match_parent"
@@ -150,6 +167,7 @@
                 android:maxLines="10"
                 android:textColor="@color/lesson_note_text"
                 android:textSize="14sp" />
+
         </LinearLayout>
 
         <LinearLayout

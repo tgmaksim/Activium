@@ -1,14 +1,12 @@
-package ru.tgmaksim.activium.ui.pages.schedule.adapters
+package ru.tgmaksim.activium.ui.pages
 
-import android.view.ViewGroup
 import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.MarkLog
 import ru.tgmaksim.activium.databinding.ItemMarkLogBinding
@@ -47,10 +45,9 @@ class MarkLogAdapter(
         DrawableCompat.setTint(drawable, ContextCompat.getColor(holder.ui.root.context, bgColor))
         holder.ui.root.background = drawable
 
-        if (onRating != null)
-            holder.ui.root.setOnClickListener {
-                onRating()
-            }
+        holder.ui.root.setOnClickListener {
+            onRating?.invoke()
+        }
     }
 
     class Diff : DiffUtil.ItemCallback<MarkLog>() {

@@ -44,8 +44,8 @@
     <color name="lesson_homework_file_name">#4FC3F7</color>
     <color name="lesson_like_icon">#D7B44A</color>
 
-    <color name="mark_log_bg">#40FFFFFF</color>
-    <color name="mark_log_pressed">#66FFFFFF</color>
+    <color name="mark_log_bg">#80FFFFFF</color>
+    <color name="mark_log_pressed">#A0FFFFFF</color>
 
     <color name="calendar_day_fill">#10FFFFFF</color>
     <color name="calendar_day_stroke">#30FFFFFF</color>
@@ -68,13 +68,6 @@
     <color name="mark_log_average">#FF8F00</color>
     <color name="mark_log_bad">#CF3838</color>
     <color name="mark_log_more">#94ACC8</color>
-
-<!--    <color name="lesson_time">#4FC3F7</color>-->
-<!--    <color name="lesson_subject">#FFFFFF</color>-->
-<!--    <color name="lesson_place">#CCCCCC</color>-->
-<!--    <color name="lesson_homework_title">#88FFFFFF</color>-->
-<!--    <color name="lesson_homework_text">#CCFFFFFF</color>-->
-<!--    <color name="lesson_homework_file_name">#81d5fc</color>-->
 
     <color name="slider_accent">#4FC3F7</color>
     <color name="slider_track_off">#333333</color>

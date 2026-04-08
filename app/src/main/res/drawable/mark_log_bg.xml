@@ -3,14 +3,14 @@
 
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <corners android:radius="10dp" />
+            <corners android:radius="5dp" />
             <solid android:color="@color/mark_log_pressed" />
         </shape>
     </item>
 
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="10dp" />
+            <corners android:radius="5dp" />
             <solid android:color="@color/mark_log_bg" />
         </shape>
     </item>
