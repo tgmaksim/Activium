@@ -132,7 +132,6 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/rangeSliderLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -153,12 +152,40 @@
                 app:trackTint="@color/thumb_switch_colors" />
 
             <TextView
-                android:id="@+id/rangeSliderStatus"
+                android:id="@+id/settingsScheduleStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:text="@string/settings_schedule_warning"
-                android:textColor="@color/schedule_slider_warning"
+                android:textColor="@color/settings_warning"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/settings_last_marks_period"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/settingsLastMarksPeriod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/AppRangeSlider"
+                android:valueFrom="0"
+                android:valueTo="14"
+                android:stepSize="1"
+                app:thumbTint="@color/thumb_switch_colors"
+                app:trackTint="@color/thumb_switch_colors" />
+
+            <TextView
+                android:id="@+id/settingsLastMarksStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="@string/settings_last_marks_warning"
+                android:textColor="@color/settings_warning"
                 android:textSize="16sp" />
 
         </LinearLayout>

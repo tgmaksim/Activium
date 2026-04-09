@@ -120,6 +120,7 @@
                 android:linksClickable="true"
                 android:lineSpacingExtra="2dp"
                 android:textColor="@color/lesson_homework_text"
+                android:textColorLink="@color/lesson_link"
                 android:textIsSelectable="true"
                 android:textSize="14sp" />
 

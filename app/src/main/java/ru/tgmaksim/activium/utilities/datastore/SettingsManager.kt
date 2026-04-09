@@ -25,11 +25,13 @@ object SettingsManager {
     private val KEY_DARK_THEME = booleanPreferencesKey("dark_theme")
     private val KEY_BEFORE_SCHEDULE = intPreferencesKey("before_schedule")
     private val KEY_AFTER_SCHEDULE = intPreferencesKey("after_schedule")
+    private val KEY_LAST_MARKS_PERIOD = intPreferencesKey("last_marks_period")
 
     private const val DEFAULT_ACTIVE_CHILD_ID = -1L
     private const val DEFAULT_DARK_THEME = false
     private const val DEFAULT_BEFORE_SCHEDULE = 3
     private const val DEFAULT_AFTER_SCHEDULE = 3
+    private const val DEFAULT_LAST_MARKS_PERIOD = 5
 
     fun init(context: Context) {
         appContext = context.applicationContext
@@ -139,6 +141,22 @@ object SettingsManager {
         }
     }
 
+    suspend fun getLastMarksPeriod(): Int {
+        return appContext.settingsDataStore.data.first()[KEY_LAST_MARKS_PERIOD] ?: DEFAULT_LAST_MARKS_PERIOD
+    }
+
+    suspend fun setLastMarksPeriod(value: Int) {
+        appContext.settingsDataStore.edit { prefs ->
+            prefs[KEY_LAST_MARKS_PERIOD] = value
+        }
+    }
+
+    fun lastMarksPeriodFlow(): Flow<Int> {
+        return appContext.settingsDataStore.data.map { prefs ->
+            prefs[KEY_LAST_MARKS_PERIOD] ?: DEFAULT_LAST_MARKS_PERIOD
+        }
+    }
+
     suspend fun clearAll() {
         appContext.settingsDataStore.edit { prefs ->
             prefs.clear()
@@ -152,7 +170,8 @@ object SettingsManager {
             activeChildId = prefs[KEY_ACTIVE_CHILD_ID] ?: DEFAULT_ACTIVE_CHILD_ID,
             darkTheme = prefs[KEY_DARK_THEME] ?: DEFAULT_DARK_THEME,
             beforeSchedule = prefs[KEY_BEFORE_SCHEDULE] ?: DEFAULT_BEFORE_SCHEDULE,
-            afterSchedule = prefs[KEY_AFTER_SCHEDULE] ?: DEFAULT_AFTER_SCHEDULE
+            afterSchedule = prefs[KEY_AFTER_SCHEDULE] ?: DEFAULT_AFTER_SCHEDULE,
+            lastMarksPeriod = prefs[KEY_LAST_MARKS_PERIOD] ?: DEFAULT_LAST_MARKS_PERIOD
         )
     }
 }

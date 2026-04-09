@@ -56,6 +56,12 @@ class SettingsViewModel : UiViewModel() {
         }
     }
 
+    fun setLastMarksPeriod(period: Int) {
+        viewModelScope.launch {
+            SettingsManager.setLastMarksPeriod(period)
+        }
+    }
+
     fun logout() {
         viewModelScope.launch {
             LoginActivity.logout()

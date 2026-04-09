@@ -31,9 +31,7 @@ class ScheduleCalendarAdapter(
         holder.ui.dayNumber.text = item.dayNumber
 
         // Окрашивание в разные цвета
-        holder.ui.root.isActivated = item.isToday
         holder.ui.root.isSelected = item.isSelected
-        holder.ui.root.isHovered = item.isWeekend
 
         holder.ui.root.setOnClickListener { onClick(item.date) }
     }

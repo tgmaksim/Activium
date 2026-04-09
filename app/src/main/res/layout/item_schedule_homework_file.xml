@@ -22,6 +22,7 @@
         android:lineSpacingExtra="2dp"
         android:text="@string/homework_document_not_found"
         android:textColor="@color/lesson_homework_file_name"
+        android:textColorLink="@color/lesson_homework_file_name"
         android:textSize="14sp" />
 
 </LinearLayout>

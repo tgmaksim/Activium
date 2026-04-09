@@ -171,6 +171,10 @@ class RatingDialog(
                                 newAvgMarkAdapter.onBindViewHolder(holder, 0)
                                 ui.newAvgMark.root.visibility = View.VISIBLE
                             }
+                            
+                            if (state.data.oldAvgMark == null && state.data.newAvgMark == null) {
+                                ui.stats.visibility = View.GONE
+                            }
                         }
                         is LoadState.Error -> {
                             ui.stats.visibility = View.GONE
@@ -179,7 +183,7 @@ class RatingDialog(
                             ratingViewModel.resetLessonRating()
                         }
                         is LoadState.ShownError -> {
-                            // ОШибка уже показан
+                            // Ошибка уже показан
                         }
                     }
                 }

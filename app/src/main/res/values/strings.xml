@@ -78,12 +78,21 @@
     <string name="schedule_range_label_from">%1$d до</string>
     <string name="schedule_range_label_to">%1$d после</string>
     <string name="settings_schedule_warning">Большой диапазон расписания влияет на скорость загрузки</string>
+    <string name="settings_last_marks_period">Период последних оценок</string>
+    <plurals name="last_marks_label">
+        <item quantity="one">за %1$d день</item>
+        <item quantity="few">за %1$d дня</item>
+        <item quantity="many">за %1$d дней</item>
+    </plurals>
+    <string name="settings_last_marks_warning">Большой период последних оценок влияет на скорость загрузки</string>
 
     <string name="update">Обновление</string>
     <string name="update_description">%1$s (%2$d)\n%3$s</string>
     <string name="update_button">Обновить</string>
-    <string name="message_dialog_version_with_new_function">В обновлении приложения появилась новая функция. Уже можно пользоваться</string>
-    <string name="message_dialog_important_version">Вышло обновление, которое требуется установить для корректной работы приложения</string>
+    <string name="message_dialog_global_version">Появилась новая версия приложения с глобальным обновлением. Установите ее для работы новых функций</string>
+    <string name="message_dialog_system_version">Появилась новая версия приложения с важными системными изменениями. Требуется обновить для корректной работы</string>
+    <string name="message_dialog_update_version">Вышло обновление приложения, которое требуется установить для корректной работы приложения</string>
+    <string name="message_dialog_new_version">Вышло обновление приложения, в котором появилась новая функция. Уже можно пользоваться</string>
     <string name="button_dialog_new_version">Настройки</string>
     <string name="error_check_version">Произошла ошибка при проверке версии</string>
 

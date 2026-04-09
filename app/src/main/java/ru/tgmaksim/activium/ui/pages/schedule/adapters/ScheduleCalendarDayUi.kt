@@ -6,7 +6,5 @@ data class ScheduleCalendarDayUi(
     val date: LocalDate,
     val weekday: String,
     val dayNumber: String,
-    val isToday: Boolean,
-    val isSelected: Boolean,
-    val isWeekend: Boolean
+    val isSelected: Boolean
 )

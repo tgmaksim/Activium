@@ -5,5 +5,6 @@ data class SettingsSnapshot(
     val activeChildId: Long,
     val darkTheme: Boolean,
     val beforeSchedule: Int,
-    val afterSchedule: Int
+    val afterSchedule: Int,
+    val lastMarksPeriod: Int
 )

@@ -225,19 +225,14 @@ class SchedulePage : Fragment() {
     private fun submitCalendar(data: UiScheduleResult?, selectedIndex: Int? = null) {
         if (data == null || currentDates.isEmpty()) return
 
-        val today = currentDateInTimezone(data.timezone)
         val activeSelectedIndex = selectedIndex ?: currentSelectedDate?.let { currentDates.indexOf(it) } ?: 0
 
         val items = currentDates.mapIndexed { index, date ->
-            val day = data.schedule.getOrNull(index)
-
             ScheduleCalendarDayUi(
                 date = date,
                 weekday = formatWeekday(date),
                 dayNumber = date.day.toString(),
-                isToday = date == today,
                 isSelected = index == activeSelectedIndex,
-                isWeekend = day?.let { it.lessons.isEmpty() && it.ea.isEmpty() } == true
             )
         }
 

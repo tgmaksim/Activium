@@ -42,6 +42,7 @@
     <color name="lesson_note_text">#9AD2FF</color>
     <color name="lesson_work_type">#4FC3F7</color>
     <color name="lesson_homework_file_name">#4FC3F7</color>
+    <color name="lesson_link">#4FC3F7</color>
     <color name="lesson_like_icon">#D7B44A</color>
 
     <color name="mark_log_bg">#80FFFFFF</color>
@@ -51,14 +52,6 @@
     <color name="calendar_day_stroke">#30FFFFFF</color>
     <color name="calendar_day_selected_fill">#40FFFFFF</color>
     <color name="calendar_day_selected_stroke">#80FFFFFF</color>
-    <color name="calendar_day_activated_fill">#10FFFFFF</color>
-    <color name="calendar_day_activated_stroke">#4CAF50</color>
-    <color name="calendar_day_hovered_fill">#10FFFFFF</color>
-    <color name="calendar_day_hovered_stroke">#B3FF8A80</color>
-    <color name="calendar_day_selected_activated_fill">#40FFFFFF</color>
-    <color name="calendar_day_selected_activated_stroke">#4CAF50</color>
-    <color name="calendar_day_selected_hovered_fill">#40FFFFFF</color>
-    <color name="calendar_day_selected_hovered_stroke">#B3FF8A80</color>
 
     <color name="dialog_background">#004080</color>
     <color name="dialog_button_positive">#4DA3FF</color>
@@ -74,7 +67,8 @@
     <color name="slider_label_bg">#4FC3F7</color>
     <color name="slider_label_text">#000000</color>
     <color name="slider_halo_static">#204FC3F7</color>
-    <color name="schedule_slider_warning">#FFCC0000</color>
+
+    <color name="settings_warning">#FFCC0000</color>
 
     <color name="swipe_refresh_scheme">#4FC3F7</color>
 

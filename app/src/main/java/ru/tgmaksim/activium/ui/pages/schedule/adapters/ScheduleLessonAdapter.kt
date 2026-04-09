@@ -165,9 +165,7 @@ class ScheduleLessonAdapter(
 
         ui.homeworkDocumentName.text = spannable
         ui.homeworkDocumentName.movementMethod = LinkMovementMethod.getInstance()
-        ui.homeworkDocumentName.highlightColor = Color.TRANSPARENT
         ui.homeworkDocumentName.ellipsize = TextUtils.TruncateAt.MIDDLE
-        ui.homeworkDocumentName.setSingleLine()
         return ui.root
     }
 

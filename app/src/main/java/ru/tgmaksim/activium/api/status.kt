@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
  * @param latestVersionNumber Последняя доступная версия (номер сборки) приложения
  * @param latestVersionString Последняя доступная версия приложения
  * @param date Дата выпуска последней доступной версии приложения
+ * @param versionStatusId Числовой статус новой версии, означающий важность обновления
  * @param versionStatus Статус новой версии, означающий важность обновления
  * @param updateLogs Изменения в последней версии приложения (latestVersion), которые можно показать пользователю
  * @author Максим Дрючин (tgmaksim)
@@ -18,6 +19,7 @@ import kotlinx.serialization.Serializable
     val latestVersionNumber: Int,
     val latestVersionString: String,
     val date: String,
+    val versionStatusId: Float,
     val versionStatus: String,
     val updateLogs: String
 ) : ApiBase() {

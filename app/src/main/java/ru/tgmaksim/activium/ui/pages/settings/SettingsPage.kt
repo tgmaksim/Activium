@@ -20,6 +20,7 @@ import androidx.core.widget.addTextChangedListener
 
 import com.google.android.material.slider.RangeSlider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.slider.Slider
 
 import kotlinx.datetime.format
 import kotlinx.datetime.TimeZone
@@ -115,6 +116,11 @@ class SettingsPage : Fragment() {
             }
         }
 
+        ui.settingsLastMarksPeriod.value = settings.lastMarksPeriod.toFloat()
+        ui.settingsLastMarksPeriod.setLabelFormatter { value ->
+            resources.getQuantityString(R.plurals.last_marks_label, value.toInt(), value.toInt())
+        }
+
         ui.version.text = getString(R.string.version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
         ui.android.text = getString(R.string.android, Build.VERSION.RELEASE,Build.VERSION.SDK_INT)
     }
@@ -160,12 +166,23 @@ class SettingsPage : Fragment() {
             settingsScheduleRangeListener(slider)
         }
         ui.settingsScheduleRange.addOnSliderTouchListener(object : RangeSlider.OnSliderTouchListener {
-            override fun onStartTrackingTouch(p0: RangeSlider) {}
+            override fun onStartTrackingTouch(slider: RangeSlider) {}
 
             override fun onStopTrackingTouch(slider: RangeSlider) {
                 val left = slider.values[0].toInt()
                 val right = slider.values[1].toInt()
                 settingsViewModel.setRangeSchedule(-left, right)
+            }
+        })
+
+        ui.settingsLastMarksPeriod.addOnChangeListener { slider, _, _ ->
+            settingsLastMarksSliderListener(slider)
+        }
+        ui.settingsLastMarksPeriod.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {}
+
+            override fun onStopTrackingTouch(slider: Slider) {
+                settingsViewModel.setLastMarksPeriod(slider.value.toInt())
             }
         })
     }
@@ -211,7 +228,7 @@ class SettingsPage : Fragment() {
     }
 
     /**
-     * Обработчик слайдера
+     * Обработчик слайдера диапазона расписания
      * @param slider Объект, переданный после установления нового положения
      * @author Максим Дрючин (tgmaksim)
      * */
@@ -222,11 +239,26 @@ class SettingsPage : Fragment() {
         if (left in -14..0 && right in 1..21 && right - left <= 31) {
             before = -left
             after = right
-
-            ui.rangeSliderStatus.visibility = if (-left > 7 || right > 14) View.VISIBLE else View.GONE
         } else {
             slider.values = listOf(-before.toFloat(), after.toFloat())
         }
+
+        ui.settingsScheduleStatus.visibility = if (-left > 7 || right > 14) View.VISIBLE else View.GONE
+    }
+
+    /**
+     * Обработчик слайдера периода последних оценок
+     * @param slider Объект, переданный после установления нового положения
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun settingsLastMarksSliderListener(slider: Slider) {
+        val value = slider.value.toInt()
+
+        if (value == 0) {
+            slider.value = 1f
+        }
+
+        ui.settingsLastMarksStatus.visibility = if (value > 7) View.VISIBLE else View.GONE
     }
 
     /**
