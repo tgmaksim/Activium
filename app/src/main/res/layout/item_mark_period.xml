@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="17dp"
+    android:minWidth="17dp"
+    android:layout_marginHorizontal="1dp"
+    android:layout_marginBottom="3dp"
+    android:background="@drawable/mark_log_bg">
+
+    <TextView
+        android:id="@+id/log"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:textColor="@android:color/white"
+        android:textSize="11sp" />
+
+</FrameLayout>

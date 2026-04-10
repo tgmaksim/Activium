@@ -29,12 +29,7 @@ class MarkLogAdapter(
         val item = getItem(position)
         holder.ui.log.text = item.value
 
-        val bgColor = when (item.mood) {
-            "good" -> R.color.mark_log_good
-            "average" -> R.color.mark_log_average
-            "bad" -> R.color.mark_log_bad
-            else -> R.color.mark_log_more
-        }
+        val bgColor = getMarkLogBgColor(item.mood)
 
         val drawable = DrawableCompat.wrap(
             ContextCompat.getDrawable(
@@ -48,6 +43,17 @@ class MarkLogAdapter(
         holder.ui.root.setOnClickListener {
             onRating?.invoke()
         }
+    }
+
+    companion object {
+        fun getMarkLogBgColor(mood: String) =
+            when (mood) {
+                "good" -> R.color.mark_log_good
+                "average" -> R.color.mark_log_average
+                "bad" -> R.color.mark_log_bad
+                "more" -> R.color.mark_log_more
+                else -> R.color.mark_log_more
+            }
     }
 
     class Diff : DiffUtil.ItemCallback<MarkLog>() {

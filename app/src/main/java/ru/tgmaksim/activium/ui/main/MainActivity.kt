@@ -123,9 +123,9 @@ class MainActivity : ParentActivity() {
                 R.id.it_schedule ->
                     if (!(getOrCreateFragment(R.id.it_schedule) as SchedulePage).onBackPressed())
                         moveTaskToBack(true)
-//                R.id.it_marks ->
-//                    if ((pages[R.id.it_marks] as? MarksPage)?.onBackPressed() != true)
-//                        ui.bottomMenu.selectedItemId = R.id.it_schedule
+                R.id.it_marks ->
+                    if (!(getOrCreateFragment(R.id.it_marks) as MarksPage).onBackPressed())
+                        moveTaskToBack(true)
 
                 else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
             }

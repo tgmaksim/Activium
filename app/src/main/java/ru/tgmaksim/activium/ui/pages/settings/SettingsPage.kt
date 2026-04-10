@@ -121,6 +121,9 @@ class SettingsPage : Fragment() {
             resources.getQuantityString(R.plurals.last_marks_label, value.toInt(), value.toInt())
         }
 
+        ui.settingsShowNullSubjectMarks.isChecked = settings.showNullSubjectMarks
+        ui.settingsShowNullSubjectMarks.visibility = View.VISIBLE
+
         ui.version.text = getString(R.string.version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
         ui.android.text = getString(R.string.android, Build.VERSION.RELEASE,Build.VERSION.SDK_INT)
     }
@@ -185,6 +188,10 @@ class SettingsPage : Fragment() {
                 settingsViewModel.setLastMarksPeriod(slider.value.toInt())
             }
         })
+
+        ui.settingsShowNullSubjectMarks.setOnCheckedChangeListener { _, isChecked ->
+            settingsViewModel.updateShowNullSubjectMarks(isChecked)
+        }
     }
 
     /**

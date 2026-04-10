@@ -1,4 +1,4 @@
-package ru.tgmaksim.activium.ui.pages
+package ru.tgmaksim.activium.ui.pages.schedule
 
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope

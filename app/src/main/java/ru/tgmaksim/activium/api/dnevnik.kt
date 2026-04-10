@@ -114,7 +114,8 @@ data class MarkLog(
     val mood: String,
     val value: String,
     val work: WorkType?,
-    val created: Instant?
+    val created: Instant?,
+    val ratingKey: String?
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0xE
@@ -533,7 +534,7 @@ data class MarksSubjectFinal(
     override val classId: Int = CLASS_ID,
     val subject: String,
     val marks: List<MarkLog?>,
-    val finalMark: MarkLog
+    val finalMark: MarkLog?
 ) : ApiBase() {
     companion object {
         const val CLASS_ID = 0x1E

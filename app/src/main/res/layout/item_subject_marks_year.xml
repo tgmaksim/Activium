@@ -1,0 +1,29 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="3dp">
+
+    <TextView
+        android:id="@+id/subject"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/marks"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:overScrollMode="never" />
+
+    <include
+        android:id="@+id/periodMark"
+        android:layout_width="25dp"
+        android:layout_height="17dp"
+        android:layout_marginStart="8dp"
+        layout="@layout/item_mark_period" />
+
+</LinearLayout>

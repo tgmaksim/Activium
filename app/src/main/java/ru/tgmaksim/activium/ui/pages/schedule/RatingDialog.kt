@@ -1,4 +1,4 @@
-package ru.tgmaksim.activium.ui.pages
+package ru.tgmaksim.activium.ui.pages.schedule
 
 import android.os.Bundle
 import android.view.View
@@ -19,10 +19,12 @@ import java.time.format.DateTimeFormatter
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.pages.RatingAdapter
+import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
-import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleLesson
 
 class RatingDialog(
     private val lesson: UiScheduleLesson,
@@ -137,7 +139,7 @@ class RatingDialog(
         )
         ui.ratingList.itemAnimator = null
         ui.ratingList.adapter = RatingAdapter(showNumber).apply {
-            submitList(lesson.othersMarks)
+            submitList(lesson.othersMarks.toUi())
         }
     }
 

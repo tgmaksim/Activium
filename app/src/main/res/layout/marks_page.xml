@@ -1,17 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Название страницы -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Оценки"
-        android:textSize="30sp"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="10dp"
-        android:fontFamily="sans-serif-medium"
-        android:textColor="@color/text_primary" />
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:overScrollMode="never">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="8dp"
+                android:paddingBottom="16dp">
+
+                <!-- Последние оценки -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/lastMarks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
+                    android:clipToPadding="false"
+                    android:paddingVertical="8dp"
+                    android:nestedScrollingEnabled="false" />
+
+                <LinearLayout
+                    android:id="@+id/buttonRating"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/button_bg"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/buttonRatingText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:padding="2dp"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/marks_switch_bg">
+
+                    <TextView
+                        android:id="@+id/buttonCurrentTable"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/marks_current"
+                        android:textColor="@color/marks_switch_text"
+                        android:textStyle="bold"
+                        android:background="@drawable/marks_switch_item_bg"/>
+
+                    <TextView
+                        android:id="@+id/buttonYearTable"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/marks_year"
+                        android:textColor="@color/marks_switch_text"
+                        android:textStyle="bold"
+                        android:background="@drawable/marks_switch_item_bg"/>
+
+                </LinearLayout>
+
+                <!-- Таблица за период -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/periodTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:nestedScrollingEnabled="false"
+                    android:clipToPadding="false"
+                    android:paddingBottom="100dp" />
+
+                <!-- Таблица за год -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/yearTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:nestedScrollingEnabled="false"
+                    android:clipToPadding="false"
+                    android:paddingBottom="100dp" />
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <View
+        android:id="@+id/skeletonShimmer"
+        android:layout_width="160dp"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_gravity="start"
+        android:alpha="0.65"
+        android:background="@drawable/skeleton_shimmer_band" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

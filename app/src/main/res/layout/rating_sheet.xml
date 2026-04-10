@@ -1,10 +1,10 @@
-<androidx.core.widget.NestedScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -13,6 +13,14 @@
             android:layout_height="4dp"
             android:layout_gravity="center"
             android:background="@drawable/bg_sheet_handle" />
+
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/stats"
@@ -75,6 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:paddingHorizontal="3dp"
             android:clipToPadding="false"
             android:paddingBottom="12dp"
             android:nestedScrollingEnabled="false" />

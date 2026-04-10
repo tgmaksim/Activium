@@ -196,4 +196,10 @@ class SettingsViewModel : UiViewModel() {
             )
         }
     }
+
+    fun updateShowNullSubjectMarks(show: Boolean) {
+        viewModelScope.launch {
+            SettingsManager.setShowNullSubjectMarks(show)
+        }
+    }
 }

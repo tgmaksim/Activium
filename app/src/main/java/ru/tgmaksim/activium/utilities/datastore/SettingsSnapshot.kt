@@ -6,5 +6,6 @@ data class SettingsSnapshot(
     val darkTheme: Boolean,
     val beforeSchedule: Int,
     val afterSchedule: Int,
-    val lastMarksPeriod: Int
+    val lastMarksPeriod: Int,
+    val showNullSubjectMarks: Boolean
 )

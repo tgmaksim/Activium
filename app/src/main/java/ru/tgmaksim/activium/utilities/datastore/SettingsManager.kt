@@ -26,12 +26,14 @@ object SettingsManager {
     private val KEY_BEFORE_SCHEDULE = intPreferencesKey("before_schedule")
     private val KEY_AFTER_SCHEDULE = intPreferencesKey("after_schedule")
     private val KEY_LAST_MARKS_PERIOD = intPreferencesKey("last_marks_period")
+    private val KEY_SHOW_NULL_SUBJECT_MARKS = booleanPreferencesKey("show_null_subject_marks")
 
     private const val DEFAULT_ACTIVE_CHILD_ID = -1L
     private const val DEFAULT_DARK_THEME = false
     private const val DEFAULT_BEFORE_SCHEDULE = 3
     private const val DEFAULT_AFTER_SCHEDULE = 3
     private const val DEFAULT_LAST_MARKS_PERIOD = 5
+    private const val DEFAULT_SHOW_NULL_SUBJECT_MARKS = false
 
     fun init(context: Context) {
         appContext = context.applicationContext
@@ -157,6 +159,22 @@ object SettingsManager {
         }
     }
 
+    suspend fun getShowNullSubjectMarks(): Boolean {
+        return appContext.settingsDataStore.data.first()[KEY_SHOW_NULL_SUBJECT_MARKS] ?: DEFAULT_SHOW_NULL_SUBJECT_MARKS
+    }
+
+    suspend fun setShowNullSubjectMarks(value: Boolean) {
+        appContext.settingsDataStore.edit { prefs ->
+            prefs[KEY_SHOW_NULL_SUBJECT_MARKS] = value
+        }
+    }
+
+    fun showNullSubjectMarksFlow(): Flow<Boolean> {
+        return appContext.settingsDataStore.data.map { prefs ->
+            prefs[KEY_SHOW_NULL_SUBJECT_MARKS] ?: DEFAULT_SHOW_NULL_SUBJECT_MARKS
+        }
+    }
+
     suspend fun clearAll() {
         appContext.settingsDataStore.edit { prefs ->
             prefs.clear()
@@ -171,7 +189,8 @@ object SettingsManager {
             darkTheme = prefs[KEY_DARK_THEME] ?: DEFAULT_DARK_THEME,
             beforeSchedule = prefs[KEY_BEFORE_SCHEDULE] ?: DEFAULT_BEFORE_SCHEDULE,
             afterSchedule = prefs[KEY_AFTER_SCHEDULE] ?: DEFAULT_AFTER_SCHEDULE,
-            lastMarksPeriod = prefs[KEY_LAST_MARKS_PERIOD] ?: DEFAULT_LAST_MARKS_PERIOD
+            lastMarksPeriod = prefs[KEY_LAST_MARKS_PERIOD] ?: DEFAULT_LAST_MARKS_PERIOD,
+            showNullSubjectMarks = prefs[KEY_SHOW_NULL_SUBJECT_MARKS] ?: DEFAULT_SHOW_NULL_SUBJECT_MARKS
         )
     }
 }

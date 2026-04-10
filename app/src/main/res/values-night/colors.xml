@@ -73,4 +73,7 @@
     <color name="swipe_refresh_scheme">#4FC3F7</color>
 
     <color name="dialog_menu_background">#C0001C38</color>
+
+    <color name="bg_marks_switch_block">#30101010</color>
+    <color name="bg_old_rating_mark">#B0C4DE</color>
 </resources>

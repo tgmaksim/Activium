@@ -45,7 +45,6 @@ import ru.tgmaksim.activium.api.NoteResult
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
-import ru.tgmaksim.activium.ui.pages.RatingDialog
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.DialogPraiseBinding
 import ru.tgmaksim.activium.databinding.SchedulePageBinding
@@ -66,9 +65,10 @@ class SchedulePage : Fragment() {
     private val scheduleViewModel: ScheduleViewModel by activityViewModels()
 
     private var shimmerAnimator: ObjectAnimator? = null
+    private var shouldAnimateShimmer = false
 
     private val calendarSkeletonAdapter = CalendarSkeletonAdapter(SKELETON_CALENDAR_COUNT)
-    private val calendarAdapter = ScheduleCalendarAdapter { date -> onCalendarDayClick(date) }
+    private val calendarAdapter = ScheduleCalendarAdapter(::onCalendarDayClick)
     private val dayAdapter = ScheduleDayAdapter(
         skeletonLessonsCount = SKELETON_LESSONS_COUNT,
         onPraiseClick = ::onPraiseLesson,
@@ -86,7 +86,6 @@ class SchedulePage : Fragment() {
     private var currentActiveChildId by Delegates.notNull<Long>()
     private var currentSelectedDate: LocalDate? = null
     private var currentDates: List<LocalDate> = emptyList()
-    private var shouldAnimateShimmer = false
 
     companion object {
         private const val PRAISE_TEXT_LIMIT = 64

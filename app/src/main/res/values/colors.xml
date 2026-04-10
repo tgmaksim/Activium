@@ -19,7 +19,7 @@
 
     <color name="thumb_switch_checked">#0288D1</color>
     <color name="thumb_switch_simple">#FFFFFF</color>
-    <color name="track_switch_checked">#4FC3F7</color>
+    <color name="track_switch_checked">#E3F6FE</color>
     <color name="track_switch_simple">#CFCFCF</color>
 
     <color name="review_star_filled">#F4B400</color>
@@ -73,4 +73,7 @@
     <color name="swipe_refresh_scheme">#0288D1</color>
 
     <color name="dialog_menu_background">#C0B3E5FC</color>
+
+    <color name="bg_marks_switch_block">#40FFFFFF</color>
+    <color name="bg_old_rating_mark">#C0C0C0</color>
 </resources>

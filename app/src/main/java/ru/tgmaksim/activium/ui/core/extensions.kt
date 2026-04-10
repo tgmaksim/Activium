@@ -1,6 +1,7 @@
 package ru.tgmaksim.activium.ui.core
 
 import kotlinx.coroutines.flow.MutableStateFlow
+import ru.tgmaksim.activium.api.MarksOther
 
 import ru.tgmaksim.activium.api.ScheduleDay
 import ru.tgmaksim.activium.api.ScheduleLesson
@@ -132,5 +133,20 @@ fun ScheduleDay.toUi(praiseState: LoadState.Empty? = null): UiScheduleDay {
         date = date,
         lessons = lessons.toUi(praiseState),
         ea = ea
+    )
+}
+
+fun List<MarksOther>.toUi(): List<UiMarksOther> {
+    return this.map { it.toUi() }
+}
+
+fun MarksOther.toUi(isOldMark: Boolean = false): UiMarksOther {
+    return UiMarksOther(
+        number = number,
+        name = name,
+        personKey = personKey,
+        isHighlighting = isHighlighting,
+        marks = marks,
+        isOldMark = isOldMark
     )
 }
