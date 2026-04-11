@@ -4,10 +4,9 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.content.res.ColorStateList
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 
 import ru.tgmaksim.activium.api.MarkLog
 import ru.tgmaksim.activium.api.MarksSubjectFinal
