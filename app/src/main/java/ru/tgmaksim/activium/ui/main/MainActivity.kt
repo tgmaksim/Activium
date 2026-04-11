@@ -54,13 +54,10 @@ class MainActivity : ParentActivity() {
         setupMenuListener()  // Настройка нажатий на пункты меню
         setupBackListener()  // Настройка нажатий на системную кнопку назад (или жестом)
 
-        setupVersionStateListener()
+        setupCollectors()
 
         if (savedInstanceState == null) {
             NotificationManager.setupPostNotifications(this)
-
-            // Проверка текущей версии приложения
-            activityViewModel.checkVersion(BuildConfig.VERSION_CODE)
         }
     }
 
@@ -132,16 +129,42 @@ class MainActivity : ParentActivity() {
         }
     }
 
-    private fun setupVersionStateListener() {
+    private fun setupCollectors() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                activityViewModel.versionState.collect { state ->
-                    if (state is LoadState.Success) {
-                        if (state.data.latestVersionNumber > BuildConfig.VERSION_CODE)
-                            showNewVersionInfo(state)
-                    } else if (state is LoadState.Error) {
-                        Utilities.showUiMessage(this@MainActivity, state.message)
-                        activityViewModel.reset(MainActivityViewModel.StateType.Version)
+                launch {
+                    activityViewModel.versionState.collect { state ->
+                        when (state) {
+                            LoadState.Empty -> {
+                                activityViewModel.checkVersion(BuildConfig.VERSION_CODE)
+                            }
+                            is LoadState.Success -> {
+                                if (state.data.latestVersionNumber > BuildConfig.VERSION_CODE)
+                                    showNewVersionInfo(state)
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+                launch {
+                    activityViewModel.infoStatus.collect { state ->
+                        when (state) {
+                            LoadState.Empty -> {
+                                activityViewModel.checkInfoNotifications()
+                            }
+                            is LoadState.Success -> {
+                                for (message in state.data.messages) {
+                                    Utilities.showAlertDialog(
+                                        this@MainActivity,
+                                        message.title,
+                                        message.text,
+                                        getString(R.string.ok)
+                                    )
+                                }
+                                activityViewModel.reset(MainActivityViewModel.StateType.Info)
+                            }
+                            else -> {}
+                        }
                     }
                 }
             }

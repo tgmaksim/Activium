@@ -3,7 +3,6 @@ package ru.tgmaksim.activium.ui.pages.marks.adapters
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.content.res.ColorStateList
-import android.widget.FrameLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -32,14 +31,14 @@ class MarksPeriodAdapter(
         if (mark == null) {
             holder.ui.log.text = "—"
             holder.ui.root.background.mutate().alpha = 60
-            return
+            holder.ui.root.backgroundTintList = null
+        } else {
+            holder.ui.log.text = mark.value
+            holder.ui.root.background.mutate().alpha = 255
+            holder.ui.root.backgroundTintList = ColorStateList.valueOf(
+                holder.ui.root.context.getColor(MarkLogAdapter.getMarkLogBgColor(mark.mood))
+            )
         }
-
-        holder.ui.log.text = mark.value
-
-        holder.ui.root.backgroundTintList = ColorStateList.valueOf(
-            holder.ui.root.context.getColor(MarkLogAdapter.getMarkLogBgColor(mark.mood))
-        )
 
         holder.ui.log.setOnClickListener {
             mark.ratingKey?.let { onMarksRating(mark) }

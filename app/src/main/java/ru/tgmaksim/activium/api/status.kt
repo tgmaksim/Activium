@@ -1,6 +1,7 @@
 package ru.tgmaksim.activium.api
 
 import kotlinx.serialization.Serializable
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
  * Результат запроса данных о последней версии приложения
@@ -71,6 +72,72 @@ import kotlinx.serialization.Serializable
 }
 
 /**
+ * Информационное сообщение
+ * @param classId Идентификатор класса
+ * @param title Заголовок сообщения
+ * @param text Текст сообщения
+ */
+@Serializable
+data class Message(
+    override val classId: Int = CLASS_ID,
+    val title: String,
+    val text: String
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x40
+    }
+
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
+ * Результат запроса получения информационных сообщений
+ * @param classId Идентификатор класса
+ * @param messages Информационные сообщения для пользователя, если есть
+ */
+@Serializable
+data class InformationResult(
+    override val classId: Int = CLASS_ID,
+    val messages: List<Message>
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x41
+    }
+
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
+ * Ответ на запрос получения информационных сообщений
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект ошибки
+ * @param answer Различная информация для показа пользователю
+ */
+@Serializable
+data class InformationApiResponse(
+    override val classId: Int = CLASS_ID,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: InformationResult?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x42
+    }
+
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
  * API-singleton для запросов группы status
  * @property PATH_STATUS Название группы API-запросов
  * @property PATH_CHECK_VERSION Название API-запроса для проверки версии
@@ -80,9 +147,11 @@ object Status {
     private const val PATH_STATUS = "status"
     private const val PATH_CHECK_VERSION = "checkVersion"
     private const val PATH_HEALTH = "health"
+    private const val PATH_CHECK_INFO_NOTIFICATIONS = "checkInfoNotifications"
 
     private const val CHECK_VERSION_VERSION = 0
     private const val HEALTH_VERSION = 0
+    private const val CHECK_INFO_NOTIFICATIONS_VERSION = 0
 
     /**
      * Получение данных о последней доступной версии приложения
@@ -108,6 +177,21 @@ object Status {
     suspend fun health(): HealthApiResponse {
         val response = Request.get<HealthApiResponse>(
             listOf(PATH_STATUS, PATH_HEALTH, HEALTH_VERSION).joinToString("/")
+        )
+
+        return response
+    }
+
+    /**
+     * Проверка наличия и получение коротких оповещений для пользователя
+     * @return Ответ сервера в виде [InformationApiResponse]
+     * @exception Exception
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    suspend fun checkInfoNotifications(): InformationApiResponse {
+        val response = Request.get<InformationApiResponse>(
+            listOf(PATH_STATUS, PATH_CHECK_INFO_NOTIFICATIONS, CHECK_INFO_NOTIFICATIONS_VERSION).joinToString("/"),
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response

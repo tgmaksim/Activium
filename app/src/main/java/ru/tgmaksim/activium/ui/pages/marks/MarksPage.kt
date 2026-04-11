@@ -344,7 +344,9 @@ class MarksPage : Fragment() {
         subjectMarksPeriodAdapter.setShowNullSubjectMarks(currentShowNullSubjectMarks ?: false)
         subjectMarksPeriodAdapter.submitList(data.periodMarks)
         subjectMarksYearAdapter.setShowNullSubjectMarks(currentShowNullSubjectMarks ?: false)
-        subjectMarksYearAdapter.submitList(data.finalMarks)
+        subjectMarksYearAdapter.submitList(data.finalMarks) {
+            ui.yearTable.requestLayout()
+        }
 
         ui.buttonRatingText.text = getString(R.string.class_rating)
         updateCurrentTable(currentTable)

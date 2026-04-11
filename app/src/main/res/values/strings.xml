@@ -4,6 +4,7 @@
     <string name="error_api">Произошла ошибка на сервере…</string>
     <string name="error_internet">Нет подключения к интернету</string>
     <string name="error_server">Сервер в данное время недоступен</string>
+    <string name="ok">Ок</string>
 
     <string name="title_dialog_permission_dnevnik_notifications">Разрешение на уведомления</string>
     <string name="message_dialog_permission_dnevnik_notifications">Предоставьте разрешения на уведомления. Если окно не откроется, посетите настройки</string>
@@ -104,6 +105,7 @@
     <string name="message_dialog_new_version">Вышло обновление приложения, в котором появилась новая функция. Уже можно пользоваться</string>
     <string name="button_dialog_new_version">Настройки</string>
     <string name="error_check_version">Произошла ошибка при проверке версии</string>
+    <string name="error_info_notifications">Произошла ошибка при загрузке личных уведомлений</string>
 
     <string name="active_profile">Активный профиль</string>
     <string name="load_active_profile">Загрузка…</string>

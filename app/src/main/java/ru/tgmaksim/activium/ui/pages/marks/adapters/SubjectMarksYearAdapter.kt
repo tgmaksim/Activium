@@ -82,14 +82,13 @@ class SubjectMarksYearAdapter(
             view.log.text = "—"
             view.root.background.mutate().alpha = 60
             view.root.backgroundTintList = null
-            return
+        } else {
+            view.log.text = log.value
+            view.root.background.mutate().alpha = 255
+            view.root.backgroundTintList = ColorStateList.valueOf(
+                view.root.context.getColor(MarkLogAdapter.getMarkLogBgColor(log.mood))
+            )
         }
-
-        view.log.text = log.value
-        view.root.background.mutate().alpha = 255
-        view.root.backgroundTintList = ColorStateList.valueOf(
-            view.root.context.getColor(MarkLogAdapter.getMarkLogBgColor(log.mood))
-        )
     }
 
     class Diff : DiffUtil.ItemCallback<MarksSubjectFinal>() {
