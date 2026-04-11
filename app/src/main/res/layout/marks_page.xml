@@ -71,7 +71,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/marks_current"
-                        android:textColor="@color/marks_switch_text"
+                        android:textColor="@color/text_primary"
                         android:textStyle="bold"
                         android:background="@drawable/marks_switch_item_bg"/>
 
@@ -82,7 +82,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/marks_year"
-                        android:textColor="@color/marks_switch_text"
+                        android:textColor="@color/text_primary"
                         android:textStyle="bold"
                         android:background="@drawable/marks_switch_item_bg"/>
 

@@ -75,5 +75,6 @@
     <color name="dialog_menu_background">#C0B3E5FC</color>
 
     <color name="bg_marks_switch_block">#40FFFFFF</color>
+    <color name="bg_marks_switch">#D8F2F9</color>
     <color name="bg_old_rating_mark">#D1E9F6</color>
 </resources>

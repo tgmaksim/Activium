@@ -3,7 +3,7 @@
 
     <item android:state_selected="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/dialog_button_positive" />
+            <solid android:color="@color/bg_marks_switch" />
             <corners android:radius="12dp" />
         </shape>
     </item>

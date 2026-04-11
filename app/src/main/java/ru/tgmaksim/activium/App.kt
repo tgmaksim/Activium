@@ -39,7 +39,7 @@ class App : Application() {
                     return@addOnCompleteListener
 
                 applicationScope.launch {
-                    val firebaseMessagingToken = task.result
+                    val firebaseMessagingToken = task.result ?: return@launch
 
                     if (SettingsManager.getFirebaseMessagingToken() != firebaseMessagingToken) {
                         SettingsManager.setFirebaseMessagingToken(firebaseMessagingToken)
