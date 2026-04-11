@@ -32,16 +32,16 @@ class MarksPeriodAdapter(
             holder.ui.log.text = "—"
             holder.ui.root.background.mutate().alpha = 60
             holder.ui.root.backgroundTintList = null
+            holder.ui.log.setOnClickListener(null)
         } else {
             holder.ui.log.text = mark.value
             holder.ui.root.background.mutate().alpha = 255
             holder.ui.root.backgroundTintList = ColorStateList.valueOf(
                 holder.ui.root.context.getColor(MarkLogAdapter.getMarkLogBgColor(mark.mood))
             )
-        }
-
-        holder.ui.log.setOnClickListener {
-            mark.ratingKey?.let { onMarksRating(mark) }
+            holder.ui.log.setOnClickListener {
+                mark.ratingKey?.let { onMarksRating(mark) }
+            }
         }
     }
 

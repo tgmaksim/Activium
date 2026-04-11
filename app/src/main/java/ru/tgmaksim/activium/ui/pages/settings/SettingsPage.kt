@@ -253,7 +253,7 @@ class SettingsPage : Fragment() {
         val left = slider.values.first().toInt()
         val right = slider.values.last().toInt()
 
-        if (left in -14..0 && right in 1..21 && right - left <= 31) {
+        if (left in -14..0 && right in 1..21 && right - left <= 30) {
             before = -left
             after = right
         } else {

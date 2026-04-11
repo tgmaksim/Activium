@@ -112,7 +112,7 @@ class LastMarkRatingDialog(
         ui.avgGroupMark.root.visibility = View.GONE
 
         ui.avgGroupMark.number.visibility = View.GONE
-        ui.avgGroupMark.studentName.text = getString(R.string.avg_group_lesson_mark)
+        ui.avgGroupMark.studentName.text = getString(R.string.avg_group_work_mark)
 
         ui.avgGroupMark.logs.layoutManager = LinearLayoutManager(
             requireContext(),

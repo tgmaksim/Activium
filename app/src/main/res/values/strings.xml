@@ -64,7 +64,8 @@
     <string name="person_number">%1$d.</string>
     <string name="rating_info">Оценки класса по предмету %1$s (%2$s)%3$s</string>
     <string name="rating_info_time">. Вам выставили %1$s</string>
-    <string name="avg_group_lesson_mark">Средний балл на уроке:</string>
+    <string name="avg_group_lesson_mark">Средний балл класса на уроке:</string>
+    <string name="avg_group_work_mark">В среднем по классу:</string>
     <string name="error_lesson_rating_stats">Произошла ошибка при загрузке статистики урока</string>
 
     <string name="menu_item_marks">Оценки</string>
@@ -98,6 +99,9 @@
         <item quantity="one">за %1$d день</item>
         <item quantity="few">за %1$d дня</item>
         <item quantity="many">за %1$d дней</item>
+        <item quantity="other">за %1$d дней</item>
+        <item quantity="two">за %1$d дня</item>
+        <item quantity="zero">за %1$d дней</item>
     </plurals>
     <string name="settings_last_marks_warning">Большой период последних оценок влияет на скорость загрузки</string>
 
