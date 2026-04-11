@@ -28,7 +28,6 @@ class DaySkeletonAdapter(
             false
         )
         holder.ui.lessonsRecycler.adapter = LessonSkeletonAdapter(lessonsCount)
-        holder.ui.lessonsRecycler.itemAnimator = null
         holder.ui.lessonsRecycler.setHasFixedSize(true)
     }
 

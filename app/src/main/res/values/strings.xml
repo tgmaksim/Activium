@@ -14,6 +14,11 @@
     <string name="login_with_dnevnik">Войти через Дневник.ру</string>
     <string name="error_login">Произошла ошибка при попытке авторизоваться</string>
 
+    <string name="highlight_person">Выделить</string>
+    <string name="unhighlight_person">Снять</string>
+    <string name="title_dialog_highlight_at_marks">Выделить одноклассника</string>
+    <string name="message_dialog_highlight_at_marks">Выделение одноклассников можно сделать на странице Оценок</string>
+
     <string name="menu_item_schedule">Расписание</string>
     <string name="lesson_number">%1$d.</string>
     <string name="homework_emoji">✏️</string>

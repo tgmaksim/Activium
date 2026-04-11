@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import java.util.Locale
@@ -24,7 +25,9 @@ import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.pages.RatingAdapter
 import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
+import ru.tgmaksim.activium.api.LessonRatingStatsResult
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
+import ru.tgmaksim.activium.ui.pages.RatingDialogSwipeHelper
 
 class RatingDialog(
     private val lesson: UiScheduleLesson,
@@ -86,7 +89,6 @@ class RatingDialog(
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        ui.myMark.logs.itemAnimator = null
         ui.myMark.logs.adapter = MarkLogAdapter().apply {
             submitList(lesson.logs)
         }
@@ -125,7 +127,6 @@ class RatingDialog(
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        ui.avgGroupMark.logs.itemAnimator = null
         ui.avgGroupMark.logs.adapter = MarkLogAdapter().apply {
             submitList(listOf(lesson.avgGroupLessonMark))
         }
@@ -137,10 +138,33 @@ class RatingDialog(
             LinearLayoutManager.VERTICAL,
             false
         )
-        ui.ratingList.itemAnimator = null
-        ui.ratingList.adapter = RatingAdapter(showNumber).apply {
+        val ratingAdapter = RatingAdapter(showNumber).apply {
             submitList(lesson.othersMarks.toUi())
         }
+        ui.ratingList.adapter = ratingAdapter
+
+        ItemTouchHelper(RatingDialogSwipeHelper(
+            ui.ratingList,
+            { position ->
+                ratingAdapter.currentList[position].isHighlighting != null &&
+                        ratingAdapter.currentList[position].personKey != null
+            },
+            { position ->
+                val person = ratingAdapter.currentList[position]
+                if (person.isHighlighting == true)
+                    Pair(getString(R.string.unhighlight_person), R.drawable.ic_arrow_down_rating)
+                else
+                    Pair(getString(R.string.highlight_person), R.drawable.ic_arrow_up_rating)
+            },
+            {
+                Utilities.showAlertDialog(
+                    requireContext(),
+                    getString(R.string.title_dialog_highlight_at_marks),
+                    getString(R.string.message_dialog_highlight_at_marks),
+                    getString(R.string.ok)
+                )
+            }
+        )).attachToRecyclerView(ui.ratingList)
     }
 
     private fun setupCollectors() {
@@ -152,31 +176,12 @@ class RatingDialog(
                             ratingViewModel.loadLessonRatingStats(lesson.ratingKey!!)
                         }
                         is LoadState.Loading -> {
-                            ui.oldAvgMarkLoading.visibility = View.VISIBLE
-                            ui.newAvgMarkLoading.visibility = View.VISIBLE
-                            ui.oldAvgMark.root.visibility = View.GONE
-                            ui.newAvgMark.root.visibility = View.GONE
+                            updateLoading(true)
                         }
                         is LoadState.Success -> {
-                            ui.oldAvgMarkLoading.visibility = View.GONE
-                            ui.newAvgMarkLoading.visibility = View.GONE
+                            updateLoading(false)
 
-                            state.data.oldAvgMark?.let {
-                                oldAvgMarkAdapter.submitList(listOf(it))
-                                val holder = MarkLogAdapter.VH(ui.oldAvgMark)
-                                oldAvgMarkAdapter.onBindViewHolder(holder, 0)
-                                ui.oldAvgMark.root.visibility = View.VISIBLE
-                            }
-                            state.data.newAvgMark?.let {
-                                newAvgMarkAdapter.submitList(listOf(it))
-                                val holder = MarkLogAdapter.VH(ui.newAvgMark)
-                                newAvgMarkAdapter.onBindViewHolder(holder, 0)
-                                ui.newAvgMark.root.visibility = View.VISIBLE
-                            }
-                            
-                            if (state.data.oldAvgMark == null && state.data.newAvgMark == null) {
-                                ui.stats.visibility = View.GONE
-                            }
+                            renderLessonRatingStats(state.data)
                         }
                         is LoadState.Error -> {
                             ui.stats.visibility = View.GONE
@@ -190,6 +195,37 @@ class RatingDialog(
                     }
                 }
             }
+        }
+    }
+
+    private fun updateLoading(loading: Boolean) {
+        if (ratingViewModel.lessonRatingState.value is LoadState.Success) {
+            ui.loading.visibility = if (loading) View.VISIBLE else View.GONE
+            ui.oldAvgMarkLoading.visibility = View.GONE
+            ui.newAvgMarkLoading.visibility = View.GONE
+        } else {
+            ui.loading.visibility = View.GONE
+            ui.oldAvgMarkLoading.visibility = if (loading) View.VISIBLE else View.GONE
+            ui.newAvgMarkLoading.visibility = if (loading) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun renderLessonRatingStats(data: LessonRatingStatsResult) {
+        data.oldAvgMark?.let {
+            oldAvgMarkAdapter.submitList(listOf(it))
+            val holder = MarkLogAdapter.VH(ui.oldAvgMark)
+            oldAvgMarkAdapter.onBindViewHolder(holder, 0)
+            ui.oldAvgMark.root.visibility = View.VISIBLE
+        }
+        data.newAvgMark?.let {
+            newAvgMarkAdapter.submitList(listOf(it))
+            val holder = MarkLogAdapter.VH(ui.newAvgMark)
+            newAvgMarkAdapter.onBindViewHolder(holder, 0)
+            ui.newAvgMark.root.visibility = View.VISIBLE
+        }
+
+        if (data.oldAvgMark == null && data.newAvgMark == null) {
+            ui.stats.visibility = View.GONE
         }
     }
 }

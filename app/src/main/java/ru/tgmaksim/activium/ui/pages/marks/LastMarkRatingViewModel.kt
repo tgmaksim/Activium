@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.Dnevnik
+import ru.tgmaksim.activium.api.DnevnikTools
 import ru.tgmaksim.activium.ui.core.UiText
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.core.UiViewModel
@@ -98,6 +99,24 @@ class LastMarkRatingViewModel : UiViewModel() {
                     param = ratingKey,
                     value = json.encodeToString(it.answer)
                 )
+            }
+        }
+    }
+
+    fun highlightPerson(personKey: String, ratingKey: String, highlight: Boolean) {
+        viewModelScope.launch {
+            executeRequest(
+                _marksState,
+                MutableStateFlow(Unit),
+                "highlightPerson($highlight)",
+                R.string.error_marks,
+                {
+                    if (highlight) DnevnikTools.highlightPerson(personKey)
+                    else DnevnikTools.unhighlightPerson(personKey)
+                },
+                { }
+            ) {
+                loadCloudMarksRatingStats(ratingKey)
             }
         }
     }

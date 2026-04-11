@@ -42,7 +42,6 @@ class ScheduleLessonAdapter(
                 LinearLayoutManager.HORIZONTAL,
                 false
             )
-            ui.logsRecycler.itemAnimator = null
         }
     }
 

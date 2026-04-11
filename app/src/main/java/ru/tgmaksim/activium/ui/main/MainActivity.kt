@@ -122,7 +122,10 @@ class MainActivity : ParentActivity() {
                         moveTaskToBack(true)
                 R.id.it_marks ->
                     if (!(getOrCreateFragment(R.id.it_marks) as MarksPage).onBackPressed())
-                        moveTaskToBack(true)
+                        ui.bottomMenu.selectedItemId = R.id.it_schedule
+                R.id.it_settings ->
+                    if (!(getOrCreateFragment(R.id.it_settings) as SettingsPage).onBackPressed())
+                        ui.bottomMenu.selectedItemId = R.id.it_schedule
 
                 else -> ui.bottomMenu.selectedItemId = R.id.it_schedule
             }

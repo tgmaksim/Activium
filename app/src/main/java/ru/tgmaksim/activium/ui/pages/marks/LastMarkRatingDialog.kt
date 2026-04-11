@@ -24,10 +24,11 @@ import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.pages.RatingAdapter
 import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
+import androidx.recyclerview.widget.ItemTouchHelper
 import ru.tgmaksim.activium.api.MarksRatingStatsResult
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
-import androidx.core.view.isVisible
+import ru.tgmaksim.activium.ui.pages.RatingDialogSwipeHelper
 
 class LastMarkRatingDialog(
     private val ratingKey: String,
@@ -39,6 +40,8 @@ class LastMarkRatingDialog(
     private lateinit var newAvgMarkAdapter: MarkLogAdapter
 
     private val ratingViewModel: LastMarkRatingViewModel by viewModels()
+
+    private var swipeHelper: ItemTouchHelper? = null
 
     companion object {
         const val TAG = "LastMarkRatingDialog"
@@ -85,7 +88,6 @@ class LastMarkRatingDialog(
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        ui.myMark.logs.itemAnimator = null
         ui.myMark.logs.adapter = MarkLogAdapter().apply {
             submitList(listOf(myMark.mark))
         }
@@ -117,7 +119,6 @@ class LastMarkRatingDialog(
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        ui.avgGroupMark.logs.itemAnimator = null
         ui.avgGroupMark.logs.adapter = MarkLogAdapter()
     }
 
@@ -127,7 +128,6 @@ class LastMarkRatingDialog(
             LinearLayoutManager.VERTICAL,
             false
         )
-        ui.ratingList.itemAnimator = null
         ui.ratingList.adapter = RatingAdapter(showNumber)
     }
 
@@ -215,10 +215,52 @@ class LastMarkRatingDialog(
             ui.ratingList.adapter = it
         }
         ratingAdapter.submitList(data.othersMarks.toUi())
+
+        if (swipeHelper == null) {
+            swipeHelper = ItemTouchHelper(RatingDialogSwipeHelper(
+                ui.ratingList,
+                { position ->
+                    ratingAdapter.currentList[position].isHighlighting != null &&
+                            ratingAdapter.currentList[position].personKey != null
+                },
+                { position ->
+                    val person = ratingAdapter.currentList[position]
+                    if (person.isHighlighting == true)
+                        Pair(getString(R.string.unhighlight_person), R.drawable.ic_arrow_down_rating)
+                    else
+                        Pair(getString(R.string.highlight_person), R.drawable.ic_arrow_up_rating)
+                },
+                { position ->
+                    val list = ratingAdapter.currentList
+                    val item = list[position]
+
+                    val newList = if (!item.isHighlighting!!) {
+                        mutableListOf(item).apply {
+                            addAll(list.filterIndexed { index, _ -> index != position })
+                        }
+                    } else {
+                        list
+                    }
+
+                    ratingAdapter.submitList(newList)
+
+                    ratingViewModel.highlightPerson(item.personKey!!, ratingKey, !item.isHighlighting)
+                }
+            )).apply {
+                attachToRecyclerView(ui.ratingList)
+            }
+        }
     }
 
     private fun updateLoading(loading: Boolean) {
-        ui.oldAvgMarkLoading.visibility = if (loading) View.VISIBLE else View.GONE
-        ui.newAvgMarkLoading.visibility = if (loading) View.VISIBLE else View.GONE
+        if (ratingViewModel.marksData.value?.newAvgMark != null) {
+            ui.loading.visibility = if (loading) View.VISIBLE else View.GONE
+            ui.oldAvgMarkLoading.visibility = View.GONE
+            ui.newAvgMarkLoading.visibility = View.GONE
+        } else {
+            ui.loading.visibility = View.GONE
+            ui.oldAvgMarkLoading.visibility = if (loading) View.VISIBLE else View.GONE
+            ui.newAvgMarkLoading.visibility = if (loading) View.VISIBLE else View.GONE
+        }
     }
 }

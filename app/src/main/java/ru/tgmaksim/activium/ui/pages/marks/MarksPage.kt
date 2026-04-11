@@ -104,7 +104,11 @@ class MarksPage : Fragment() {
     }
 
     fun onBackPressed(): Boolean {
-        // TODO: Вернуть последние оценки к началу
+        if (ui.lastMarks.canScrollHorizontally(-1)) {
+            ui.lastMarks.smoothScrollToPosition(0)
+
+            return true
+        }
 
         return false
     }

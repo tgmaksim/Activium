@@ -11,14 +11,15 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.Dnevnik
 import ru.tgmaksim.activium.ui.core.UiText
+import ru.tgmaksim.activium.api.DnevnikTools
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.core.UiViewModel
 import ru.tgmaksim.activium.ui.core.setShownError
 import ru.tgmaksim.activium.ui.core.setCacheError
 import ru.tgmaksim.activium.ui.core.setCacheLoading
 import ru.tgmaksim.activium.ui.core.setCacheSuccess
-import ru.tgmaksim.activium.api.MarksSubjectRatingResult
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
+import ru.tgmaksim.activium.api.MarksSubjectRatingResult
 import ru.tgmaksim.activium.utilities.datastore.CacheManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
@@ -98,6 +99,24 @@ class SubjectRatingViewModel : UiViewModel() {
                     param = ratingKey,
                     value = json.encodeToString(it.answer)
                 )
+            }
+        }
+    }
+
+    fun highlightPerson(personKey: String, ratingKey: String, highlight: Boolean) {
+        viewModelScope.launch {
+            executeRequest(
+                _marksState,
+                MutableStateFlow(Unit),
+                "highlightPerson($highlight)",
+                R.string.error_marks,
+                {
+                    if (highlight) DnevnikTools.highlightPerson(personKey)
+                    else DnevnikTools.unhighlightPerson(personKey)
+                },
+                { }
+            ) {
+                loadCloudMarksRatingStats(ratingKey)
             }
         }
     }

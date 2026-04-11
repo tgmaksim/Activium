@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -20,6 +21,7 @@ import ru.tgmaksim.activium.ui.pages.RatingAdapter
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.api.MarksSubjectRatingResult
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
+import ru.tgmaksim.activium.ui.pages.RatingDialogSwipeHelper
 
 class SubjectRatingDialog(
     private val ratingKey: String,
@@ -29,6 +31,8 @@ class SubjectRatingDialog(
     private lateinit var ui: RatingSheetBinding
 
     private val ratingViewModel: SubjectRatingViewModel by viewModels()
+
+    private var swipeHelper: ItemTouchHelper? = null
 
     companion object {
         const val TAG = "LastMarkRatingDialog"
@@ -70,7 +74,6 @@ class SubjectRatingDialog(
             LinearLayoutManager.VERTICAL,
             false
         )
-        ui.ratingList.itemAnimator = null
         ui.ratingList.adapter = RatingAdapter(showNumber)
     }
 
@@ -148,6 +151,41 @@ class SubjectRatingDialog(
                 list.add(list.indexOf(myMark) + 1, oldMark.toUi(true))
         }
         ratingAdapter.submitList(list.toList())
+
+        if (swipeHelper == null) {
+            swipeHelper = ItemTouchHelper(RatingDialogSwipeHelper(
+                ui.ratingList,
+                { position ->
+                    ratingAdapter.currentList[position].isHighlighting != null &&
+                            ratingAdapter.currentList[position].personKey != null
+                },
+                { position ->
+                    val person = ratingAdapter.currentList[position]
+                    if (person.isHighlighting == true)
+                        Pair(getString(R.string.unhighlight_person), R.drawable.ic_arrow_down_rating)
+                    else
+                        Pair(getString(R.string.highlight_person), R.drawable.ic_arrow_up_rating)
+                },
+                { position ->
+                    val list = ratingAdapter.currentList
+                    val item = list[position]
+
+                    val newList = if (!item.isHighlighting!!) {
+                        mutableListOf(item).apply {
+                            addAll(list.filterIndexed { index, _ -> index != position })
+                        }
+                    } else {
+                        list
+                    }
+
+                    ratingAdapter.submitList(newList)
+
+                    ratingViewModel.highlightPerson(item.personKey!!, ratingKey, !item.isHighlighting)
+                }
+            )).apply {
+                attachToRecyclerView(ui.ratingList)
+            }
+        }
     }
 
     private fun updateLoading(loading: Boolean) {

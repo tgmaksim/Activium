@@ -38,7 +38,6 @@ class ScheduleDayAdapter(
                 false
             )
             ui.lessonsRecycler.adapter = lessonAdapter
-            ui.lessonsRecycler.itemAnimator = null
         }
 
         fun bind(day: UiScheduleDay?) {

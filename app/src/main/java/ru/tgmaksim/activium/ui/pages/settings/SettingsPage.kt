@@ -89,6 +89,16 @@ class SettingsPage : Fragment() {
         setupStatesListener()
     }
 
+    fun onBackPressed(): Boolean {
+        if (ui.root.canScrollVertically(-1)) {
+            ui.root.smoothScrollTo(0, 0)
+
+            return true
+        }
+
+        return false
+    }
+
     /**
      * Установление положения переключателей настроек, заполнение данных о версии приложения и Android
      * и инициализация формата текста в Label у Range

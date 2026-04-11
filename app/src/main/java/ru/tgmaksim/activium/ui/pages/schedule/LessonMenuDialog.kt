@@ -119,7 +119,6 @@ class LessonMenuDialog(
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        lessonView.logsRecycler.itemAnimator = null
 
         bindLessonPreview(layoutInflater, lessonView, lesson)
         ui.lessonContainer.removeAllViews()

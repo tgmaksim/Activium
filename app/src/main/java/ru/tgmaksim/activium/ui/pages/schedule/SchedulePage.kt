@@ -182,7 +182,6 @@ class SchedulePage : Fragment() {
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        ui.calendarRecycler.itemAnimator = null
         ui.calendarRecycler.setHasFixedSize(true)
         ui.calendarRecycler.adapter = calendarSkeletonAdapter
 
@@ -191,7 +190,6 @@ class SchedulePage : Fragment() {
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        ui.dayRecycler.itemAnimator = null
         ui.dayRecycler.setHasFixedSize(true)
         ui.dayRecycler.adapter = dayAdapter
         pagerSnapHelper.attachToRecyclerView(ui.dayRecycler)
