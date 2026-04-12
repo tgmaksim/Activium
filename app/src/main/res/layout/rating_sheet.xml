@@ -4,7 +4,7 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:padding="10dp"
+        android:padding="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -65,10 +65,12 @@
 
         <include
             android:id="@+id/myMark"
+            android:paddingHorizontal="5dp"
             layout="@layout/item_marks_rating" />
 
         <include
             android:id="@+id/avgGroupMark"
+            android:paddingHorizontal="5dp"
             layout="@layout/item_marks_rating" />
 
         <TextView
@@ -76,6 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
+            android:paddingHorizontal="5dp"
             android:layout_marginTop="10dp" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -83,7 +86,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:paddingHorizontal="3dp"
             android:clipToPadding="false"
             android:paddingBottom="12dp"
             android:nestedScrollingEnabled="false" />

@@ -75,6 +75,7 @@
     <string name="last_mark_detail_no_work">За %1$s</string>
     <string name="last_mark_detail">%1$s за %2$s</string>
     <string name="subject_rating_info">Рейтинг в классе по предмету %1$s</string>
+    <string name="class_rating_info">Общий рейтинг в классе по всем предметам</string>
     <string name="error_marks">Произошла ошибка при загрузке оценок</string>
 
     <string name="menu_item_school">Школа</string>

@@ -172,7 +172,7 @@ class MarksPage : Fragment() {
 
         ui.buttonRating.setOnClickListener {
             currentData?.ratingKey?.let {
-                onSubjectRating(it)
+                onSubjectRating(it, classRating = true)
             }
         }
     }
@@ -185,11 +185,12 @@ class MarksPage : Fragment() {
         ).show(parentFragmentManager, LastMarkRatingDialog.TAG)
     }
 
-    private fun onSubjectRating(ratingKey: String, subject: String? = null) {
+    private fun onSubjectRating(ratingKey: String, subject: String? = null, classRating: Boolean = false) {
         SubjectRatingDialog(
             ratingKey,
             subject,
-            true
+            true,
+            classRating = true
         ).show(parentFragmentManager, SubjectRatingDialog.TAG)
     }
 
@@ -346,7 +347,9 @@ class MarksPage : Fragment() {
 
         lastMarksAdapter.submitList(data.recentMarks)
         subjectMarksPeriodAdapter.setShowNullSubjectMarks(currentShowNullSubjectMarks ?: false)
-        subjectMarksPeriodAdapter.submitList(data.periodMarks)
+        subjectMarksPeriodAdapter.submitList(data.periodMarks) {
+            ui.periodTable.requestLayout()
+        }
         subjectMarksYearAdapter.setShowNullSubjectMarks(currentShowNullSubjectMarks ?: false)
         subjectMarksYearAdapter.submitList(data.finalMarks) {
             ui.yearTable.requestLayout()

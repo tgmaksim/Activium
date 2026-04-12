@@ -26,7 +26,8 @@ import ru.tgmaksim.activium.ui.pages.RatingDialogSwipeHelper
 class SubjectRatingDialog(
     private val ratingKey: String,
     private val subject: String?,
-    private val showNumber: Boolean
+    private val showNumber: Boolean,
+    private val classRating: Boolean = false
 ) : BottomSheetDialogFragment() {
     private lateinit var ui: RatingSheetBinding
 
@@ -132,11 +133,10 @@ class SubjectRatingDialog(
     }
 
     private fun renderMarksRatingStats(data: MarksSubjectRatingResult) {
-        if (subject != null) {
-            ui.info.text = getString(R.string.subject_rating_info, subject)
+        if (subject != null || classRating) {
+            ui.info.text = if (classRating) getString(R.string.class_rating_info) else getString(R.string.subject_rating_info, subject)
             ui.info.visibility = View.VISIBLE
-        }
-        else {
+        } else {
             ui.info.visibility = View.GONE
         }
 
