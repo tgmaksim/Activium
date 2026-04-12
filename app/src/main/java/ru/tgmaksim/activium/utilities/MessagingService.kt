@@ -10,6 +10,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.FirebaseMessagingService
 
 import ru.tgmaksim.activium.api.Settings
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 class MessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
@@ -17,7 +18,9 @@ class MessagingService : FirebaseMessagingService() {
 
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         applicationScope.launch {
-            Settings.updateFirebase(token)
+            SettingsManager.setFirebaseMessagingToken(token)
+            if (SettingsManager.getSessionId() != null)
+                Settings.updateFirebase(token)
         }
     }
 

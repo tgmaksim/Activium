@@ -1,7 +1,7 @@
 package ru.tgmaksim.activium.api
 
 import kotlinx.serialization.Serializable
-import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
  * Ребенок
@@ -287,7 +287,7 @@ object Settings {
     suspend fun getChildren(): ChildrenApiResponse {
         val response = Request.get<ChildrenApiResponse>(
             listOf(PATH_PREFIX, PATH_CHILDREN, CHILDREN_VERSION).joinToString("/"),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -304,7 +304,7 @@ object Settings {
         val response = Request.put<SwitchActiveChildApiResponse>(
             listOf(PATH_PREFIX, PATH_ACTIVE_CHILD, ACTIVE_CHILD_VERSION).joinToString("/"),
             params = mapOf("childId" to childId),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -319,7 +319,7 @@ object Settings {
     suspend fun getStatusMarksNotifications(): StatusMarksNotificationsApiResponse {
         val response = Request.get<StatusMarksNotificationsApiResponse>(
             listOf(PATH_PREFIX, PATH_MARKS_NOTIFICATIONS, MARKS_NOTIFICATIONS_VERSION).joinToString("/"),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -335,7 +335,7 @@ object Settings {
         val response = Request.put<SwitchMarksNotificationsApiResponse>(
             listOf(PATH_PREFIX, PATH_SWITCH_MARKS_NOTIFICATIONS, SWITCH_MARKS_NOTIFICATIONS_VERSION).joinToString("/"),
             params = mapOf("status" to status),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -352,7 +352,7 @@ object Settings {
         val response = Request.put<UpdateFirebaseApiResponse>(
             listOf(PATH_PREFIX, PATH_UPDATE_FIREBASE, UPDATE_FIREBASE_VERSION).joinToString("/"),
             params = mapOf("firebaseToken" to firebaseToken),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -367,7 +367,7 @@ object Settings {
     suspend fun getStatusEANotifications(): StatusEANotificationsApiResponse {
         val response = Request.get<StatusEANotificationsApiResponse>(
             listOf(PATH_PREFIX, PATH_EA_NOTIFICATIONS, EA_NOTIFICATIONS_VERSION).joinToString("/"),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -383,7 +383,7 @@ object Settings {
         val response = Request.put<SwitchEANotificationsApiResponse>(
             listOf(PATH_PREFIX, PATH_SWITCH_EA_NOTIFICATIONS, SWITCH_EA_NOTIFICATIONS_VERSION).joinToString("/"),
             params = mapOf("status" to status),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response

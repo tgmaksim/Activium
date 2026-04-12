@@ -64,12 +64,10 @@ object Login {
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
      * */
-    suspend fun login(sessionId: String?, firebaseToken: String?): LoginApiResponse {
-        val parameters = (sessionId?.let {
-            mapOf("sessionId" to it)
-        } ?: mapOf()).plus(firebaseToken?.let {
-            mapOf("firebaseToken" to it)
-        } ?: mapOf())
+    suspend fun login(sessionId: String?, firebaseToken: String): LoginApiResponse {
+        val parameters = mutableMapOf("firebaseToken" to firebaseToken)
+        if (sessionId != null)
+            parameters["sessionId"] = sessionId
 
         val response = Request.post<LoginApiResponse>(
             listOf(PATH_PREFIX, PATH_LOGIN, LOGIN_VERSION).joinToString("/"),

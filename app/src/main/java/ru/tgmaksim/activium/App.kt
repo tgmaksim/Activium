@@ -11,6 +11,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 
 import ru.tgmaksim.activium.api.Settings
+import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.utilities.datastore.CacheManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
@@ -35,18 +36,18 @@ class App : Application() {
 
             // Проверка изменений firebaseToken
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                if (!task.isSuccessful)
+                if (!task.isSuccessful || task.result == null) {
+                    Utilities.log("FirebaseMessaging: isSuccessful = ${task.isSuccessful}, result = ${task.result}")
                     return@addOnCompleteListener
+                }
+
+                val firebaseMessagingToken = task.result ?: return@addOnCompleteListener
 
                 applicationScope.launch {
-                    val firebaseMessagingToken = task.result ?: return@launch
+                    SettingsManager.setFirebaseMessagingToken(firebaseMessagingToken)
 
-                    if (SettingsManager.getFirebaseMessagingToken() != firebaseMessagingToken) {
-                        SettingsManager.setFirebaseMessagingToken(firebaseMessagingToken)
-
-                        if (MemoryDataManager.sessionId.value != null)
-                            Settings.updateFirebase(firebaseMessagingToken)
-                    }
+                    if (SettingsManager.getSessionId() != null)
+                        Settings.updateFirebase(firebaseMessagingToken)
                 }
             }
         }

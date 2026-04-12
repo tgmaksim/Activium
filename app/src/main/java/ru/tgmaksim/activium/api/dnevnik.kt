@@ -4,7 +4,7 @@ import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 
-import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
  * Прикрепленный файл к домашнему заданию
@@ -626,7 +626,7 @@ object Dnevnik {
         return Request.get(
             listOf(PATH_PREFIX, PATH_SCHEDULE, SCHEDULE_VERSION).joinToString("/"),
             params = mapOf("before" to before, "after" to after),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -641,7 +641,7 @@ object Dnevnik {
         return Request.get(
             listOf(PATH_PREFIX, PATH_LESSON_RATING_STATS, LESSON_RATING_STATS_VERSION).joinToString("/"),
             params = mapOf("ratingKey" to ratingKey),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -656,7 +656,7 @@ object Dnevnik {
         return Request.get(
             listOf(PATH_PREFIX, PATH_MARKS, MARKS_VERSION).joinToString("/"),
             params = mapOf("last" to last),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -671,7 +671,7 @@ object Dnevnik {
         return Request.get(
             listOf(PATH_PREFIX, PATH_MARK_RATING_STATS, MARK_RATING_STATS_VERSION).joinToString("/"),
             params = mapOf("ratingKey" to ratingKey),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -686,7 +686,7 @@ object Dnevnik {
         return Request.get(
             listOf(PATH_PREFIX, PATH_MARKS_SUBJECT_RATING, MARKS_SUBJECT_RATING_VERSION).joinToString("/"),
             params = mapOf("ratingKey" to ratingKey),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -699,7 +699,7 @@ object Dnevnik {
     suspend fun getFinalMarks(): MarksFinalApiResponse {
         return Request.get(
             listOf(PATH_PREFIX, PATH_FINAL_MARKS, FINAL_MARKS_VERSION).joinToString("/"),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 }

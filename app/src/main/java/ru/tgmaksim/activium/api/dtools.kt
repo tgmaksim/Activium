@@ -2,7 +2,7 @@ package ru.tgmaksim.activium.api
 
 import kotlinx.serialization.Serializable
 
-import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
  * Заметка
@@ -217,7 +217,7 @@ object DnevnikTools {
             listOf(PATH_PREFIX, PATH_CREATE_NOTE, CREATE_NOTE_VERSION).joinToString("/"),
             params = mapOf("lessonKey" to lessonKey, "public" to public),
             body = text,
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -228,7 +228,7 @@ object DnevnikTools {
         return Request.get(
             listOf(PATH_PREFIX, PATH_GET_NOTE, GET_NOTE_VERSION).joinToString("/"),
             params = mapOf("lessonKey" to lessonKey),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -239,7 +239,7 @@ object DnevnikTools {
         return Request.delete(
             listOf(PATH_PREFIX, PATH_DELETE_NOTE, DELETE_NOTE_VERSION).joinToString("/"),
             params = mapOf("lessonKey" to lessonKey),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -251,7 +251,7 @@ object DnevnikTools {
             listOf(PATH_PREFIX, PATH_SEND_PRAISE, SEND_PRAISE_VERSION).joinToString("/"),
             params = mapOf("lessonKey" to lessonKey),
             body = text,
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -262,7 +262,7 @@ object DnevnikTools {
         return Request.put(
             listOf(PATH_PREFIX, PATH_HIGHLIGHT_PERSON, HIGHLIGHT_PERSON_VERSION).joinToString("/"),
             params = mapOf("personKey" to personKey),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -273,7 +273,7 @@ object DnevnikTools {
         return Request.put(
             listOf(PATH_PREFIX, PATH_UNHIGHLIGHT_PERSON, UNHIGHLIGHT_PERSON_VERSION).joinToString("/"),
             params = mapOf("personKey" to personKey),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 }

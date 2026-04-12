@@ -2,7 +2,7 @@ package ru.tgmaksim.activium.api
 
 import kotlin.time.Instant
 import kotlinx.serialization.Serializable
-import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
  * Отзыв
@@ -295,7 +295,7 @@ object Reviews {
             listOf(PATH_PREFIX, PATH_CREATE_REVIEW, CREATE_REVIEW_VERSION).joinToString("/"),
             params = mapOf("stars" to stars),
             body = text,
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -310,7 +310,7 @@ object Reviews {
     suspend fun getMyReview(): MyReviewApiResponse {
         val response = Request.get<MyReviewApiResponse>(
             listOf(PATH_PREFIX, PATH_GET_MY_REVIEW, GET_MY_REVIEW_VERSION).joinToString("/"),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -325,7 +325,7 @@ object Reviews {
     suspend fun deleteReview(): DeleteReviewApiResponse {
         val response = Request.delete<DeleteReviewApiResponse>(
             listOf(PATH_PREFIX, PATH_DELETE_REVIEW, DELETE_REVIEW_VERSION).joinToString("/"),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -367,7 +367,7 @@ object Reviews {
         val response = Request.post<LikeReviewApiResponse>(
             listOf(PATH_PREFIX, PATH_LIKE_REVIEW, LIKE_REVIEW_VERSION).joinToString("/"),
             params = mapOf("reviewId" to reviewId),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response
@@ -384,7 +384,7 @@ object Reviews {
         val response = Request.delete<DeleteReviewLikeApiResponse>(
             listOf(PATH_PREFIX, PATH_DELETE_REVIEW_LIKE, DELETE_REVIEW_LIKE_VERSION).joinToString("/"),
             params = mapOf("reviewId" to reviewId),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
 
         return response

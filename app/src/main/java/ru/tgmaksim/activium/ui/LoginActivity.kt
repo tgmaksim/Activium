@@ -72,8 +72,8 @@ class LoginActivity : ParentActivity() {
 
         try {
             if (loginUrl == null) {
-                val sessionId = MemoryDataManager.sessionId.value
-                val firebaseToken = SettingsManager.getFirebaseMessagingToken()
+                val sessionId = SettingsManager.getSessionId()
+                val firebaseToken = SettingsManager.getFirebaseMessagingToken().toString()
                 val response = Login.login(sessionId, firebaseToken)
 
                 if (!response.status || response.answer == null) {

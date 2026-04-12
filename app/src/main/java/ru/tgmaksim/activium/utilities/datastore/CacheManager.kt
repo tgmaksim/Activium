@@ -4,6 +4,7 @@ import androidx.room.Room
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 object CacheManager {
     private const val DATABASE_NAME = "cache.db"
@@ -20,7 +21,7 @@ object CacheManager {
             database ?: Room.databaseBuilder(
                 appContext,
                 CacheDatabase::class.java,
-                DATABASE_NAME
+                File(appContext.cacheDir, DATABASE_NAME).absolutePath
             ).build().also { database = it }
         }
     }
