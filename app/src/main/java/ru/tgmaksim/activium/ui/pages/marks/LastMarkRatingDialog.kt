@@ -24,11 +24,9 @@ import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.pages.RatingAdapter
 import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
-import androidx.recyclerview.widget.ItemTouchHelper
 import ru.tgmaksim.activium.api.MarksRatingStatsResult
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
-import ru.tgmaksim.activium.ui.pages.RatingDialogSwipeHelper
 
 class LastMarkRatingDialog(
     private val ratingKey: String,
@@ -40,8 +38,6 @@ class LastMarkRatingDialog(
     private lateinit var newAvgMarkAdapter: MarkLogAdapter
 
     private val ratingViewModel: LastMarkRatingViewModel by viewModels()
-
-    private var swipeHelper: ItemTouchHelper? = null
 
     companion object {
         const val TAG = "LastMarkRatingDialog"
@@ -216,7 +212,8 @@ class LastMarkRatingDialog(
         }
         ratingAdapter.submitList(data.othersMarks.toUi())
 
-        if (swipeHelper == null) {
+        // Временно закрыто
+        /*if (swipeHelper == null) {
             swipeHelper = ItemTouchHelper(RatingDialogSwipeHelper(
                 ui.ratingList,
                 { position ->
@@ -249,7 +246,7 @@ class LastMarkRatingDialog(
             )).apply {
                 attachToRecyclerView(ui.ratingList)
             }
-        }
+        }*/
     }
 
     private fun updateLoading(loading: Boolean) {

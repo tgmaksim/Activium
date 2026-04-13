@@ -48,10 +48,10 @@
     <color name="mark_log_bg">#C0FFFFFF</color>
     <color name="mark_log_pressed">#E0FFFFFF</color>
 
-    <color name="calendar_day_fill">#10FFFFFF</color>
-    <color name="calendar_day_stroke">#30FFFFFF</color>
-    <color name="calendar_day_selected_fill">#40FFFFFF</color>
-    <color name="calendar_day_selected_stroke">#80FFFFFF</color>
+    <color name="calendar_day_fill">#30FFFFFF</color>
+    <color name="calendar_day_stroke">#50FFFFFF</color>
+    <color name="calendar_day_selected_fill">#60FFFFFF</color>
+    <color name="calendar_day_selected_stroke">#A0FFFFFF</color>
 
     <color name="dialog_background">#B3E5FC</color>
     <color name="dialog_button_positive">#0066CC</color>

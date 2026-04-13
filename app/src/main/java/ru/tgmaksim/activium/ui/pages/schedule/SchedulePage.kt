@@ -497,7 +497,7 @@ class SchedulePage : Fragment() {
                                 }
                             } else if (state is LoadState.Success) {
                                 Utilities.showText(requireContext(), R.string.praise_sent)
-                                scheduleViewModel.resetError(ScheduleViewModel.MapStateType.Praises, lessonKey)
+                                scheduleViewModel.reset(ScheduleViewModel.MapStateType.Praises, lessonKey)
                             }
                         }
                     }

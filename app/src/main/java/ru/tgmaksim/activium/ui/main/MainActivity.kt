@@ -182,38 +182,11 @@ class MainActivity : ParentActivity() {
             clearNumber()
         }
 
-        if (state.data.versionStatusId == 1f) {
+        state.data.info?.let { info ->
             Utilities.showAlertDialog(
                 this,
                 state.data.versionStatus,
-                getString(R.string.message_dialog_global_version),
-                getString(R.string.button_dialog_new_version)
-            ) { _, _ ->
-                ui.bottomMenu.selectedItemId = R.id.it_settings
-            }
-        } else if (state.data.versionStatusId >= 0.9) {
-            Utilities.showAlertDialog(
-                this,
-                state.data.versionStatus,
-                getString(R.string.message_dialog_system_version),
-                getString(R.string.button_dialog_new_version)
-            ) { _, _ ->
-                ui.bottomMenu.selectedItemId = R.id.it_settings
-            }
-        } else if (state.data.versionStatusId >= 0.7) {
-            Utilities.showAlertDialog(
-                this,
-                state.data.versionStatus,
-                getString(R.string.message_dialog_update_version),
-                getString(R.string.button_dialog_new_version)
-            ) { _, _ ->
-                ui.bottomMenu.selectedItemId = R.id.it_settings
-            }
-        } else if (state.data.versionStatusId >= 0.5) {
-            Utilities.showAlertDialog(
-                this,
-                state.data.versionStatus,
-                getString(R.string.message_dialog_new_version),
+                info,
                 getString(R.string.button_dialog_new_version)
             ) { _, _ ->
                 ui.bottomMenu.selectedItemId = R.id.it_settings

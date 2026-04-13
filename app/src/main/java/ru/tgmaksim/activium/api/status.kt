@@ -22,10 +22,11 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
     val date: String,
     val versionStatusId: Float,
     val versionStatus: String,
+    val info: String?,
     val updateLogs: String
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x3
+        const val CLASS_ID = 0x43
     }
     init {
         if (classId != CLASS_ID)
@@ -48,7 +49,7 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
     override val answer: VersionsResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x4
+        const val CLASS_ID = 0x44
     }
     init {
         if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
@@ -149,7 +150,7 @@ object Status {
     private const val PATH_HEALTH = "health"
     private const val PATH_CHECK_INFO_NOTIFICATIONS = "checkInfoNotifications"
 
-    private const val CHECK_VERSION_VERSION = 0
+    private const val CHECK_VERSION_VERSION = 1
     private const val HEALTH_VERSION = 0
     private const val CHECK_INFO_NOTIFICATIONS_VERSION = 0
 

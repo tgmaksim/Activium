@@ -62,11 +62,13 @@ open class UiViewModel : ViewModel() {
             onNewState(state.setError(UiText.StringResource(R.string.error_server)))
             loading = false
         } catch (e: Exception) {
-            Utilities.log(e)
             val messageRes = when {
                 !Request.checkInternet() -> R.string.error_internet
                 !Status.checkHealth() -> R.string.error_server
-                else -> errorRes
+                else -> {
+                    Utilities.log(e)
+                    errorRes
+                }
             }
             onNewState(state.setError(UiText.StringResource(messageRes)))
             loading = false
@@ -116,11 +118,13 @@ open class UiViewModel : ViewModel() {
             state.setCloudError(UiText.StringResource(R.string.error_server))
             loading = false
         } catch (e: Exception) {
-            Utilities.log(e)
             val messageRes = when {
                 !Request.checkInternet() -> R.string.error_internet
                 !Status.checkHealth() -> R.string.error_server
-                else -> errorRes
+                else -> {
+                    Utilities.log(e)
+                    errorRes
+                }
             }
             state.setCloudError(UiText.StringResource(messageRes))
             loading = false
@@ -182,11 +186,13 @@ open class UiViewModel : ViewModel() {
             onNewState(state.setError(stateKey, UiText.StringResource(R.string.error_server)))
             loading = false
         } catch (e: Exception) {
-            Utilities.log(e)
             val messageRes = when {
                 !Request.checkInternet() -> R.string.error_internet
                 !Status.checkHealth() -> R.string.error_server
-                else -> errorRes
+                else -> {
+                    Utilities.log(e)
+                    errorRes
+                }
             }
             onNewState(state.setError(stateKey, UiText.StringResource(messageRes)))
             loading = false

@@ -9,7 +9,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import java.util.Locale
@@ -27,7 +26,6 @@ import ru.tgmaksim.activium.ui.pages.RatingAdapter
 import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
 import ru.tgmaksim.activium.api.LessonRatingStatsResult
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
-import ru.tgmaksim.activium.ui.pages.RatingDialogSwipeHelper
 
 class RatingDialog(
     private val lesson: UiScheduleLesson,
@@ -143,7 +141,8 @@ class RatingDialog(
         }
         ui.ratingList.adapter = ratingAdapter
 
-        ItemTouchHelper(RatingDialogSwipeHelper(
+        // Временно закрыто
+        /*ItemTouchHelper(RatingDialogSwipeHelper(
             ui.ratingList,
             { position ->
                 ratingAdapter.currentList[position].isHighlighting != null &&
@@ -164,7 +163,7 @@ class RatingDialog(
                     getString(R.string.ok)
                 )
             }
-        )).attachToRecyclerView(ui.ratingList)
+        )).attachToRecyclerView(ui.ratingList)*/
     }
 
     private fun setupCollectors() {

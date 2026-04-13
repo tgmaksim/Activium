@@ -25,7 +25,6 @@ import ru.tgmaksim.activium.api.DnevnikTools
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.ui.core.UiViewModel
 import ru.tgmaksim.activium.utilities.Utilities
-import ru.tgmaksim.activium.ui.core.resetSuccess
 import ru.tgmaksim.activium.ui.core.setCacheError
 import ru.tgmaksim.activium.ui.core.setShownError
 import ru.tgmaksim.activium.ui.core.setCacheLoading
@@ -73,6 +72,13 @@ class ScheduleViewModel : UiViewModel() {
         when (stateType) {
             MapStateType.Praises -> _praiseStates.setShownError(lessonKey)
             MapStateType.Notes -> _noteStates.setShownError(lessonKey)
+        }
+    }
+
+    fun reset(stateType: MapStateType, lessonKey: String) {
+        when (stateType) {
+            MapStateType.Praises -> _praiseStates.value = _praiseStates.value.toMutableMap().apply { remove(lessonKey) }
+            MapStateType.Notes -> _noteStates.value = _noteStates.value.toMutableMap().apply { remove(lessonKey) }
         }
     }
 

@@ -190,7 +190,7 @@ class MarksPage : Fragment() {
             ratingKey,
             subject,
             true,
-            classRating = true
+            classRating = classRating
         ).show(parentFragmentManager, SubjectRatingDialog.TAG)
     }
 

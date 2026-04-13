@@ -33,7 +33,7 @@
     <string name="lesson_note_edit">Изменить заметку</string>
     <string name="lesson_note_delete">Удалить заметку</string>
     <string name="send_praise">Похвалить ребенка</string>
-    <string name="open_rating">Открыть рейтинг по уроку</string>
+    <string name="open_rating">Другие оценки за урок</string>
     <string name="open_lesson_dnevnikru">Открыть в Дневнике.ру</string>
 
     <string name="title_dialog_create_note">Добавить заметку</string>
@@ -79,6 +79,7 @@
     <string name="error_marks">Произошла ошибка при загрузке оценок</string>
 
     <string name="menu_item_school">Школа</string>
+    <string name="school_soon">Пока что эта страница находится в разработке. Скоро здесь появятся новости и мероприятия Вашей школы</string>
 
     <string name="menu_item_settings">Настройки</string>
     <string name="settings">Настройки</string>
@@ -109,10 +110,6 @@
     <string name="update">Обновление</string>
     <string name="update_description">%1$s (%2$d)\n%3$s</string>
     <string name="update_button">Обновить</string>
-    <string name="message_dialog_global_version">Появилась новая версия приложения с глобальным обновлением. Установите ее для работы новых функций</string>
-    <string name="message_dialog_system_version">Появилась новая версия приложения с важными системными изменениями. Требуется обновить для корректной работы</string>
-    <string name="message_dialog_update_version">Вышло обновление приложения, которое требуется установить для корректной работы приложения</string>
-    <string name="message_dialog_new_version">Вышло обновление приложения, в котором появилась новая функция. Уже можно пользоваться</string>
     <string name="button_dialog_new_version">Настройки</string>
     <string name="error_check_version">Произошла ошибка при проверке версии</string>
     <string name="error_info_notifications">Произошла ошибка при загрузке личных уведомлений</string>
