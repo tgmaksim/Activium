@@ -3,6 +3,7 @@ package ru.tgmaksim.activium.ui.pages.settings
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.content.Intent
 import android.graphics.Color
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -41,6 +42,7 @@ import ru.tgmaksim.activium.api.ChildrenResult
 import ru.tgmaksim.activium.api.MyReviewResult
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.main.MainActivity
+import ru.tgmaksim.activium.api.ReferralParamsResult
 import ru.tgmaksim.activium.databinding.ChildItemBinding
 import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.databinding.SettingsPageBinding
@@ -438,6 +440,24 @@ class SettingsPage : Fragment() {
                         showUpdateInfo()
                     }
                 }
+                launch {
+                    settingsViewModel.referralState.collect { state ->
+                        if (state is LoadState.Empty) {
+                            settingsViewModel.loadReferralParams()
+                        } else {
+                            if (state is LoadState.Success)
+                                renderReferralParams(state.data)
+                            else if (state is LoadState.Error) {
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                settingsViewModel.resetError(SettingsViewModel.StateType.ReferralParams)
+                                if (state.unauthorized)
+                                    logout()
+                            }
+
+                            switchReferralState(state)
+                        }
+                    }
+                }
             }
         }
     }
@@ -682,6 +702,20 @@ class SettingsPage : Fragment() {
         dialog.show()
     }
 
+    private fun renderReferralParams(data: ReferralParamsResult) {
+        ui.meReferral.text = data.meReferralName?.let { getString(R.string.me_referral, it) } ?: ""
+        ui.referralCounter.text = if (data.referralsCount == 0) getString(R.string.referral_count_zero)
+        else resources.getQuantityString(R.plurals.referral_count, data.referralsCount, data.referralsCount)
+        ui.buttonShare.setOnClickListener {
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text, data.referralUrl))
+            }
+            startActivity(Intent.createChooser(shareIntent, "Поделитесь ссылкой"))
+        }
+    }
+
     private fun switchChildrenState(state: LoadState<ChildrenResult>) {
         ui.childrenLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
         ui.childrenArrow.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
@@ -726,5 +760,15 @@ class SettingsPage : Fragment() {
             ui.buttonDeleteReview.visibility = View.GONE
             ui.buttonWriteReview.visibility = if (state is LoadState.Success && state.data.review == null) View.VISIBLE else View.GONE
         }
+    }
+
+    private fun switchReferralState(state: LoadState<ReferralParamsResult>) {
+        ui.buttonShare.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
+        ui.meReferral.visibility =
+            if (state is LoadState.Success && state.data.meReferralName != null) View.VISIBLE else View.GONE
+        ui.referralCounter.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
+
+        ui.referralLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
+        ui.referralError.visibility = if (state.isError()) View.VISIBLE else View.GONE
     }
 }

@@ -15,12 +15,13 @@ import ru.tgmaksim.activium.api.MyReviewResult
 import ru.tgmaksim.activium.api.ChildrenResult
 import ru.tgmaksim.activium.ui.core.UiViewModel
 import ru.tgmaksim.activium.ui.core.setShownError
+import ru.tgmaksim.activium.api.ReferralParamsResult
 import ru.tgmaksim.activium.api.StatusEANotificationsResult
 import ru.tgmaksim.activium.api.StatusMarksNotificationsResult
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 class SettingsViewModel : UiViewModel() {
-    enum class StateType { Children, StatusMarksNotifications, StatusEANotifications, Review }
+    enum class StateType { Children, StatusMarksNotifications, StatusEANotifications, Review, ReferralParams }
 
     private val _childrenState = MutableStateFlow<LoadState<ChildrenResult>>(LoadState.Empty)
     val childrenState = _childrenState.asStateFlow()
@@ -34,12 +35,16 @@ class SettingsViewModel : UiViewModel() {
     private val _reviewState = MutableStateFlow<LoadState<MyReviewResult>>(LoadState.Empty)
     val reviewState = _reviewState.asStateFlow()
 
+    private val _referralState = MutableStateFlow<LoadState<ReferralParamsResult>>(LoadState.Empty)
+    val referralState = _referralState.asStateFlow()
+
     fun resetError(stateType: StateType) {
         when (stateType) {
             StateType.Children -> _childrenState.setShownError()
             StateType.StatusMarksNotifications -> _statusMarksNotificationsState.setShownError()
             StateType.StatusEANotifications -> _statusEANotificationsState.setShownError()
             StateType.Review -> _reviewState.setShownError()
+            StateType.ReferralParams -> _referralState.setShownError()
         }
     }
 
@@ -200,6 +205,18 @@ class SettingsViewModel : UiViewModel() {
     fun updateShowNullSubjectMarks(show: Boolean) {
         viewModelScope.launch {
             SettingsManager.setShowNullSubjectMarks(show)
+        }
+    }
+
+    fun loadReferralParams() {
+        viewModelScope.launch {
+            executeRequest(
+                _referralState,
+                "referralParams",
+                R.string.error_referral,
+                Settings::getReferralParams,
+                { it.answer }
+            )
         }
     }
 }

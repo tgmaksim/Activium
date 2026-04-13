@@ -22,10 +22,9 @@
         android:clickable="true"
         android:focusable="true">
 
-        <FrameLayout
-            android:id="@+id/lessonContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        <include
+            layout="@layout/item_schedule_lesson"
+            android:id="@+id/lesson" />
 
         <LinearLayout
             android:layout_width="wrap_content"

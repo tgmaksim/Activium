@@ -107,7 +107,7 @@
     </plurals>
     <string name="settings_last_marks_warning">Большой период последних оценок влияет на скорость загрузки</string>
 
-    <string name="update">Обновление</string>
+    <string name="update">⚠️ Обновление</string>
     <string name="update_description">%1$s (%2$d)\n%3$s</string>
     <string name="update_button">Обновить</string>
     <string name="button_dialog_new_version">Настройки</string>
@@ -131,23 +131,6 @@
     <string name="open_all_reviews">Открыть отзывы на сайте</string>
     <string name="error_review">Произошла ошибка при загрузке отзыва</string>
 
-<!--    <string name="error_load_schedule">Произошла ошибка при загрузке расписания</string>-->
-<!--    <string name="error_load_marks">Произошла ошибка при загрузке оценок</string>-->
-
-<!--    <string name="default_bells_schedule">08:00 – 09:35</string>-->
-<!--    <string name="default_place">101</string>-->
-<!--    <string name="default_subject">Математика</string>-->
-<!--    <string name="default_number">1.</string>-->
-<!--    <string name="homework_emoji">✏️</string>-->
-<!--    <string name="homework_document_emoji">📎</string>-->
-<!--    <string name="homework_not_found">Нет домашнего задания</string>-->
-<!--    <string name="homework_document_not_found">Нет дополнительных ресурсов</string>-->
-<!--    <string name="default_day_number">1</string>-->
-<!--    <string name="default_weekday">ПН</string>-->
-<!--    <string name="weekend_text">Выходные</string>-->
-<!--    <string name="marks_rating_emoji">📊</string>-->
-<!--    <string name="class_rating">📊 Рейтинг в классе</string>-->
-
     <string name="review_editor_new_title">Написать отзыв</string>
     <string name="review_editor_edit_title">Изменить отзыв</string>
     <string name="review_text_counter">%1$d/%2$d</string>
@@ -164,6 +147,22 @@
     <string name="message_dialog_delete_review">Удалить Ваш отзыв? Это действие нельзя отменить!</string>
     <string name="button_dialog_delete_review">Да, удалить</string>
     <string name="error_delete_review">Произошла ошибка при удалении отзыва</string>
+
+    <string name="referral">Приглашения</string>
+    <string name="referral_info">Приглашайте своих друзей и знакомых в Активиум по реферальной ссылке</string>
+    <string name="referral_count_zero">🤜🤛 Вы пока что не приглашали друзей</string>
+    <plurals name="referral_count">
+        <item quantity="zero">🤜🤛 Вы пока что не приглашали друзей</item>
+        <item quantity="one">🤜🤛 Вы пригласили %1$d друга</item>
+        <item quantity="few">🤜🤛 Вы пригласили %1$d друга</item>
+        <item quantity="many">🤜🤛 Вы пригласили %1$d друзей</item>
+        <item quantity="other">🤜🤛 Вы пригласили %1$d друзей</item>
+        <item quantity="two">🤜🤛 Вы пригласили %1$d друга</item>
+    </plurals>
+    <string name="me_referral">📥 Вас пригласили: %1$s</string>
+    <string name="share">Пригласить</string>
+    <string name="share_text">Я приглашаю в Активиум — приложения для учеников и их родителей\n\nСкачивание на сайте: %1$s</string>
+    <string name="error_referral">Произошла ошибка при загрузке реферальной программы</string>
 
     <string name="account">Аккаунт</string>
     <string name="account_info">Ваш профиль в приложении связан с аккаунтом в Дневнике.ру. Все предоставленные данные используются только в целях работы приложения и доступны только Вам в приложении</string>

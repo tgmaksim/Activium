@@ -45,6 +45,8 @@
     <color name="lesson_link">#4FC3F7</color>
     <color name="lesson_like_icon">#D7B44A</color>
 
+    <color name="lesson_menu_stroke">#60FFFFFF</color>
+
     <color name="mark_log_bg">#80FFFFFF</color>
     <color name="mark_log_pressed">#A0FFFFFF</color>
 

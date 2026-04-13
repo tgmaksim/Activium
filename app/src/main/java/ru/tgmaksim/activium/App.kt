@@ -37,11 +37,11 @@ class App : Application() {
             // Проверка изменений firebaseToken
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (!task.isSuccessful || task.result == null) {
-                    Utilities.log("FirebaseMessaging: isSuccessful = ${task.isSuccessful}, result = ${task.result}")
+                    Utilities.log("FirebaseMessaging: isSuccessful = ${task.isSuccessful}, result = ${if (task.isSuccessful) task.result else "null"}")
                     return@addOnCompleteListener
                 }
 
-                val firebaseMessagingToken = task.result ?: return@addOnCompleteListener
+                val firebaseMessagingToken = task.result
 
                 applicationScope.launch {
                     SettingsManager.setFirebaseMessagingToken(firebaseMessagingToken)

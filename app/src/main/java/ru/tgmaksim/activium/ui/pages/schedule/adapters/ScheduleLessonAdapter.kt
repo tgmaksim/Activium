@@ -12,7 +12,10 @@ import android.text.method.LinkMovementMethod
 
 import android.view.View
 import android.view.ViewGroup
+import android.view.MotionEvent
 import android.view.LayoutInflater
+import android.view.ViewConfiguration
+import android.annotation.SuppressLint
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 
@@ -75,6 +78,8 @@ class ScheduleLessonAdapter(
             holder.ui.worksContainer.visibility = View.GONE
             holder.ui.logsRecycler.visibility = View.GONE
             holder.ui.praise.visibility = View.GONE
+            @SuppressLint("ClickableViewAccessibility")
+            holder.ui.lessonContent.setOnTouchListener(null)
             return
         }
 
@@ -141,9 +146,50 @@ class ScheduleLessonAdapter(
             holder.ui.noteGroup.visibility = View.GONE
         }
 
-        holder.ui.root.setOnLongClickListener {
-            onMenuLesson(lesson.lessonKey!!)
-            true
+        setupLessonMenu(holder, lesson.lessonKey!!)
+    }
+
+    private fun setupLessonMenu(holder: VH, lessonKey: String) {
+        val touchSlop = ViewConfiguration.get(holder.ui.root.context).scaledTouchSlop
+        var downX = 0f
+        var downY = 0f
+
+        val longPressRunnable = Runnable {
+            holder.ui.longPressBorder.start {
+                val position = holder.bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onMenuLesson(lessonKey)
+                }
+            }
+        }
+
+        holder.ui.longPressBorder.cancel()
+
+        @SuppressLint("ClickableViewAccessibility")
+        holder.ui.lessonContent.setOnTouchListener { view, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    downX = event.x
+                    downY = event.y
+
+                    view.postDelayed(longPressRunnable, 100)
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    val dx = kotlin.math.abs(event.x - downX)
+                    val dy = kotlin.math.abs(event.y - downY)
+
+                    if (dx > touchSlop || dy > touchSlop) {
+                        holder.ui.longPressBorder.cancel()
+                    }
+                }
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    view.removeCallbacks(longPressRunnable)
+                    holder.ui.longPressBorder.cancel()
+                }
+            }
+            false
         }
     }
 

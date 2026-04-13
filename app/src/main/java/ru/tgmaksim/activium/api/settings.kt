@@ -255,6 +255,53 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 }
 
 /**
+ * Результат запроса получения параметров реферальной программы для пользователя
+ * @param classId Идентификатор класса
+ * @param meReferralName Имя пользователя, который пригласил
+ * @param referralsCount Количество приглашенных пользователей
+ * @param referralUrl Реферальная ссылка для приглашения
+ * @author Максим Дрючин (tgmaksim)
+ * @see StatusEANotificationsApiResponse
+ * */
+@Serializable data class ReferralParamsResult(
+    override val classId: Int = CLASS_ID,
+    val meReferralName: String?,
+    val referralsCount: Int,
+    val referralUrl: String
+) : ApiBase() {
+    companion object {
+        const val CLASS_ID = 0x45
+    }
+    init {
+        if (classId != CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
+ * Ответ на запрос получения параметров реферальной программы для пользователя
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект ошибки
+ * @param answer Параметры реферальной программы для пользователя
+ * @author Максим Дрючин (tgmaksim)
+ * */
+@Serializable data class ReferralParamsApiResponse(
+    override val classId: Int = CLASS_ID,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: ReferralParamsResult?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x46
+    }
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
  * API-singleton для запросов группы settings
  * @property PATH_PREFIX Группа API-запросов
  * @author Максим Дрючин (tgmaksim)
@@ -268,6 +315,7 @@ object Settings {
     private const val PATH_UPDATE_FIREBASE = "updateFirebase"
     private const val PATH_EA_NOTIFICATIONS = "getStatusEANotifications"
     private const val PATH_SWITCH_EA_NOTIFICATIONS = "switchEANotifications"
+    private const val PATH_REFERRAL_PARAMS = "getReferralParams"
 
     private const val CHILDREN_VERSION = 0
     private const val ACTIVE_CHILD_VERSION = 0
@@ -276,6 +324,7 @@ object Settings {
     private const val UPDATE_FIREBASE_VERSION = 0
     private const val EA_NOTIFICATIONS_VERSION = 0
     private const val SWITCH_EA_NOTIFICATIONS_VERSION = 0
+    private const val REFERRAL_PARAMS_VERSION = 0
 
     /**
      * Получение списка детей, привязанных к пользователю сессии, и активного ребенка.
@@ -383,6 +432,21 @@ object Settings {
         val response = Request.put<SwitchEANotificationsApiResponse>(
             listOf(PATH_PREFIX, PATH_SWITCH_EA_NOTIFICATIONS, SWITCH_EA_NOTIFICATIONS_VERSION).joinToString("/"),
             params = mapOf("status" to status),
+            sessionId = SettingsManager.getSessionId()
+        )
+
+        return response
+    }
+
+    /**
+     * Получение количества приглашенных пользователей, ссылки для приглашения и имени, который пригласил пользователя
+     * @return Ответ сервера в виде [ReferralParamsApiResponse]
+     * @exception Exception
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    suspend fun getReferralParams(): ReferralParamsApiResponse {
+        val response = Request.get<ReferralParamsApiResponse>(
+            listOf(PATH_PREFIX, PATH_REFERRAL_PARAMS, REFERRAL_PARAMS_VERSION).joinToString("/"),
             sessionId = SettingsManager.getSessionId()
         )
 

@@ -85,7 +85,7 @@ class LessonMenuDialog(
             dismissWithAnimation()
         }
 
-        ui.content.setOnClickListener { }
+        ui.content.setOnClickListener(null)
 
         bindLesson()
         setupButtons()
@@ -112,17 +112,13 @@ class LessonMenuDialog(
     }
 
     private fun bindLesson() {
-        val lessonView = ItemScheduleLessonBinding.inflate(layoutInflater, ui.lessonContainer, false)
-
-        lessonView.logsRecycler.layoutManager = LinearLayoutManager(
+        ui.lesson.logsRecycler.layoutManager = LinearLayoutManager(
             ui.root.context,
             LinearLayoutManager.HORIZONTAL,
             false
         )
 
-        bindLessonPreview(layoutInflater, lessonView, lesson)
-        ui.lessonContainer.removeAllViews()
-        ui.lessonContainer.addView(lessonView.root)
+        bindLessonPreview(layoutInflater, ui.lesson, lesson)
     }
 
     private fun bindLessonPreview(layoutInflater: LayoutInflater, binding: ItemScheduleLessonBinding, lesson: UiScheduleLesson) {
@@ -130,6 +126,7 @@ class LessonMenuDialog(
         binding.filesContainer.visibility = View.GONE
         binding.root.isClickable = false
         binding.root.isFocusable = false
+        binding.longPressBorder.visibility = View.GONE
 
         binding.number.text = binding.root.context.getString(R.string.lesson_number, lesson.number + 1)
         binding.subject.text = lesson.subject
