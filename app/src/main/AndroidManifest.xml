@@ -51,12 +51,6 @@
         <activity android:name=".ui.main.MainActivity" android:exported="false" android:launchMode="singleTask" />
         <activity android:name=".ui.LoginActivity" android:exported="false" android:launchMode="singleTask" />
 
-        <!-- Receiver для запуска по расписанию (уведомления с напоминаниями) -->
-<!--        <receiver-->
-<!--            android:name=".utilities.AlarmReceiver"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="false" />-->
-
         <!-- Service для уведомлений -->
         <service android:name=".utilities.MessagingService"
             android:exported="false">
@@ -64,6 +58,12 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="${applicationId}.firebaseinitprovider"
+            android:exported="false"
+            tools:node="remove" />
 
     </application>
 

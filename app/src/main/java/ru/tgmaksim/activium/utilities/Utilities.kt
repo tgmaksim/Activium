@@ -103,7 +103,9 @@ object Utilities {
     fun log(e: String) {
         Log.e("Activium.error", e)
 
-        FirebaseCrashlytics.getInstance().log(e)
+        runCatching {
+            FirebaseCrashlytics.getInstance().log(e)
+        }
     }
 
     /**
@@ -111,10 +113,16 @@ object Utilities {
      * @param e возникшая ошибка
      * @author Максим Дрючин (tgmaksim)
      * */
-    fun log(e: Exception) {
+    fun log(e: Throwable, context: String? = null) {
         Log.e("Activium.error", "Ошибка", e)
 
-        FirebaseCrashlytics.getInstance().recordException(e)
+        runCatching {
+            val crashlytics = FirebaseCrashlytics.getInstance()
+
+            context?.let { crashlytics.setCustomKey("error_context", it) }
+
+            crashlytics.recordException(e)
+        }
     }
 
     /**
@@ -142,15 +150,5 @@ object Utilities {
             if (back) setNegativeButton("Отмена", null)
             setCancelable(back)
         }.show()
-    }
-
-    fun localDate(timezone: Int): OffsetDateTime {
-        val offset = ZoneOffset.ofTotalSeconds(timezone)
-        return OffsetDateTime.now(offset)
-            .with(OffsetTime.of(0, 0, 0, 0, offset))
-    }
-
-    fun localTime(timezone: Int): OffsetTime {
-        return OffsetTime.now(ZoneOffset.ofTotalSeconds(timezone))
     }
 }

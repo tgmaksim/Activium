@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
@@ -23,7 +24,11 @@ class App : Application() {
         SettingsManager.init(this)
         CacheManager.init(this)
 
-        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            Utilities.log("Coroutine Error: ${throwable.message}")
+        }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + exceptionHandler)
+
         applicationScope.launch {
             MemoryDataManager.sessionId.value = SettingsManager.getSessionId()
             MemoryDataManager.darkTheme.value = SettingsManager.getDarkTheme()
@@ -32,22 +37,41 @@ class App : Application() {
 
         // Загрузка Firebase
         applicationScope.launch {
-            FirebaseApp.initializeApp(this@App)
+            try {
+                FirebaseApp.initializeApp(this@App)
 
-            // Проверка изменений firebaseToken
-            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                if (!task.isSuccessful || task.result == null) {
-                    Utilities.log("FirebaseMessaging: isSuccessful = ${task.isSuccessful}, result = ${if (task.isSuccessful) task.result else "null"}")
-                    return@addOnCompleteListener
+                val gmsAvailable = com.google.android.gms.common.GoogleApiAvailability.getInstance()
+                    .isGooglePlayServicesAvailable(this@App) == com.google.android.gms.common.ConnectionResult.SUCCESS
+
+                if (gmsAvailable) {
+                    fetchFirebaseToken(applicationScope)
+                } else {
+                    Utilities.log("Firebase: Google Play Services unavailable")
                 }
+            } catch (e: Exception) {
+                Utilities.log("Firebase Init Error: ${e.message}")
+            }
+        }
+    }
 
-                val firebaseMessagingToken = task.result
+    private fun fetchFirebaseToken(scope: CoroutineScope) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Utilities.log(task.exception ?: Exception("Token task failed"))
+                return@addOnCompleteListener
+            }
 
-                applicationScope.launch {
-                    SettingsManager.setFirebaseMessagingToken(firebaseMessagingToken)
+            val token = task.result
+            if (token == null) {
+                Utilities.log("FirebaseMessaging: null result")
+                return@addOnCompleteListener
+            }
 
-                    if (SettingsManager.getSessionId() != null)
-                        Settings.updateFirebase(firebaseMessagingToken)
+            scope.launch {
+                SettingsManager.setFirebaseMessagingToken(token)
+
+                if (SettingsManager.getSessionId() != null) {
+                    Settings.updateFirebase(token)
                 }
             }
         }
