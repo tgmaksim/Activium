@@ -34,8 +34,8 @@ import ru.tgmaksim.activium.databinding.ItemScheduleWorkTypeBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleHomeworkFileBinding
 
 class ScheduleLessonAdapter(
-    private val onPraiseClick: (String) -> Unit,
-    private val onMenuLesson: (String) -> Unit,
+    private val onPraiseClick: (String, FloatArray) -> Unit,
+    private val onMenuLesson: (String, FloatArray) -> Unit,
     private val onRating: (String) -> Unit
 ) : ListAdapter<UiScheduleLesson, ScheduleLessonAdapter.VH>(Diff()) {
     class VH(val ui: ItemScheduleLessonBinding) : RecyclerView.ViewHolder(ui.root) {
@@ -129,7 +129,12 @@ class ScheduleLessonAdapter(
             holder.ui.praiseButton.visibility =
                 if (lesson.praiseState is LoadState.Empty) View.VISIBLE else View.GONE
             holder.ui.praiseButton.setOnClickListener {
-                onPraiseClick(lesson.lessonKey!!)  // Проверка при создании объекта
+                val viewLocation = IntArray(2)
+                holder.ui.praiseButton.getLocationInWindow(viewLocation)
+                val location = FloatArray(2)
+                location[0] = viewLocation[0] + holder.ui.praiseButton.width / 2f
+                location[1] = viewLocation[1] + holder.ui.praiseButton.height / 2f
+                onPraiseClick(lesson.lessonKey!!, location)  // Проверка при создании объекта
             }
         } else {
             holder.ui.praise.visibility = View.GONE
@@ -158,7 +163,12 @@ class ScheduleLessonAdapter(
             holder.ui.longPressBorder.start {
                 val position = holder.bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    onMenuLesson(lessonKey)
+                    val viewLocation = IntArray(2)
+                    holder.ui.praiseButton.getLocationInWindow(viewLocation)
+                    val location = FloatArray(2)
+                    location[0] = viewLocation[0] + holder.ui.praiseButton.width / 2f
+                    location[1] = viewLocation[1] + holder.ui.praiseButton.height / 2f
+                    onMenuLesson(lessonKey, location)
                 }
             }
         }

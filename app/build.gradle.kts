@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.flexbox)
     implementation(libs.material)
+    implementation(libs.konfetti.xml)
     implementation(libs.ktor.client.cio)
     implementation(libs.kotlinx.datetime)
     implementation(libs.ktor.client.core)

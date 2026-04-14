@@ -47,6 +47,10 @@
 
     <color name="lesson_menu_stroke">#FFFFFF</color>
 
+    <color name="praise_particle_primary">#4DA3FF</color>
+    <color name="praise_particle_secondary">#7EE36A</color>
+    <color name="praise_particle_accent">#FFD54F</color>
+
     <color name="mark_log_bg">#C0FFFFFF</color>
     <color name="mark_log_pressed">#E0FFFFFF</color>
 

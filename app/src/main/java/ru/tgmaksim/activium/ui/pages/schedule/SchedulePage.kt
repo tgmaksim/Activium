@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.animation.ValueAnimator
 import android.animation.ObjectAnimator
+import androidx.core.content.ContextCompat
 import android.view.animation.LinearInterpolator
 
 import androidx.core.view.doOnLayout
@@ -37,8 +38,17 @@ import kotlinx.datetime.number
 import kotlinx.datetime.LocalDate
 import kotlin.properties.Delegates
 import kotlinx.datetime.DatePeriod
+import java.util.concurrent.TimeUnit
 import kotlinx.datetime.toKotlinMonth
 import java.time.format.DateTimeFormatter
+
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.Rotation
+import nl.dionsegijn.konfetti.core.models.Shape
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import nl.dionsegijn.konfetti.core.models.Size
+import nl.dionsegijn.konfetti.xml.image.DrawableImage
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.NoteResult
@@ -86,6 +96,8 @@ class SchedulePage : Fragment() {
     private var currentActiveChildId by Delegates.notNull<Long>()
     private var currentSelectedDate: LocalDate? = null
     private var currentDates: List<LocalDate> = emptyList()
+
+    private val praiseAnimations: MutableMap<String, FloatArray> = mutableMapOf()
 
     companion object {
         private const val PRAISE_TEXT_LIMIT = 64
@@ -287,7 +299,7 @@ class SchedulePage : Fragment() {
         }
     }
 
-    private fun onPraiseLesson(lessonKey: String) {
+    private fun onPraiseLesson(lessonKey: String, location: FloatArray) {
         val view = DialogPraiseBinding.inflate(layoutInflater, ui.root, false)
 
         view.textCounter.text = getString(R.string.praise_text_counter, view.text.text?.length ?: 0, PRAISE_TEXT_LIMIT)
@@ -310,19 +322,20 @@ class SchedulePage : Fragment() {
 
             dialog.dismiss()
 
+            praiseAnimations[lessonKey] = location
             scheduleViewModel.sendPraise(lessonKey, text)
         }
 
         dialog.show()
     }
 
-    private fun onMenuLesson(lessonKey: String) {
+    private fun onMenuLesson(lessonKey: String, location: FloatArray) {
         val lesson = getLesson(lessonKey).takeIf { it?.isExtra == false } ?: return
         LessonMenuDialog(
             lesson,
             { openLessonNoteEditor(lessonKey) },
             { openDeleteNoteDialog(lessonKey) },
-            { onPraiseLesson(lessonKey) },
+            { onPraiseLesson(lessonKey, location) },
             { Utilities.openUrl(requireContext(), lesson.dnevnikruUrl!!) },
             { onRating(lessonKey) }
         ).show(childFragmentManager, LessonMenuDialog.TAG)
@@ -496,7 +509,7 @@ class SchedulePage : Fragment() {
                                     break
                                 }
                             } else if (state is LoadState.Success) {
-                                Utilities.showText(requireContext(), R.string.praise_sent)
+                                startPraiseAnimation(praiseAnimations[lessonKey])
                                 scheduleViewModel.reset(ScheduleViewModel.MapStateType.Praises, lessonKey)
                             }
                         }
@@ -563,6 +576,48 @@ class SchedulePage : Fragment() {
         scheduleViewModel.logout()
 
         LoginActivity.openLoginActivity(requireActivity())
+    }
+
+    private fun startPraiseAnimation(location: FloatArray?) {
+        val x = location?.get(0)
+        val y = location?.get(1)
+
+        val shapes = listOf(
+            R.drawable.ic_praise_thumb_up,
+            R.drawable.ic_praise_heart,
+            R.drawable.ic_praise_spark
+        ).mapNotNull { resId ->
+            ContextCompat.getDrawable(requireContext(), resId)?.let { drawable ->
+                Shape.DrawableShape(DrawableImage(
+                    drawable = drawable,
+                    width = drawable.intrinsicWidth,
+                    height = drawable.intrinsicHeight
+                ))
+            }
+        }
+
+        val party = Party(
+            speed = 15f,
+            maxSpeed = 25f,
+            rotation = Rotation(enabled = false),
+            damping = 0.92f,
+            spread = 360,
+            timeToLive = 3000L,
+            fadeOutEnabled = true,
+            colors = listOf(
+                ContextCompat.getColor(requireContext(), R.color.praise_particle_primary),
+                ContextCompat.getColor(requireContext(), R.color.praise_particle_secondary),
+                ContextCompat.getColor(requireContext(), R.color.praise_particle_accent)
+            ),
+            shapes = shapes,
+            size = listOf(Size(20, 8f), Size(30, 10f), Size(40, 12f)),
+            position = if (x != null && y != null) Position.Absolute(x, y) else Position.Relative(0.5, 0.5),
+            emitter = Emitter(120, TimeUnit.MILLISECONDS).max(50)
+        )
+
+        ui.konfettiView.post {
+            ui.konfettiView.start(party)
+        }
     }
 
     private fun renderSchedule(

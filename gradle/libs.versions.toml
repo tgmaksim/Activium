@@ -2,6 +2,7 @@
 agp = "9.1.0"
 datastorePreferences = "1.2.1"
 fragmentKtx = "1.8.9"
+konfettiXml = "2.0.5"
 kotlin = "2.3.20"
 coreKtx = "1.18.0"
 junit = "4.13.2"
@@ -32,6 +33,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+konfetti-xml = { module = "nl.dionsegijn:konfetti-xml", version.ref = "konfettiXml" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
