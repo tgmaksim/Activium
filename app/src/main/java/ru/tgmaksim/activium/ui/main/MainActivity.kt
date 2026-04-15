@@ -2,18 +2,30 @@ package ru.tgmaksim.activium.ui.main
 
 import android.os.Bundle
 import android.graphics.Rect
+import android.content.Intent
 import android.graphics.Color
 import android.widget.TextView
 import android.view.MotionEvent
+import java.util.concurrent.TimeUnit
+import androidx.core.content.ContextCompat
 
 import kotlinx.coroutines.launch
-
 import androidx.lifecycle.Lifecycle
 import androidx.activity.viewModels
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.Rotation
+import nl.dionsegijn.konfetti.core.models.Size
+import nl.dionsegijn.konfetti.core.models.Shape
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import nl.dionsegijn.konfetti.xml.KonfettiView
+import nl.dionsegijn.konfetti.xml.image.DrawableImage
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.BuildConfig
@@ -21,6 +33,7 @@ import ru.tgmaksim.activium.ui.ParentActivity
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.api.VersionsResult
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.pages.MainFragment
 import ru.tgmaksim.activium.ui.pages.marks.MarksPage
 import ru.tgmaksim.activium.ui.pages.school.SchoolPage
 import ru.tgmaksim.activium.utilities.NotificationManager
@@ -48,8 +61,12 @@ class MainActivity : ParentActivity() {
         setupSystemBars(ui.rootLayout)
 
         // После перерисовки текущий fragment сам отрисуется
-        if (savedInstanceState == null)
-            openPage(R.id.it_schedule)
+        if (savedInstanceState == null) {
+            if (!handleIntent(intent))
+                openPage(R.id.it_schedule)
+        } else {
+            waitFragments { handleIntent(intent) }
+        }
 
         setupMenuListener()  // Настройка нажатий на пункты меню
         setupBackListener()  // Настройка нажатий на системную кнопку назад (или жестом)
@@ -58,6 +75,114 @@ class MainActivity : ParentActivity() {
 
         if (savedInstanceState == null) {
             NotificationManager.setupPostNotifications(this)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?): Boolean {
+        if (intent == null) return false
+
+        val fromNotification = intent.getStringExtra("from_notification")
+        fromNotification?.let {
+            var processing = false
+            when (it) {
+                "new_mark" -> {
+                    processing = true
+                    ui.bottomMenu.setOnItemSelectedListener {
+                        openPage(R.id.it_marks, "update")
+                        true
+                    }
+                    ui.bottomMenu.selectedItemId = R.id.it_marks
+                    setupMenuListener()
+
+                    val goodMark = intent.getStringExtra("good_mark") == "true"
+                    if (goodMark)
+                        startKonfettiAnimation(ui.konfettiView)
+                }
+                "ea" -> {
+                    processing = true
+                    ui.bottomMenu.setOnItemSelectedListener {
+                        openPage(R.id.it_schedule, "today")
+                        true
+                    }
+                    ui.bottomMenu.selectedItemId = R.id.it_schedule
+                    setupMenuListener()
+                }
+                "praise" -> {
+                    processing = true
+                    startKonfettiAnimation(ui.konfettiView)
+                }
+                "publish_review" -> {
+                    processing = true
+                    ui.bottomMenu.setOnItemSelectedListener {
+                        openPage(R.id.it_settings, "update_review")
+                        true
+                    }
+                    ui.bottomMenu.selectedItemId = R.id.it_settings
+                    setupMenuListener()
+                }
+            }
+
+            intent.removeExtra("from_notification")
+            return processing
+        }
+
+        return false
+    }
+
+    private fun waitFragments(callback: (Fragment) -> Unit) {
+        supportFragmentManager.registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
+            override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+                super.onFragmentResumed(fm, f)
+                callback(f)
+            }
+        }, false)
+    }
+
+    fun startKonfettiAnimation(view: KonfettiView, location: FloatArray? = null) {
+        val x = location?.get(0)
+        val y = location?.get(1)
+
+        val shapes = listOf(
+            R.drawable.ic_praise_thumb_up,
+            R.drawable.ic_praise_heart,
+            R.drawable.ic_praise_spark
+        ).mapNotNull { resId ->
+            ContextCompat.getDrawable(this, resId)?.let { drawable ->
+                Shape.DrawableShape(DrawableImage(
+                    drawable = drawable,
+                    width = drawable.intrinsicWidth,
+                    height = drawable.intrinsicHeight
+                ))
+            }
+        }
+
+        val party = Party(
+            speed = 15f,
+            maxSpeed = 25f,
+            rotation = Rotation(enabled = false),
+            damping = 0.92f,
+            spread = 360,
+            timeToLive = 3000L,
+            fadeOutEnabled = true,
+            colors = listOf(
+                ContextCompat.getColor(this, R.color.praise_particle_primary),
+                ContextCompat.getColor(this, R.color.praise_particle_secondary),
+                ContextCompat.getColor(this, R.color.praise_particle_accent)
+            ),
+            shapes = shapes,
+            size = listOf(Size(20, 8f), Size(30, 10f), Size(40, 12f)),
+            position = if (x != null && y != null) Position.Absolute(x, y) else Position.Relative(0.5, 0.5),
+            emitter = Emitter(120, TimeUnit.MILLISECONDS).max(50)
+        )
+
+        view.post {
+            view.start(party)
         }
     }
 
@@ -77,10 +202,14 @@ class MainActivity : ParentActivity() {
      * @param itemId Идентификатор нужной страницы
      * @author Максим Дрючин (tgmaksim)
      * */
-    private fun openPage(itemId: Int) {
-        val transaction = supportFragmentManager.beginTransaction()
+    private fun openPage(itemId: Int, param: String? = null) {
+        val target = getOrCreateFragment(itemId, param)
+        if (target.isVisible) {
+            param?.let { target.newIntent(it) }
+            return
+        }
 
-        val target = getOrCreateFragment(itemId)
+        val transaction = supportFragmentManager.beginTransaction()
 
         supportFragmentManager.fragments.forEach {
             transaction.hide(it)
@@ -88,6 +217,7 @@ class MainActivity : ParentActivity() {
 
         if (target.isAdded) {
             transaction.show(target)
+            param?.let { target.newIntent(it) }
         } else {
             transaction.add(R.id.contentContainer, target, itemId.toString())
         }
@@ -100,12 +230,12 @@ class MainActivity : ParentActivity() {
      * @param itemId Идентификатор страницы
      * @author Максим Дрючин (tgmaksim)
      * */
-    private fun getOrCreateFragment(itemId: Int): Fragment {
-        return supportFragmentManager.findFragmentByTag(itemId.toString()) ?: when (itemId) {
-            R.id.it_schedule -> SchedulePage()
-            R.id.it_marks -> MarksPage()
-            R.id.it_school -> SchoolPage()
-            R.id.it_settings -> SettingsPage()
+    private fun getOrCreateFragment(itemId: Int, param: String? = null): MainFragment {
+        return supportFragmentManager.findFragmentByTag(itemId.toString()) as? MainFragment ?: when (itemId) {
+            R.id.it_schedule -> SchedulePage(param)
+            R.id.it_marks -> MarksPage(param)
+            R.id.it_school -> SchoolPage(param)
+            R.id.it_settings -> SettingsPage(param)
             else -> throw IllegalArgumentException()
         }
     }

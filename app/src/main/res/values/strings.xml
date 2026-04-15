@@ -59,8 +59,8 @@
     <string name="praise_sent">Похвала отправлена</string>
     <string name="error_praise">Произошла ошибка при отправке похвалы</string>
 
-    <string name="my_mark">Ваша оценка за урок:</string>
-    <string name="my_marks">Ваши оценки за урок:</string>
+    <string name="my_mark">Ваша оценка:</string>
+    <string name="my_marks">Ваши оценки:</string>
     <string name="person_number">%1$d.</string>
     <string name="rating_info">Оценки класса по предмету %1$s (%2$s)%3$s</string>
     <string name="rating_info_time">. Вам выставили %1$s</string>

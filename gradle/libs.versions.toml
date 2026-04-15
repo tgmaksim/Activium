@@ -1,5 +1,6 @@
 [versions]
 agp = "9.1.0"
+coilCompose = "3.4.0"
 datastorePreferences = "1.2.1"
 fragmentKtx = "1.8.9"
 konfettiXml = "2.0.5"
@@ -12,9 +13,9 @@ appcompat = "1.7.1"
 kotlinxDatetime = "0.7.1"
 lifecycleViewmodelKtx = "2.10.0"
 material = "1.13.0"
-firebaseBom = "34.11.0"
+firebaseBom = "34.12.0"
 flexbox = "3.0.0"
-kotlinxSerializationJson = "1.10.0"
+kotlinxSerializationJson = "1.11.0"
 ktorClientCore = "3.4.2"
 okhttp = "5.3.2"
 okio = "3.17.0"
@@ -29,6 +30,8 @@ androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

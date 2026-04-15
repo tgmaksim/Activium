@@ -7,11 +7,9 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.animation.ValueAnimator
 import android.animation.ObjectAnimator
-import androidx.core.content.ContextCompat
 import android.view.animation.LinearInterpolator
 
 import androidx.core.view.doOnLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -38,23 +36,16 @@ import kotlinx.datetime.number
 import kotlinx.datetime.LocalDate
 import kotlin.properties.Delegates
 import kotlinx.datetime.DatePeriod
-import java.util.concurrent.TimeUnit
 import kotlinx.datetime.toKotlinMonth
 import java.time.format.DateTimeFormatter
-
-import nl.dionsegijn.konfetti.core.Party
-import nl.dionsegijn.konfetti.core.Position
-import nl.dionsegijn.konfetti.core.Rotation
-import nl.dionsegijn.konfetti.core.models.Shape
-import nl.dionsegijn.konfetti.core.emitter.Emitter
-import nl.dionsegijn.konfetti.core.models.Size
-import nl.dionsegijn.konfetti.xml.image.DrawableImage
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.NoteResult
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.main.MainActivity
+import ru.tgmaksim.activium.ui.pages.MainFragment
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.DialogPraiseBinding
 import ru.tgmaksim.activium.databinding.SchedulePageBinding
@@ -70,7 +61,7 @@ import ru.tgmaksim.activium.ui.pages.schedule.skeletone.CalendarSkeletonAdapter
  * @author Максим Дрючин (tgmaksim)
  * @see ru.tgmaksim.activium.ui.main.MainActivity
  * */
-class SchedulePage : Fragment() {
+class SchedulePage(param: String? = null) : MainFragment(param) {
     private lateinit var ui: SchedulePageBinding
     private val scheduleViewModel: ScheduleViewModel by activityViewModels()
 
@@ -128,6 +119,8 @@ class SchedulePage : Fragment() {
         setupCollectors()
 
         setupSwipeRefresh()
+
+        handleIntent()
     }
 
     override fun onResume() {
@@ -156,6 +149,29 @@ class SchedulePage : Fragment() {
         }
 
         return false
+    }
+
+    override fun newIntent(param: String) {
+        super.newIntent(param)
+        handleIntent()
+    }
+
+    private fun handleIntent() {
+        if (param == "today") {
+            when (scheduleViewModel.scheduleState.value) {
+                CacheDataLoadState.Empty, CacheDataLoadState.CacheLoading -> Unit
+                else -> {
+                    currentData?.let { data ->
+                        if (data.schedule.isNotEmpty()) {
+                            val position = getSelectedDateIndex(getToday(data.timezone))
+                            submitCalendar(data, position)
+                            ui.dayRecycler.scrollToPosition(position)
+                            param = null
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun startShimmer() {
@@ -579,45 +595,7 @@ class SchedulePage : Fragment() {
     }
 
     private fun startPraiseAnimation(location: FloatArray?) {
-        val x = location?.get(0)
-        val y = location?.get(1)
-
-        val shapes = listOf(
-            R.drawable.ic_praise_thumb_up,
-            R.drawable.ic_praise_heart,
-            R.drawable.ic_praise_spark
-        ).mapNotNull { resId ->
-            ContextCompat.getDrawable(requireContext(), resId)?.let { drawable ->
-                Shape.DrawableShape(DrawableImage(
-                    drawable = drawable,
-                    width = drawable.intrinsicWidth,
-                    height = drawable.intrinsicHeight
-                ))
-            }
-        }
-
-        val party = Party(
-            speed = 15f,
-            maxSpeed = 25f,
-            rotation = Rotation(enabled = false),
-            damping = 0.92f,
-            spread = 360,
-            timeToLive = 3000L,
-            fadeOutEnabled = true,
-            colors = listOf(
-                ContextCompat.getColor(requireContext(), R.color.praise_particle_primary),
-                ContextCompat.getColor(requireContext(), R.color.praise_particle_secondary),
-                ContextCompat.getColor(requireContext(), R.color.praise_particle_accent)
-            ),
-            shapes = shapes,
-            size = listOf(Size(20, 8f), Size(30, 10f), Size(40, 12f)),
-            position = if (x != null && y != null) Position.Absolute(x, y) else Position.Relative(0.5, 0.5),
-            emitter = Emitter(120, TimeUnit.MILLISECONDS).max(50)
-        )
-
-        ui.konfettiView.post {
-            ui.konfettiView.start(party)
-        }
+        (requireActivity() as MainActivity).startKonfettiAnimation(ui.konfettiView, location)
     }
 
     private fun renderSchedule(
@@ -637,7 +615,7 @@ class SchedulePage : Fragment() {
         }
 
         currentDates = buildDates(data.timezone)
-        val selected = getSelectedDate(data.timezone)
+        val selected = if (param == "today") getToday(data.timezone) else getSelectedDate(data.timezone)
 
         currentSelectedDate = selected
         val selectedIndex = getSelectedDateIndex(selected)
@@ -694,13 +672,18 @@ class SchedulePage : Fragment() {
 
     private fun getDefaultDate(timezone: Int): LocalDate {
         val zoned = Instant.now().atZone(ZoneOffset.ofTotalSeconds(timezone))
-        val today = LocalDate(
+        val today = getToday(timezone)
+
+        return if (zoned.hour >= OPEN_NEXT_DAY_SINCE_HOURS) today.plus(DatePeriod(days = 1)) else today
+    }
+
+    private fun getToday(timezone: Int): LocalDate {
+        val zoned = Instant.now().atZone(ZoneOffset.ofTotalSeconds(timezone))
+        return LocalDate(
             zoned.year,
             zoned.month.toKotlinMonth(),
             zoned.dayOfMonth
         )
-
-        return if (zoned.hour >= OPEN_NEXT_DAY_SINCE_HOURS) today.plus(DatePeriod(days = 1)) else today
     }
 
     private fun getSelectedDate(timezone: Int): LocalDate {

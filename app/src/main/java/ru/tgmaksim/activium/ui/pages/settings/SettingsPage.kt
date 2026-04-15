@@ -13,7 +13,6 @@ import android.transition.TransitionManager
 
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.fragment.app.activityViewModels
@@ -42,6 +41,7 @@ import ru.tgmaksim.activium.api.ChildrenResult
 import ru.tgmaksim.activium.api.MyReviewResult
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.main.MainActivity
+import ru.tgmaksim.activium.ui.pages.MainFragment
 import ru.tgmaksim.activium.api.ReferralParamsResult
 import ru.tgmaksim.activium.databinding.ChildItemBinding
 import ru.tgmaksim.activium.utilities.NotificationManager
@@ -57,7 +57,7 @@ import ru.tgmaksim.activium.databinding.DialogReviewEditorBinding
  * @author Максим Дрючин (tgmaksim)
  * @see MainActivity
  * */
-class SettingsPage : Fragment() {
+class SettingsPage(param: String? = null) : MainFragment(param) {
     private lateinit var ui: SettingsPageBinding
     private val settingsViewModel: SettingsViewModel by activityViewModels()
 
@@ -89,6 +89,8 @@ class SettingsPage : Fragment() {
         setupButtonsListener()  // Настройка кнопок после настроек
 
         setupStatesListener()
+
+        handleIntent()
     }
 
     fun onBackPressed(): Boolean {
@@ -99,6 +101,23 @@ class SettingsPage : Fragment() {
         }
 
         return false
+    }
+
+    override fun newIntent(param: String) {
+        super.newIntent(param)
+        handleIntent()
+    }
+
+    private fun handleIntent() {
+        if (param == "update_review") {
+            when (settingsViewModel.reviewState.value) {
+                LoadState.Empty, LoadState.Loading -> Unit
+                else -> {
+                    ui.root.smoothScrollTo(0, 0)
+                    settingsViewModel.loadReview()
+                }
+            }
+        }
     }
 
     /**

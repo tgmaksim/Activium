@@ -1,5 +1,6 @@
 package ru.tgmaksim.activium.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.app.Activity
@@ -15,6 +16,7 @@ import java.util.concurrent.CancellationException
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.Login
+import ru.tgmaksim.activium.BuildConfig
 import ru.tgmaksim.activium.api.Request
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.databinding.ActivityLoginBinding
@@ -56,6 +58,9 @@ class LoginActivity : ParentActivity() {
 
         // Настройка системных полей сверху и снизу
         setupSystemBars(ui.contentContainer)
+
+        ui.version.text = getString(R.string.version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
+        ui.android.text = getString(R.string.android, Build.VERSION.RELEASE,Build.VERSION.SDK_INT)
 
         // Настройка кнопки входа
         ui.buttonLogin.setOnClickListener {

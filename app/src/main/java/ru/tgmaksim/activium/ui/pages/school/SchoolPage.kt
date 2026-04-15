@@ -1,10 +1,11 @@
 package ru.tgmaksim.activium.ui.pages.school
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+
+import ru.tgmaksim.activium.ui.pages.MainFragment
 import ru.tgmaksim.activium.databinding.SchoolPageBinding
 
 /**
@@ -12,7 +13,7 @@ import ru.tgmaksim.activium.databinding.SchoolPageBinding
  * @author Максим Дрючин (tgmaksim)
  * @see ru.tgmaksim.activium.ui.main.MainActivity
  * */
-class SchoolPage : Fragment() {
+class SchoolPage(param: String? = null) : MainFragment(param) {
     private lateinit var ui: SchoolPageBinding
 
     override fun onCreateView(

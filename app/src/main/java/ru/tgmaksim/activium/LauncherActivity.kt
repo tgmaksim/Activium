@@ -27,6 +27,7 @@ class LauncherActivity : AppCompatActivity() {
 
         startActivity(Intent(this, target).apply {
             data = intent.data
+            intent.extras?.let { putExtras(it) }
         })
         finish()
     }

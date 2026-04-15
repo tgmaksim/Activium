@@ -54,6 +54,12 @@ class MarksViewModel : UiViewModel() {
 
     }
 
+    fun resetMarks() {
+        _marksState.value = CacheDataLoadState.Empty
+        _finalMarksState.value = CacheDataLoadState.Empty
+        _marksData.value = null
+    }
+
     fun logout() {
         viewModelScope.launch {
             LoginActivity.logout()

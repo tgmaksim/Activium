@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import androidx.core.view.doOnLayout
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import android.animation.ValueAnimator
@@ -24,6 +23,7 @@ import ru.tgmaksim.activium.api.MarkLast
 import ru.tgmaksim.activium.api.MarkLog
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.pages.MainFragment
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.MarksPageBinding
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
@@ -38,7 +38,7 @@ import ru.tgmaksim.activium.ui.pages.marks.skeleton.SubjectMarksSkeletonAdapter
  * @author Максим Дрючин (tgmaksim)
  * @see ru.tgmaksim.activium.ui.main.MainActivity
  * */
-class MarksPage : Fragment() {
+class MarksPage(param: String? = null) : MainFragment(param) {
     private lateinit var ui: MarksPageBinding
     private val marksViewModel: MarksViewModel by activityViewModels()
 
@@ -63,6 +63,7 @@ class MarksPage : Fragment() {
     private var currentData: UiMarksResult? = null
     private var currentShowNullSubjectMarks: Boolean? = null
     private var currentPeriod: Int? = null
+    private var currentChildId: Long? = null
     private var currentTable = 0
 
     override fun onCreateView(
@@ -85,6 +86,8 @@ class MarksPage : Fragment() {
         setupCollectors()
 
         setupSwipeRefresh()
+
+        handleIntent()
     }
 
     override fun onResume() {
@@ -111,6 +114,24 @@ class MarksPage : Fragment() {
         }
 
         return false
+    }
+
+    override fun newIntent(param: String) {
+        super.newIntent(param)
+        handleIntent()
+    }
+
+    private fun handleIntent() {
+        if (param == "update") {
+            when (marksViewModel.marksState.value) {
+                CacheDataLoadState.Empty, CacheDataLoadState.CacheLoading,
+                CacheDataLoadState.CacheSuccess, CacheDataLoadState.CloudLoading -> Unit
+                else -> {
+                    param = null
+                    marksViewModel.loadCloudMarks()
+                }
+            }
+        }
     }
 
     private fun startShimmer() {
@@ -238,6 +259,17 @@ class MarksPage : Fragment() {
                     }
                 }
                 launch {
+                    SettingsManager.activeChildIdFlow().distinctUntilChanged().collect { childId ->
+                        val childChanged = currentChildId != childId
+
+                        currentChildId = childId
+
+                        if (childChanged) {
+                            restartMarksFromScratch()
+                        }
+                    }
+                }
+                launch {
                     marksViewModel.marksState.collect { state ->
                         when (state) {
                             CacheDataLoadState.Empty -> {
@@ -320,6 +352,8 @@ class MarksPage : Fragment() {
                                 currentShowNullSubjectMarks = SettingsManager.getShowNullSubjectMarks()
                             if (currentPeriod == null)
                                 currentPeriod = SettingsManager.getLastMarksPeriod()
+                            if (currentChildId == null)
+                                currentChildId = SettingsManager.getActiveChildId()
 
                             currentData = data
 
@@ -330,6 +364,15 @@ class MarksPage : Fragment() {
                 }
             }
         }
+    }
+
+    private fun restartMarksFromScratch() {
+        updateCurrentTable(0)
+        ui.yearTable.visibility = View.GONE
+        ui.periodTable.visibility = View.VISIBLE
+
+        showSkeletonMode()
+        marksViewModel.resetMarks()
     }
 
     private fun renderSchedule(data: UiMarksResult) {
@@ -345,11 +388,15 @@ class MarksPage : Fragment() {
             ui.yearTable.adapter = subjectMarksYearAdapter
         }
 
-        lastMarksAdapter.submitList(data.recentMarks)
+        lastMarksAdapter.submitList(data.recentMarks) {
+            ui.lastMarks.scrollTo(0, 0)
+        }
+
         subjectMarksPeriodAdapter.setShowNullSubjectMarks(currentShowNullSubjectMarks ?: false)
         subjectMarksPeriodAdapter.submitList(data.periodMarks) {
             ui.periodTable.requestLayout()
         }
+
         subjectMarksYearAdapter.setShowNullSubjectMarks(currentShowNullSubjectMarks ?: false)
         subjectMarksYearAdapter.submitList(data.finalMarks) {
             ui.yearTable.requestLayout()

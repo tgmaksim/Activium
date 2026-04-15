@@ -136,6 +136,14 @@ class ScheduleLessonAdapter(
                 location[1] = viewLocation[1] + holder.ui.praiseButton.height / 2f
                 onPraiseClick(lesson.lessonKey!!, location)  // Проверка при создании объекта
             }
+            holder.ui.praiseError.setOnClickListener {
+                val viewLocation = IntArray(2)
+                holder.ui.praiseError.getLocationInWindow(viewLocation)
+                val location = FloatArray(2)
+                location[0] = viewLocation[0] + holder.ui.praiseError.width / 2f
+                location[1] = viewLocation[1] + holder.ui.praiseError.height / 2f
+                onPraiseClick(lesson.lessonKey!!, location)  // Проверка при создании объекта
+            }
         } else {
             holder.ui.praise.visibility = View.GONE
         }

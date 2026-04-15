@@ -24,11 +24,10 @@ class ScheduleDayAdapter(
     class VH(
         val ui: ItemScheduleDayBinding,
         skeletonLessonsCount: Int,
-        onPraiseClick: (String, FloatArray) -> Unit,
-        onMenuLesson: (String, FloatArray) -> Unit,
-        onRating: (String) -> Unit
+        private val onPraiseClick: (String, FloatArray) -> Unit,
+        private val onMenuLesson: (String, FloatArray) -> Unit,
+        private val onRating: (String) -> Unit
     ) : RecyclerView.ViewHolder(ui.root) {
-        private val lessonAdapter = ScheduleLessonAdapter(onPraiseClick, onMenuLesson, onRating)
         private val skeletonAdapter = LessonSkeletonAdapter(skeletonLessonsCount)
 
         init {
@@ -37,7 +36,6 @@ class ScheduleDayAdapter(
                 LinearLayoutManager.VERTICAL,
                 false
             )
-            ui.lessonsRecycler.adapter = lessonAdapter
         }
 
         fun bind(day: UiScheduleDay?) {
@@ -51,7 +49,11 @@ class ScheduleDayAdapter(
             } else {
                 ui.weekendPhoto.visibility = View.GONE
                 ui.lessonsRecycler.visibility = View.VISIBLE
-                ui.lessonsRecycler.adapter = lessonAdapter
+
+                val lessonAdapter = (ui.lessonsRecycler.adapter as? ScheduleLessonAdapter)
+                    ?: ScheduleLessonAdapter(onPraiseClick, onMenuLesson, onRating).also {
+                        ui.lessonsRecycler.adapter = it
+                    }
 
                 val items = buildList {
                     addAll(day.lessons.sortedBy { it.number })

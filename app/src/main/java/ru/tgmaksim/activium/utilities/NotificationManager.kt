@@ -10,6 +10,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.content.Context.NOTIFICATION_SERVICE
+import android.graphics.Bitmap
 
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -127,13 +128,20 @@ object NotificationManager {
         channel: String,
         title: String,
         message: String,
+        data: Map<String, String> = emptyMap(),
+        bitmap: Bitmap? = null,
         priority: Int = NotificationCompat.PRIORITY_DEFAULT
     ) {
+        val id = System.currentTimeMillis().toInt()
+
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            for (entry in data) {
+                putExtra(entry.key, entry.value)
+            }
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            context, id, intent, PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.mipmap.ic_launcher_round)
@@ -144,7 +152,11 @@ object NotificationManager {
             .setAutoCancel(true)
             .setStyle(NotificationCompat.BigTextStyle())
 
+        bitmap?.let {
+            builder.setLargeIcon(bitmap)
+        }
+
         val manager = NotificationManagerCompat.from(context)
-        manager.notify(System.currentTimeMillis().toInt(), builder.build())
+        manager.notify(id, builder.build())
     }
 }

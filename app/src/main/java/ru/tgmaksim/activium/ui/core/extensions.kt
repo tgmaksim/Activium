@@ -1,7 +1,7 @@
 package ru.tgmaksim.activium.ui.core
 
-import kotlinx.coroutines.flow.MutableStateFlow
 import ru.tgmaksim.activium.api.MarksOther
+import kotlinx.coroutines.flow.MutableStateFlow
 
 import ru.tgmaksim.activium.api.ScheduleDay
 import ru.tgmaksim.activium.api.ScheduleLesson
