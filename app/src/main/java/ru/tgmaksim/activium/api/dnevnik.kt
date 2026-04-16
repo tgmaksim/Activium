@@ -439,10 +439,11 @@ data class MarksRatingStatsResult(
     val othersMarks: List<MarksOther>,
     val avgGroupMark: MarkLog?,
     val oldAvgMark: MarkLog?,
-    val newAvgMark: MarkLog?
+    val newAvgMark: MarkLog?,
+    val hasAbilityPraise: Boolean
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x1A
+        const val CLASS_ID = 0x47
     }
 
     init {
@@ -466,7 +467,7 @@ data class MarksRatingStatsApiResponse(
     override val answer: MarksRatingStatsResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x1B
+        const val CLASS_ID = 0x48
     }
 
     init {
@@ -610,7 +611,7 @@ object Dnevnik {
     private const val SCHEDULE_VERSION = 0
     private const val LESSON_RATING_STATS_VERSION = 0
     private const val MARKS_VERSION = 0
-    private const val MARK_RATING_STATS_VERSION = 0
+    private const val MARK_RATING_STATS_VERSION = 1
     private const val MARKS_SUBJECT_RATING_VERSION = 0
     private const val FINAL_MARKS_VERSION = 0
 

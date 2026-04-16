@@ -2,6 +2,7 @@ package ru.tgmaksim.activium.ui.pages.marks
 
 import android.os.Bundle
 import android.view.View
+import android.graphics.Color
 import android.view.ViewGroup
 import kotlinx.coroutines.launch
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import java.util.Locale
@@ -21,12 +23,16 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.MarkLast
 import ru.tgmaksim.activium.ui.core.toUi
+import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.main.MainActivity
 import ru.tgmaksim.activium.ui.pages.RatingAdapter
 import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
 import ru.tgmaksim.activium.api.MarksRatingStatsResult
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
+import ru.tgmaksim.activium.databinding.DialogPraiseBinding
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class LastMarkRatingDialog(
     private val ratingKey: String,
@@ -39,8 +45,11 @@ class LastMarkRatingDialog(
 
     private val ratingViewModel: LastMarkRatingViewModel by viewModels()
 
+    private var praiseAnimation: FloatArray? = null
+
     companion object {
         const val TAG = "LastMarkRatingDialog"
+        private const val PRAISE_TEXT_LIMIT = 64
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +65,7 @@ class LastMarkRatingDialog(
         ui = RatingSheetBinding.inflate(inflater, container, false)
 
         setupAvgMarks()
+        setupPraise()
         setupMyMark()
         setupInfo()
         setupAvgGroupMark()
@@ -73,6 +83,55 @@ class LastMarkRatingDialog(
     private fun setupAvgMarks() {
         oldAvgMarkAdapter = MarkLogAdapter()
         newAvgMarkAdapter = MarkLogAdapter()
+    }
+
+    private fun setupPraise() {
+        ui.praiseButton.setOnClickListener {
+            val viewLocation = IntArray(2)
+            ui.praiseButton.getLocationInWindow(viewLocation)
+            val location = FloatArray(2)
+            location[0] = viewLocation[0] + ui.praiseButton.width / 2f
+            location[1] = viewLocation[1] + ui.praiseButton.height / 2f
+            onPraise(location)
+        }
+        ui.praiseError.setOnClickListener {
+            val viewLocation = IntArray(2)
+            ui.praiseError.getLocationInWindow(viewLocation)
+            val location = FloatArray(2)
+            location[0] = viewLocation[0] + ui.praiseError.width / 2f
+            location[1] = viewLocation[1] + ui.praiseError.height / 2f
+            onPraise(location)
+        }
+    }
+
+    private fun onPraise(location: FloatArray) {
+        val view = DialogPraiseBinding.inflate(layoutInflater, ui.root, false)
+
+        view.textCounter.text = getString(R.string.praise_text_counter, view.text.text?.length ?: 0, PRAISE_TEXT_LIMIT)
+
+        view.text.addTextChangedListener {
+            view.textCounter.text = getString(R.string.praise_text_counter, view.text.text?.length ?: 0, PRAISE_TEXT_LIMIT)
+            if ((it?.length ?: 0) > PRAISE_TEXT_LIMIT)
+                view.textCounter.setTextColor(Color.RED)
+            else if ((it?.length ?: 0) == PRAISE_TEXT_LIMIT)
+                view.textCounter.setTextColor(requireContext().getColor(R.color.text_secondary))
+        }
+
+        val dialog = MaterialAlertDialogBuilder(
+            requireContext(),
+            R.style.AppDialogTheme
+        ).setView(view.root).create()
+
+        view.buttonSendPraise.setOnClickListener {
+            val text = view.text.text?.toString()?.trim()?.ifEmpty { null }
+
+            dialog.dismiss()
+
+            praiseAnimation = location
+            ratingViewModel.sendPraise(ratingKey, text)
+        }
+
+        dialog.show()
     }
 
     private fun setupMyMark() {
@@ -161,12 +220,28 @@ class LastMarkRatingDialog(
                             is CacheDataLoadState.CloudError -> {
                                 updateLoading(false)
                                 Utilities.showUiMessage(requireContext(), state.message)
-                                ratingViewModel.resetError()
+                                ratingViewModel.resetError(LastMarkRatingViewModel.StateType.Marks)
                             }
 
                             CacheDataLoadState.ShownError -> {
                                 // Ошибка уже показана
                             }
+                        }
+                    }
+                }
+                launch {
+                    ratingViewModel.praiseState.collect { state ->
+                        renderPraise(state)
+
+                        if (state is LoadState.Error) {
+                            Utilities.showUiMessage(requireContext(), state.message)
+                            ratingViewModel.resetError(LastMarkRatingViewModel.StateType.Praise)
+                        } else if (state is LoadState.Success) {
+                            ratingViewModel.resetPraise()
+
+                            val activity = requireActivity() as MainActivity
+                            dismiss()
+                            activity.startKonfettiAnimation(location = praiseAnimation)
                         }
                     }
                 }
@@ -200,6 +275,8 @@ class LastMarkRatingDialog(
         if (data.oldAvgMark == null && data.newAvgMark == null) {
             ui.stats.visibility = View.GONE
         }
+
+        ui.praise.visibility = if (data.hasAbilityPraise) View.VISIBLE else View.GONE
 
         val avgAdapter = (ui.avgGroupMark.logs.adapter as? MarkLogAdapter) ?: MarkLogAdapter().also {
             ui.avgGroupMark.logs.adapter = it
@@ -259,5 +336,11 @@ class LastMarkRatingDialog(
             ui.oldAvgMarkLoading.visibility = if (loading) View.VISIBLE else View.GONE
             ui.newAvgMarkLoading.visibility = if (loading) View.VISIBLE else View.GONE
         }
+    }
+
+    private fun renderPraise(state: LoadState<Unit>) {
+        ui.praiseButton.visibility = if (state is LoadState.Empty) View.VISIBLE else View.GONE
+        ui.praiseError.visibility = if (state.isError()) View.VISIBLE else View.GONE
+        ui.praiseLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
     }
 }

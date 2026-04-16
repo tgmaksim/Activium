@@ -58,7 +58,8 @@ class MainActivity : ParentActivity() {
         setContentView(ui.root)
 
         // Настройка системных полей сверху и снизу
-        setupSystemBars(ui.rootLayout)
+        setupSystemBars(ui.root)
+        setupPaddingBottomMenu(ui.bottomMenu)
 
         // После перерисовки текущий fragment сам отрисуется
         if (savedInstanceState == null) {
@@ -144,7 +145,7 @@ class MainActivity : ParentActivity() {
         }, false)
     }
 
-    fun startKonfettiAnimation(view: KonfettiView, location: FloatArray? = null) {
+    fun startKonfettiAnimation(view: KonfettiView? = null, location: FloatArray? = null) {
         val x = location?.get(0)
         val y = location?.get(1)
 
@@ -181,8 +182,9 @@ class MainActivity : ParentActivity() {
             emitter = Emitter(120, TimeUnit.MILLISECONDS).max(50)
         )
 
-        view.post {
-            view.start(party)
+        val konfetti = view ?: ui.konfettiView
+        konfetti.post {
+            konfetti.start(party)
         }
     }
 

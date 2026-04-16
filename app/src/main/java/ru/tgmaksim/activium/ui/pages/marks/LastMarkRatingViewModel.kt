@@ -10,8 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.Dnevnik
-import ru.tgmaksim.activium.api.DnevnikTools
 import ru.tgmaksim.activium.ui.core.UiText
+import ru.tgmaksim.activium.api.DnevnikTools
+import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.core.UiViewModel
 import ru.tgmaksim.activium.ui.core.setShownError
@@ -24,11 +25,16 @@ import ru.tgmaksim.activium.utilities.datastore.CacheManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 class LastMarkRatingViewModel : UiViewModel() {
+    enum class StateType { Marks, Praise }
+
     private val _marksState = MutableStateFlow<CacheDataLoadState>(CacheDataLoadState.Empty)
     val marksState = _marksState.asStateFlow()
 
     private val _marksData = MutableStateFlow<MarksRatingStatsResult?>(null)
     val marksData = _marksData.asStateFlow()
+
+    private val _praiseState = MutableStateFlow<LoadState<Unit>>(LoadState.Empty)
+    val praiseState = _praiseState.asStateFlow()
 
     private var loadCacheMarksJob: Job? = null
     private var loadCloudMarksJob: Job? = null
@@ -37,8 +43,15 @@ class LastMarkRatingViewModel : UiViewModel() {
         private const val CACHE_MARKS_RATING_STATS_NAME = "marks_rating_stats"
     }
 
-    fun resetError() {
-        _marksState.setShownError()
+    fun resetError(stateType: StateType) {
+        when (stateType) {
+            StateType.Marks -> _marksState.setShownError()
+            StateType.Praise -> _praiseState.setShownError()
+        }
+    }
+
+    fun resetPraise() {
+        _praiseState.value = LoadState.Empty
     }
 
     fun loadCacheMarksRatingStats(ratingKey: String) {
@@ -57,7 +70,7 @@ class LastMarkRatingViewModel : UiViewModel() {
                         ?: throw CacheNullException()
                     val marksRatingStats = json.decodeFromString<MarksRatingStatsResult>(entity.value)
 
-                    _marksData.value = marksRatingStats
+                    _marksData.value = marksRatingStats.copy(hasAbilityPraise = false)
 
                     _marksState.setCacheSuccess()
                 } catch (e: CancellationException) {
@@ -118,6 +131,18 @@ class LastMarkRatingViewModel : UiViewModel() {
             ) {
                 loadCloudMarksRatingStats(ratingKey)
             }
+        }
+    }
+
+    fun sendPraise(ratingKey: String, text: String?) {
+        viewModelScope.launch {
+            executeRequest(
+                _praiseState,
+                "praise",
+                R.string.error_praise,
+                { DnevnikTools.sendPraise(null, ratingKey, text) },
+                { }
+            )
         }
     }
 }

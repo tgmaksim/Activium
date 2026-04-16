@@ -216,7 +216,7 @@ class ScheduleViewModel : UiViewModel() {
                 lessonKey,
                 "praise",
                 R.string.error_praise,
-                { DnevnikTools.sendPraise(lessonKey, text) },
+                { DnevnikTools.sendPraise(lessonKey, null, text) },
                 {}
             )
         }

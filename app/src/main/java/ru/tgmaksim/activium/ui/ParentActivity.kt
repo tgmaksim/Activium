@@ -3,6 +3,7 @@ package ru.tgmaksim.activium.ui
 import android.os.Build
 import android.view.ViewGroup
 
+import kotlin.math.max
 import androidx.core.view.ViewCompat
 import kotlinx.coroutines.runBlocking
 import androidx.core.view.updatePadding
@@ -45,7 +46,7 @@ open class ParentActivity : AppCompatActivity() {
     fun setupSystemBars(contentContainer: ViewGroup) {
         ViewCompat.setOnApplyWindowInsetsListener(contentContainer) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(top = systemBars.top, bottom = systemBars.bottom)
+            v.updatePadding(top = systemBars.top, bottom = 0)
 
             insets
         }
@@ -54,6 +55,17 @@ open class ParentActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             @Suppress("DEPRECATION")
             window.setDecorFitsSystemWindows(false)
+        }
+    }
+
+    fun setupPaddingBottomMenu(bottomMenu: ViewGroup) {
+        ViewCompat.setOnApplyWindowInsetsListener(bottomMenu) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(top = 0, bottom = 0)
+            (v.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin =
+                max(systemBars.bottom, (10 * resources.displayMetrics.density).toInt())
+
+            insets
         }
     }
 }

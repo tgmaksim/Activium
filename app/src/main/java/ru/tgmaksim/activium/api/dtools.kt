@@ -131,7 +131,7 @@ data class PraiseApiResponse(
     override val answer: ApiBase?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x3A
+        const val CLASS_ID = 0x49
     }
 
     init {
@@ -204,7 +204,7 @@ object DnevnikTools {
     private const val CREATE_NOTE_VERSION = 0
     private const val GET_NOTE_VERSION = 0
     private const val DELETE_NOTE_VERSION = 0
-    private const val SEND_PRAISE_VERSION = 0
+    private const val SEND_PRAISE_VERSION = 1
     private const val HIGHLIGHT_PERSON_VERSION = 0
     private const val UNHIGHLIGHT_PERSON_VERSION = 0
 
@@ -246,10 +246,10 @@ object DnevnikTools {
     /**
      * Отправка похвалы активному ребенку от родителя на полученные оценки.
      */
-    suspend fun sendPraise(lessonKey: String, text: String?): PraiseApiResponse {
+    suspend fun sendPraise(lessonKey: String?, ratingKey: String?, text: String?): PraiseApiResponse {
         return Request.post(
             listOf(PATH_PREFIX, PATH_SEND_PRAISE, SEND_PRAISE_VERSION).joinToString("/"),
-            params = mapOf("lessonKey" to lessonKey),
+            params = if (lessonKey != null) mapOf("lessonKey" to lessonKey) else mapOf("ratingKey" to ratingKey!!),
             body = text,
             sessionId = SettingsManager.getSessionId()
         )
