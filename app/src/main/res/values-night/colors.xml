@@ -82,5 +82,5 @@
 
     <color name="bg_marks_switch_block">#30101010</color>
     <color name="bg_marks_switch">#004080</color>
-    <color name="bg_old_rating_mark">#031A30</color>
+    <color name="bg_old_rating_mark">#AAAAAA</color>
 </resources>

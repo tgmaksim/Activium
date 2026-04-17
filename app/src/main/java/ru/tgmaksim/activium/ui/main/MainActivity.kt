@@ -128,8 +128,15 @@ class MainActivity : ParentActivity() {
                     setupMenuListener()
                 }
             }
-
             intent.removeExtra("from_notification")
+
+            val buttonId = intent.getIntExtra("notificationId", -1)
+            if (buttonId != -1) {
+                val manager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+                manager.cancel(buttonId)
+            }
+            intent.removeExtra("notificationId")
+
             return processing
         }
 

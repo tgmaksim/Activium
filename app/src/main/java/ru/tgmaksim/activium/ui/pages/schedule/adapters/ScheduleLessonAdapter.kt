@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
@@ -115,10 +116,10 @@ class ScheduleLessonAdapter(
             holder.ui.worksContainer.addView(item.root)
         }
 
-        val logsAdapter = (holder.ui.logsRecycler.adapter as? MarkLogAdapter) ?: MarkLogAdapter { onRating(lesson.lessonKey!!) }.also {
+        val logsAdapter = (holder.ui.logsRecycler.adapter as? MarkLogAdapter) ?: MarkLogAdapter(onRating).also {
             holder.ui.logsRecycler.adapter = it
         }
-        logsAdapter.submitList(lesson.logs)
+        logsAdapter.submitList(lesson.logs.toUi(lesson.lessonKey!!))
 
         if (lesson.praiseState != null && lesson.logs.isNotEmpty() && lesson.praiseState !is LoadState.Success) {
             holder.ui.praise.visibility = View.VISIBLE

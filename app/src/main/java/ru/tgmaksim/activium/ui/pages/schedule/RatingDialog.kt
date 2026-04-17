@@ -88,7 +88,7 @@ class RatingDialog(
             false
         )
         ui.myMark.logs.adapter = MarkLogAdapter().apply {
-            submitList(lesson.logs)
+            submitList(lesson.logs.toUi())
         }
     }
 
@@ -126,7 +126,7 @@ class RatingDialog(
             false
         )
         ui.avgGroupMark.logs.adapter = MarkLogAdapter().apply {
-            submitList(listOf(lesson.avgGroupLessonMark))
+            submitList(listOf(lesson.avgGroupLessonMark).toUi())
         }
     }
 
@@ -211,13 +211,13 @@ class RatingDialog(
 
     private fun renderLessonRatingStats(data: LessonRatingStatsResult) {
         data.oldAvgMark?.let {
-            oldAvgMarkAdapter.submitList(listOf(it))
+            oldAvgMarkAdapter.submitList(listOf(it).toUi())
             val holder = MarkLogAdapter.VH(ui.oldAvgMark)
             oldAvgMarkAdapter.onBindViewHolder(holder, 0)
             ui.oldAvgMark.root.visibility = View.VISIBLE
         }
         data.newAvgMark?.let {
-            newAvgMarkAdapter.submitList(listOf(it))
+            newAvgMarkAdapter.submitList(listOf(it).toUi())
             val holder = MarkLogAdapter.VH(ui.newAvgMark)
             newAvgMarkAdapter.onBindViewHolder(holder, 0)
             ui.newAvgMark.root.visibility = View.VISIBLE

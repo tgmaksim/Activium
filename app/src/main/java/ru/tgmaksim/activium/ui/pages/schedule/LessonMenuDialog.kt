@@ -17,11 +17,12 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.ui.core.LoadState
+import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
 import ru.tgmaksim.activium.databinding.DialogLessonMenuBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleLessonBinding
 import ru.tgmaksim.activium.databinding.ItemScheduleWorkTypeBinding
-import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
 
 class LessonMenuDialog(
     private val lesson: UiScheduleLesson,
@@ -174,7 +175,7 @@ class LessonMenuDialog(
         val logsAdapter = (binding.logsRecycler.adapter as? MarkLogAdapter) ?: MarkLogAdapter().also {
             binding.logsRecycler.adapter = it
         }
-        logsAdapter.submitList(lesson.logs)
+        logsAdapter.submitList(lesson.logs.toUi())
     }
 
     private fun setupButtons() {

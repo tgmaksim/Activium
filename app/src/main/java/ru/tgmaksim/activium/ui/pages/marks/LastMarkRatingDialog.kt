@@ -144,7 +144,7 @@ class LastMarkRatingDialog(
             false
         )
         ui.myMark.logs.adapter = MarkLogAdapter().apply {
-            submitList(listOf(myMark.mark))
+            submitList(listOf(myMark.mark).toUi())
         }
     }
 
@@ -260,13 +260,13 @@ class LastMarkRatingDialog(
         ui.newAvgMarkLoading.visibility = View.GONE
 
         data.oldAvgMark?.let {
-            oldAvgMarkAdapter.submitList(listOf(it))
+            oldAvgMarkAdapter.submitList(listOf(it).toUi())
             val holder = MarkLogAdapter.VH(ui.oldAvgMark)
             oldAvgMarkAdapter.onBindViewHolder(holder, 0)
             ui.oldAvgMark.root.visibility = View.VISIBLE
         } ?: { ui.oldAvgMark.root.visibility = View.GONE }
         data.newAvgMark?.let {
-            newAvgMarkAdapter.submitList(listOf(it))
+            newAvgMarkAdapter.submitList(listOf(it).toUi())
             val holder = MarkLogAdapter.VH(ui.newAvgMark)
             newAvgMarkAdapter.onBindViewHolder(holder, 0)
             ui.newAvgMark.root.visibility = View.VISIBLE
@@ -281,7 +281,7 @@ class LastMarkRatingDialog(
         val avgAdapter = (ui.avgGroupMark.logs.adapter as? MarkLogAdapter) ?: MarkLogAdapter().also {
             ui.avgGroupMark.logs.adapter = it
         }
-        avgAdapter.submitList(listOfNotNull(data.avgGroupMark))
+        avgAdapter.submitList(listOfNotNull(data.avgGroupMark).toUi())
         ui.avgGroupMark.root.visibility = if (data.avgGroupMark != null) View.VISIBLE else View.GONE
 
         val ratingAdapter = (ui.ratingList.adapter as? RatingAdapter) ?: RatingAdapter(showNumber).also {

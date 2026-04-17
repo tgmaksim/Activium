@@ -389,7 +389,7 @@ class MarksPage(param: String? = null) : MainFragment(param) {
         }
 
         lastMarksAdapter.submitList(data.recentMarks) {
-            ui.lastMarks.scrollTo(0, 0)
+            ui.lastMarks.scrollToPosition(0)
         }
 
         subjectMarksPeriodAdapter.setShowNullSubjectMarks(currentShowNullSubjectMarks ?: false)

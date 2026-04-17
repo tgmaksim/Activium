@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.appcompat.content.res.AppCompatResources
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.ui.core.UiMarksOther
 import ru.tgmaksim.activium.databinding.ItemMarksRatingBinding
 
@@ -47,7 +48,7 @@ class RatingAdapter(
             val adapter = (ui.logs.adapter as? MarkLogAdapter) ?: MarkLogAdapter().also {
                 ui.logs.adapter = it
             }
-            adapter.submitList(item.marks)
+            adapter.submitList(item.marks.toUi())
 
             if (item.isOldMark) {
                 ui.root.background = AppCompatResources.getDrawable(ui.root.context, R.drawable.old_rating_mark_bg)

@@ -16,6 +16,7 @@ import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineExceptionHandler
 import com.google.firebase.messaging.FirebaseMessagingService
 
+import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.Settings
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
@@ -41,6 +42,13 @@ class MessagingService : FirebaseMessagingService() {
                     val imageUrl = notification.imageUrl?.toString()
                     val data = message.data
 
+                    val buttons = try {
+                        data["buttons"]?.let { json.decodeFromString<List<NotificationManager.NotificationButton>>(it) }
+                    } catch (e: Exception) {
+                        Utilities.log(e)
+                        null
+                    } ?: emptyList()
+
                     if (title != null && body != null) {
                         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
                             Utilities.log("Coroutine Error: ${throwable.message}")
@@ -56,7 +64,8 @@ class MessagingService : FirebaseMessagingService() {
                                 body,
                                 data,
                                 bitmap,
-                                notification.notificationPriority ?: NotificationCompat.PRIORITY_HIGH
+                                notification.notificationPriority ?: NotificationCompat.PRIORITY_HIGH,
+                                buttons
                             )
                         }
                     }

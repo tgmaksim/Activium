@@ -1,19 +1,21 @@
 package ru.tgmaksim.activium.ui.pages
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+
 import ru.tgmaksim.activium.R
-import ru.tgmaksim.activium.api.MarkLog
+import ru.tgmaksim.activium.ui.core.UiMarkLog
 import ru.tgmaksim.activium.databinding.ItemMarkLogBinding
 
 class MarkLogAdapter(
-    private val onRating: (() -> Unit)? = null
-) : ListAdapter<MarkLog, MarkLogAdapter.VH>(Diff()) {
+    private val onRating: ((String) -> Unit)? = null
+) : ListAdapter<UiMarkLog, MarkLogAdapter.VH>(Diff()) {
     class VH(val ui: ItemMarkLogBinding) : RecyclerView.ViewHolder(ui.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -40,8 +42,10 @@ class MarkLogAdapter(
         DrawableCompat.setTint(drawable, ContextCompat.getColor(holder.ui.root.context, bgColor))
         holder.ui.root.background = drawable
 
-        holder.ui.root.setOnClickListener {
-            onRating?.invoke()
+        if (onRating != null && item.lessonKey != null) {
+            holder.ui.root.setOnClickListener {
+                onRating(item.lessonKey)
+            }
         }
     }
 
@@ -56,8 +60,8 @@ class MarkLogAdapter(
             }
     }
 
-    class Diff : DiffUtil.ItemCallback<MarkLog>() {
-        override fun areItemsTheSame(a: MarkLog, b: MarkLog) = a == b
-        override fun areContentsTheSame(a: MarkLog, b: MarkLog) = a == b
+    class Diff : DiffUtil.ItemCallback<UiMarkLog>() {
+        override fun areItemsTheSame(a: UiMarkLog, b: UiMarkLog) = a == b
+        override fun areContentsTheSame(a: UiMarkLog, b: UiMarkLog) = a == b
     }
 }

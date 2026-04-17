@@ -3,6 +3,7 @@ package ru.tgmaksim.activium.ui.core
 import ru.tgmaksim.activium.api.MarksOther
 import kotlinx.coroutines.flow.MutableStateFlow
 
+import ru.tgmaksim.activium.api.MarkLog
 import ru.tgmaksim.activium.api.ScheduleDay
 import ru.tgmaksim.activium.api.ScheduleLesson
 import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleDay
@@ -148,5 +149,21 @@ fun MarksOther.toUi(isOldMark: Boolean = false): UiMarksOther {
         isHighlighting = isHighlighting,
         marks = marks,
         isOldMark = isOldMark
+    )
+}
+
+
+fun List<MarkLog>.toUi(lessonKey: String? = null): List<UiMarkLog> {
+    return this.map { it.toUi(lessonKey) }
+}
+
+fun MarkLog.toUi(lessonKey: String? = null): UiMarkLog {
+    return UiMarkLog(
+        mood = mood,
+        value = value,
+        work = work,
+        created = created,
+        ratingKey = ratingKey,
+        lessonKey = lessonKey
     )
 }

@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationManagerCompat
+import kotlinx.serialization.Serializable
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.ui.main.MainActivity
@@ -130,27 +131,44 @@ object NotificationManager {
         message: String,
         data: Map<String, String> = emptyMap(),
         bitmap: Bitmap? = null,
-        priority: Int = NotificationCompat.PRIORITY_DEFAULT
+        priority: Int = NotificationCompat.PRIORITY_DEFAULT,
+        buttons: List<NotificationButton> = emptyList()
     ) {
         val id = System.currentTimeMillis().toInt()
 
-        val intent = Intent(context, MainActivity::class.java).apply {
+        val mainIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
             for (entry in data) {
                 putExtra(entry.key, entry.value)
             }
         }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            context, id, intent, PendingIntent.FLAG_IMMUTABLE)
+        val mainPendingIntent = PendingIntent.getActivity(
+            context, id, mainIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        val buttonActions = buttons.mapIndexed { index, button ->
+            val intent = if (button.action == "open") Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra("notificationId", id)
+                for (entry in button.data) {
+                    putExtra(entry.key, entry.value)
+                }
+            } else null
+
+            val pendingIntent = intent?.let { PendingIntent.getActivity(
+                context, id * 10 + index, intent, PendingIntent.FLAG_IMMUTABLE) }
+
+            NotificationCompat.Action(R.drawable.ic_launcher_foreground, button.text, pendingIntent)
+        }
 
         val builder = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.mipmap.ic_launcher_round)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(priority)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(mainPendingIntent)
+            .apply { buttonActions.forEach { addAction(it) } }
             .setAutoCancel(true)
-            .setStyle(NotificationCompat.BigTextStyle())
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
 
         bitmap?.let {
             builder.setLargeIcon(bitmap)
@@ -159,4 +177,11 @@ object NotificationManager {
         val manager = NotificationManagerCompat.from(context)
         manager.notify(id, builder.build())
     }
+
+    @Serializable
+    data class NotificationButton(
+        val text: String,
+        val action: String,
+        val data: Map<String, String>
+    )
 }
