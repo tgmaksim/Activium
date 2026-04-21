@@ -31,6 +31,7 @@ object NotificationManager {
     const val CHANNEL_MARKS = "marks"
     const val CHANNEL_SERVICE = "service"
     const val CHANNEL_PRAISE = "praise"
+    const val CHANNEL_NOTES = "notes"
 
     /**
      * Проверка разрешения на отправку уведомлений и запрос в случае необходимости
@@ -44,6 +45,7 @@ object NotificationManager {
         val existsDnevnik = notificationManager.getNotificationChannel(CHANNEL_MARKS)
         val existsService = notificationManager.getNotificationChannel(CHANNEL_SERVICE)
         val existsPraise = notificationManager.getNotificationChannel(CHANNEL_PRAISE)
+        val existsNotes = notificationManager.getNotificationChannel(CHANNEL_NOTES)
 
         // Создание канала уведомлений
         if (existsEA == null) {
@@ -85,6 +87,17 @@ object NotificationManager {
             val importance = NotificationManager.IMPORTANCE_HIGH
 
             val channel = NotificationChannel(CHANNEL_PRAISE, channelName, importance)
+            channel.description = channelDescription
+
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        if (existsNotes == null) {
+            val channelName = "Напоминания о заметках"
+            val channelDescription = "Уведомления с напоминанием о заметках, если вы установили таймер"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+
+            val channel = NotificationChannel(CHANNEL_NOTES, channelName, importance)
             channel.description = channelDescription
 
             notificationManager.createNotificationChannel(channel)

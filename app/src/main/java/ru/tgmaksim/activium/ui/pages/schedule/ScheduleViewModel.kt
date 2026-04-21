@@ -222,14 +222,14 @@ class ScheduleViewModel : UiViewModel() {
         }
     }
 
-    fun createLessonNote(lessonKey: String, text: String, public: Boolean) {
+    fun createLessonNote(lessonKey: String, text: String, public: Boolean, remindTime: Instant?) {
         viewModelScope.launch {
             executeRequest(
                 _noteStates,
                 lessonKey,
                 "note",
                 R.string.error_note,
-                { DnevnikTools.createNote(lessonKey, text, public) },
+                { DnevnikTools.createNote(lessonKey, text, public, remindTime) },
                 { it.answer },
                 { noteResult -> onSuccessEditLessonNote(lessonKey, noteResult) }
             )

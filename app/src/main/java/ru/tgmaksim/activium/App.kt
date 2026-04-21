@@ -70,9 +70,7 @@ class App : Application() {
             scope.launch {
                 SettingsManager.setFirebaseMessagingToken(token)
 
-                if (SettingsManager.getSessionId() != null) {
-                    Settings.updateFirebase(token)
-                }
+                Settings.updateFirebase(token)
             }
         }
     }

@@ -17,6 +17,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.timepicker.TimeFormat
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
 
 import kotlinx.coroutines.launch
 import androidx.lifecycle.Lifecycle
@@ -28,6 +31,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 import java.util.Locale
 import java.time.Instant
+import java.time.LocalTime
 import java.time.ZoneOffset
 import kotlinx.datetime.plus
 import kotlinx.datetime.minus
@@ -55,6 +59,7 @@ import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleDayAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarDayUi
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.skeletone.CalendarSkeletonAdapter
+import java.time.LocalDateTime
 
 /**
  * Страница с расписанием, оценками на уроках
@@ -359,6 +364,7 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
 
     private fun openLessonNoteEditor(lessonKey: String) {
         val lesson = getLesson(lessonKey) ?: return
+        val timezone = currentData?.timezone ?: return
 
         val view = DialogLessonNoteEditorBinding.inflate(layoutInflater, ui.root, false)
 
@@ -382,6 +388,42 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
         view.titleCreate.visibility = if (lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
         view.titleEdit.visibility = if (!lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
 
+        var remindDateTime: Instant? = null
+
+        view.buttonReminderDateTime.setOnClickListener {
+            val picker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText(R.string.title_dialog_note_remind_date_editor)
+                .build()
+
+            picker.addOnPositiveButtonClickListener { selection ->
+                val millis = selection ?: return@addOnPositiveButtonClickListener
+                val instant = Instant.ofEpochMilli(millis)
+                val date = instant.atZone(ZoneOffset.ofTotalSeconds(timezone)).toLocalDate()
+
+                val picker = MaterialTimePicker.Builder()
+                    .setTimeFormat(TimeFormat.CLOCK_24H)
+                    .setTitleText(R.string.title_dialog_note_remind_time_editor)
+                    .build()
+
+                picker.addOnPositiveButtonClickListener {
+                    val time = LocalTime.of(picker.hour, picker.minute)
+                    remindDateTime = LocalDateTime.of(date, time).toInstant(ZoneOffset.ofTotalSeconds(timezone))
+
+                    val dateText = date.toString()
+                    val timeText = time.toString().take(5)
+                    view.reminderDateTimeText.text = getString(
+                        R.string.note_remind_datetime_format,
+                        dateText,
+                        timeText
+                    )
+                }
+
+                picker.show(parentFragmentManager, "note_remind_time")
+            }
+
+            picker.show(parentFragmentManager, "note_remind_date")
+        }
+
         view.buttonCreateNote.setOnClickListener {
             val text = view.text.text?.toString()?.trim()?.ifEmpty { null }
 
@@ -397,7 +439,12 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
 
             dialog.dismiss()
 
-            scheduleViewModel.createLessonNote(lesson.lessonKey!!, text, view.settingsPublic.isChecked)
+            scheduleViewModel.createLessonNote(
+                lesson.lessonKey!!,
+                text,
+                view.settingsPublic.isChecked,
+                remindDateTime
+            )
         }
 
         dialog.show()

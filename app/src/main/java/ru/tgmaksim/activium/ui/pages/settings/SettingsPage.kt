@@ -80,12 +80,13 @@ class SettingsPage(param: String? = null) : MainFragment(param) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewLifecycleOwner.lifecycleScope.launch {
+            removeSettingsListeners()
             initSettingsValues()  // Установка настроек в нужное положение
+            setupSettingsListener()  // Настройка обработчиков настроек
         }
 
         showUpdateInfo()  // Показ информации об обновлении приложения, если требуется
 
-        setupSettingsListener()  // Настройка обработчиков настроек
         setupButtonsListener()  // Настройка кнопок после настроек
 
         setupStatesListener()
@@ -173,6 +174,19 @@ class SettingsPage(param: String? = null) : MainFragment(param) {
                 )
                 ui.updateApplication.visibility = View.VISIBLE
             }
+    }
+
+    private fun removeSettingsListeners() {
+        ui.settingsTheme.setOnCheckedChangeListener(null)
+        ui.settingsMarksNotifications.setOnCheckedChangeListener(null)
+        ui.settingsEANotifications.setOnCheckedChangeListener(null)
+        ui.settingsShowNullSubjectMarks.setOnCheckedChangeListener(null)
+
+        ui.settingsScheduleRange.clearOnChangeListeners()
+        ui.settingsScheduleRange.clearOnSliderTouchListeners()
+
+        ui.settingsLastMarksPeriod.clearOnChangeListeners()
+        ui.settingsLastMarksPeriod.clearOnSliderTouchListeners()
     }
 
     /**

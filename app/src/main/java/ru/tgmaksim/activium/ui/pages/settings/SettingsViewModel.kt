@@ -120,6 +120,13 @@ class SettingsViewModel : UiViewModel() {
                 { StatusMarksNotificationsResult(status = status) }
             )
         }
+        viewModelScope.launch {
+            runCatching {
+                SettingsManager.getFirebaseMessagingToken()?.let { token ->
+                    Settings.updateFirebase(token)
+                }
+            }
+        }
     }
 
     fun switchEANotifications(status: Boolean) {
@@ -131,6 +138,13 @@ class SettingsViewModel : UiViewModel() {
                 { Settings.switchEANotifications(status) },
                 { StatusEANotificationsResult(status = status) }
             )
+        }
+        viewModelScope.launch {
+            runCatching {
+                SettingsManager.getFirebaseMessagingToken()?.let { token ->
+                    Settings.updateFirebase(token)
+                }
+            }
         }
     }
 

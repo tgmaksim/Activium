@@ -105,7 +105,7 @@ class MainActivity : ParentActivity() {
                     if (goodMark)
                         startKonfettiAnimation(ui.konfettiView)
                 }
-                "ea" -> {
+                "ea", "remind_note" -> {
                     processing = true
                     ui.bottomMenu.setOnItemSelectedListener {
                         openPage(R.id.it_schedule, "today")

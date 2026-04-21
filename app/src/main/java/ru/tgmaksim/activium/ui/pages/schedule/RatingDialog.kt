@@ -20,10 +20,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.ui.core.toUi
-import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.pages.RatingAdapter
 import ru.tgmaksim.activium.ui.pages.MarkLogAdapter
+import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.api.LessonRatingStatsResult
 import ru.tgmaksim.activium.databinding.RatingSheetBinding
 
@@ -169,28 +169,50 @@ class RatingDialog(
     private fun setupCollectors() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                ratingViewModel.lessonRatingState.collect { state ->
-                    when (state) {
-                        is LoadState.Empty -> {
-                            ratingViewModel.loadLessonRatingStats(lesson.ratingKey!!)
-                        }
-                        is LoadState.Loading -> {
-                            updateLoading(true)
-                        }
-                        is LoadState.Success -> {
-                            updateLoading(false)
+                launch {
+                    ratingViewModel.lessonRatingState.collect { state ->
+                        when (state) {
+                            CacheDataLoadState.Empty -> {
+                                ratingViewModel.loadCacheLessonRatingStats(lesson.ratingKey!!)
+                            }
 
-                            renderLessonRatingStats(state.data)
-                        }
-                        is LoadState.Error -> {
-                            ui.stats.visibility = View.GONE
+                            CacheDataLoadState.CacheLoading -> {
+                                updateLoading(true)
+                            }
 
-                            Utilities.showUiMessage(requireContext(), state.message)
-                            ratingViewModel.resetLessonRating()
+                            CacheDataLoadState.CacheSuccess -> {
+                                ratingViewModel.loadCloudLessonRatingStats(lesson.ratingKey!!)
+                            }
+
+                            is CacheDataLoadState.CacheError -> {
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                ratingViewModel.loadCloudLessonRatingStats(lesson.ratingKey!!)
+                            }
+
+                            CacheDataLoadState.CloudLoading -> {
+                                updateLoading(true)
+                            }
+
+                            CacheDataLoadState.CloudSuccess -> {
+                                updateLoading(false)
+                            }
+
+                            is CacheDataLoadState.CloudError -> {
+                                updateLoading(false)
+                                Utilities.showUiMessage(requireContext(), state.message)
+                                ratingViewModel.resetLessonRating()
+                            }
+
+                            CacheDataLoadState.ShownError -> {
+                                // Ошибка уже показана
+                            }
                         }
-                        is LoadState.ShownError -> {
-                            // Ошибка уже показан
-                        }
+                    }
+                }
+                launch {
+                    ratingViewModel.lessonRatingData.collect { data ->
+                        if (data != null)
+                            renderLessonRatingStats(data)
                     }
                 }
             }
@@ -198,7 +220,7 @@ class RatingDialog(
     }
 
     private fun updateLoading(loading: Boolean) {
-        if (ratingViewModel.lessonRatingState.value is LoadState.Success) {
+        if (ratingViewModel.lessonRatingData.value?.newAvgMark != null) {
             ui.loading.visibility = if (loading) View.VISIBLE else View.GONE
             ui.oldAvgMarkLoading.visibility = View.GONE
             ui.newAvgMarkLoading.visibility = View.GONE

@@ -116,7 +116,7 @@
 
                 <TextView
                     android:id="@+id/homework"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:autoLink="web"
@@ -164,13 +164,13 @@
 
                 <TextView
                     android:id="@+id/note"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:ellipsize="end"
                     android:fontFamily="sans-serif"
                     android:lineSpacingExtra="2dp"
-                    android:maxLines="10"
+                    android:textIsSelectable="true"
                     android:textColor="@color/lesson_note_text"
                     android:textSize="14sp" />
 

@@ -1,5 +1,6 @@
 package ru.tgmaksim.activium.api
 
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
@@ -16,10 +17,11 @@ data class Note(
     override val classId: Int = CLASS_ID,
     val lessonKey: String,
     val text: String,
-    val public: Boolean
+    val public: Boolean,
+    val remindTime: Instant?
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x34
+        const val CLASS_ID = 0x4A
     }
 
     init {
@@ -38,7 +40,7 @@ data class NoteResult(
     val note: Note?
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x35
+        const val CLASS_ID = 0x4B
     }
 
     init {
@@ -61,7 +63,7 @@ data class CreateNoteApiResponse(
     override val answer: NoteResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x36
+        const val CLASS_ID = 0x4C
     }
 
     init {
@@ -84,7 +86,7 @@ data class NoteApiResponse(
     override val answer: NoteResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x38
+        const val CLASS_ID = 0x4D
     }
 
     init {
@@ -201,8 +203,8 @@ object DnevnikTools {
     private const val PATH_HIGHLIGHT_PERSON = "highlightPerson"
     private const val PATH_UNHIGHLIGHT_PERSON = "unhighlightPerson"
 
-    private const val CREATE_NOTE_VERSION = 0
-    private const val GET_NOTE_VERSION = 0
+    private const val CREATE_NOTE_VERSION = 1
+    private const val GET_NOTE_VERSION = 1
     private const val DELETE_NOTE_VERSION = 0
     private const val SEND_PRAISE_VERSION = 1
     private const val HIGHLIGHT_PERSON_VERSION = 0
@@ -212,10 +214,14 @@ object DnevnikTools {
      * Создание или изменение текстовой заметки к уроку.
      * Синхронизируется с родителем.
      */
-    suspend fun createNote(lessonKey: String, text: String, public: Boolean): CreateNoteApiResponse {
+    suspend fun createNote(lessonKey: String, text: String, public: Boolean, remindTime: java.time.Instant?): CreateNoteApiResponse {
+        val params = mutableMapOf<String, Any>("lessonKey" to lessonKey, "public" to public)
+        if (remindTime != null)
+            params["remindTime"] = remindTime
+
         return Request.post(
             listOf(PATH_PREFIX, PATH_CREATE_NOTE, CREATE_NOTE_VERSION).joinToString("/"),
-            params = mapOf("lessonKey" to lessonKey, "public" to public),
+            params = params,
             body = text,
             sessionId = SettingsManager.getSessionId()
         )
