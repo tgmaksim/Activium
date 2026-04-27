@@ -152,14 +152,14 @@ class LessonMenuDialog(
         binding.homeworkGroup.visibility =
             if (lesson.homework.isNullOrBlank()) View.GONE else View.VISIBLE
         binding.noteGroup.visibility =
-            if (lesson.note.isNullOrBlank()) View.GONE else View.VISIBLE
+            if (lesson.note?.text.isNullOrBlank()) View.GONE else View.VISIBLE
         binding.worksContainer.visibility =
             if (lesson.works.isEmpty()) View.GONE else View.VISIBLE
         binding.logsRecycler.visibility =
             if (lesson.logs.isEmpty()) View.GONE else View.VISIBLE
 
         binding.homework.text = lesson.homework.orEmpty()
-        binding.note.text = lesson.note.orEmpty()
+        binding.note.text = lesson.note?.text.orEmpty()
 
         binding.worksContainer.removeAllViews()
         lesson.works.forEach { workType ->
@@ -179,9 +179,9 @@ class LessonMenuDialog(
     }
 
     private fun setupButtons() {
-        ui.buttonNote.visibility = if (lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
-        ui.buttonEditNote.visibility = if (!lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
-        ui.buttonDeleteNote.visibility = if (!lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
+        ui.buttonNote.visibility = if (lesson.note?.text.isNullOrBlank()) View.VISIBLE else View.GONE
+        ui.buttonEditNote.visibility = if (!lesson.note?.text.isNullOrBlank()) View.VISIBLE else View.GONE
+        ui.buttonDeleteNote.visibility = if (!lesson.note?.text.isNullOrBlank()) View.VISIBLE else View.GONE
         ui.buttonPraise.visibility =
             if (lesson.praiseState is LoadState.Empty && lesson.logs.isNotEmpty()) View.VISIBLE else View.GONE
         ui.buttonRating.visibility =

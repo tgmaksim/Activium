@@ -83,4 +83,6 @@
     <color name="bg_marks_switch_block">#40FFFFFF</color>
     <color name="bg_marks_switch">#D8F2F9</color>
     <color name="bg_old_rating_mark">#C6ECFD</color>
+
+    <color name="bg_school_badge">#4B9A25</color>
 </resources>

@@ -256,7 +256,7 @@ class ScheduleViewModel : UiViewModel() {
             schedule = data.schedule.map {day ->
                 if (day?.lessons?.find { it.lessonKey == lessonKey } != null) {
                     day.copy(lessons = day.lessons.map { lesson ->
-                        if (lesson.lessonKey == lessonKey) lesson.copy(note = noteResult.note?.text) else lesson
+                        if (lesson.lessonKey == lessonKey) lesson.copy(note = noteResult.note) else lesson
                     })
                 } else {
                     day
@@ -273,7 +273,7 @@ class ScheduleViewModel : UiViewModel() {
                 schedule.map { day ->
                     if (day.lessons.find { it.lessonKey == lessonKey } != null) {
                         day.copy(lessons = day.lessons.map { lesson ->
-                            if (lesson.lessonKey == lessonKey) lesson.copy(note = noteResult.note?.text) else lesson
+                            if (lesson.lessonKey == lessonKey) lesson.copy(note = noteResult.note) else lesson
                         })
                     } else {
                         day

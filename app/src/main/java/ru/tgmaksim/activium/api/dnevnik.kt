@@ -184,13 +184,13 @@ data class ScheduleLesson(
     val othersMarks: List<MarksOther>,
     val avgGroupLessonMark: MarkLog?,
     val homework: String?,
-    val note: String?,
+    val note: Note?,
     val files: List<ScheduleHomeworkDocument>,
     val ratingKey: String?,
     val dnevnikruUrl: String
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x10
+        const val CLASS_ID = 0x5B
     }
 
     init {
@@ -204,6 +204,7 @@ data class ScheduleLesson(
  * @param date Дата дня в формате ISO
  * @param lessons Уроки в данный день
  * @param ea Внеурочные занятия в данный день
+ * @param schoolPosts Список постов с мероприятиями в этот день
  * @author Максим Дрючин (tgmaksim)
  */
 @Serializable
@@ -211,10 +212,11 @@ data class ScheduleDay(
     override val classId: Int = CLASS_ID,
     val date: LocalDate,
     val lessons: List<ScheduleLesson>,
-    val ea: List<ScheduleExtracurricularActivity>
+    val ea: List<ScheduleExtracurricularActivity>,
+    val schoolPosts: List<SchoolPost>
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x11
+        const val CLASS_ID = 0x5C
     }
 
     init {
@@ -239,7 +241,7 @@ data class ScheduleResult(
     val hasAbilityPraise: Boolean
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x12
+        const val CLASS_ID = 0x5D
     }
 
     init {
@@ -263,7 +265,7 @@ data class ScheduleApiResponse(
     override val answer: ScheduleResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x13
+        const val CLASS_ID = 0x5E
     }
 
     init {
@@ -608,7 +610,7 @@ object Dnevnik {
     private const val PATH_MARKS_SUBJECT_RATING = "getMarksSubjectRating"
     private const val PATH_FINAL_MARKS = "getFinalMarks"
 
-    private const val SCHEDULE_VERSION = 0
+    private const val SCHEDULE_VERSION = 1
     private const val LESSON_RATING_STATS_VERSION = 0
     private const val MARKS_VERSION = 0
     private const val MARK_RATING_STATS_VERSION = 1

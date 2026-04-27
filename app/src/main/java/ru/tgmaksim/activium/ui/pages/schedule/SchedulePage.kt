@@ -366,9 +366,27 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
         val lesson = getLesson(lessonKey) ?: return
         val timezone = currentData?.timezone ?: return
 
+        val zone = ZoneOffset.ofTotalSeconds(timezone)
+
         val view = DialogLessonNoteEditorBinding.inflate(layoutInflater, ui.root, false)
 
-        view.text.setText(lesson.note)
+        view.text.setText(lesson.note?.text)
+        view.settingsPublic.isChecked = lesson.note?.public != false  // По умолчанию true
+
+        if (lesson.note?.remindTime != null) {
+            val seconds = lesson.note.remindTime.epochSeconds
+            val instant = Instant.ofEpochSecond(seconds)
+            val zoned = instant.atZone(zone)
+
+            val date = zoned.toLocalDate()
+            val time = zoned.toLocalTime()
+
+            view.reminderDateTimeText.text = getString(
+                R.string.note_remind_datetime_format,
+                date.toString(),
+                time.toString()
+            )
+        }
 
         view.textCounter.text = getString(R.string.praise_text_counter, view.text.text?.length ?: 0, NOTE_TEXT_LIMIT)
 
@@ -385,10 +403,10 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
             R.style.AppDialogTheme
         ).setView(view.root).create()
 
-        view.titleCreate.visibility = if (lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
-        view.titleEdit.visibility = if (!lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
+        view.titleCreate.visibility = if (lesson.note?.text.isNullOrBlank()) View.VISIBLE else View.GONE
+        view.titleEdit.visibility = if (!lesson.note?.text.isNullOrBlank()) View.VISIBLE else View.GONE
 
-        var remindDateTime: Instant? = null
+        var remindDateTime = lesson.note?.remindTime?.let { Instant.ofEpochSecond(it.epochSeconds) }
 
         view.buttonReminderDateTime.setOnClickListener {
             val picker = MaterialDatePicker.Builder.datePicker()
@@ -417,8 +435,16 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
                         timeText
                     )
                 }
+                picker.addOnNegativeButtonClickListener {
+                    remindDateTime = null
+                    view.reminderDateTimeText.text = getString(R.string.note_remind_datetime)
+                }
 
                 picker.show(parentFragmentManager, "note_remind_time")
+            }
+            picker.addOnNegativeButtonClickListener {
+                remindDateTime = null
+                view.reminderDateTimeText.text = getString(R.string.note_remind_datetime)
             }
 
             picker.show(parentFragmentManager, "note_remind_date")

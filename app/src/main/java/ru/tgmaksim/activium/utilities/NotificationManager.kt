@@ -145,9 +145,10 @@ object NotificationManager {
         data: Map<String, String> = emptyMap(),
         bitmap: Bitmap? = null,
         priority: Int = NotificationCompat.PRIORITY_DEFAULT,
-        buttons: List<NotificationButton> = emptyList()
+        buttons: List<NotificationButton> = emptyList(),
+        time: Long? = null
     ) {
-        val id = System.currentTimeMillis().toInt()
+        val id = (System.currentTimeMillis() % (7 * 24 * 60 * 60 * 1000)).toInt()
 
         val mainIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -168,7 +169,7 @@ object NotificationManager {
             } else null
 
             val pendingIntent = intent?.let { PendingIntent.getActivity(
-                context, id * 10 + index, intent, PendingIntent.FLAG_IMMUTABLE) }
+                context, id + index, intent, PendingIntent.FLAG_IMMUTABLE) }
 
             NotificationCompat.Action(R.drawable.ic_launcher_foreground, button.text, pendingIntent)
         }
@@ -181,11 +182,10 @@ object NotificationManager {
             .setContentIntent(mainPendingIntent)
             .apply { buttonActions.forEach { addAction(it) } }
             .setAutoCancel(true)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-
-        bitmap?.let {
-            builder.setLargeIcon(bitmap)
-        }
+            .setShowWhen(true)
+            .apply { time?.let { setWhen(it) } }
+            .apply { bitmap?.let { setLargeIcon(it) } }
+            .setStyle(NotificationCompat.BigTextStyle())
 
         val manager = NotificationManagerCompat.from(context)
         manager.notify(id, builder.build())

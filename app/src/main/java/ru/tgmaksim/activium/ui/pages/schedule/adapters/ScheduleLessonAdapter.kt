@@ -95,7 +95,7 @@ class ScheduleLessonAdapter(
             if (lesson.logs.isEmpty()) View.GONE else View.VISIBLE
 
         holder.ui.homework.text = lesson.homework.orEmpty()
-        holder.ui.note.text = lesson.note.orEmpty()
+        holder.ui.note.text = lesson.note?.text.orEmpty()
 
         holder.ui.homework.movementMethod = LinkMovementMethod.getInstance()
         holder.ui.homework.highlightColor = Color.TRANSPARENT
@@ -135,7 +135,7 @@ class ScheduleLessonAdapter(
                 val location = FloatArray(2)
                 location[0] = viewLocation[0] + holder.ui.praiseButton.width / 2f
                 location[1] = viewLocation[1] + holder.ui.praiseButton.height / 2f
-                onPraiseClick(lesson.lessonKey!!, location)  // Проверка при создании объекта
+                onPraiseClick(lesson.lessonKey, location)  // Проверка при создании объекта
             }
             holder.ui.praiseError.setOnClickListener {
                 val viewLocation = IntArray(2)
@@ -143,24 +143,24 @@ class ScheduleLessonAdapter(
                 val location = FloatArray(2)
                 location[0] = viewLocation[0] + holder.ui.praiseError.width / 2f
                 location[1] = viewLocation[1] + holder.ui.praiseError.height / 2f
-                onPraiseClick(lesson.lessonKey!!, location)  // Проверка при создании объекта
+                onPraiseClick(lesson.lessonKey, location)  // Проверка при создании объекта
             }
         } else {
             holder.ui.praise.visibility = View.GONE
         }
 
-        if (!lesson.note.isNullOrBlank() || lesson.noteState != null && lesson.noteState !is LoadState.Success) {
+        if (!lesson.note?.text.isNullOrBlank() || lesson.noteState != null && lesson.noteState !is LoadState.Success) {
             holder.ui.noteGroup.visibility = View.VISIBLE
             holder.ui.noteLoading.visibility = if (lesson.noteState is LoadState.Loading) View.VISIBLE else View.GONE
             holder.ui.noteError.visibility = if (lesson.noteState?.isError() == true) View.VISIBLE else View.GONE
-            holder.ui.note.visibility = if (!lesson.note.isNullOrBlank()) View.VISIBLE else View.GONE
+            holder.ui.note.visibility = if (!lesson.note?.text.isNullOrBlank()) View.VISIBLE else View.GONE
 
-            holder.ui.note.text = lesson.note
+            holder.ui.note.text = lesson.note?.text
         } else {
             holder.ui.noteGroup.visibility = View.GONE
         }
 
-        setupLessonMenu(holder, lesson.lessonKey!!)
+        setupLessonMenu(holder, lesson.lessonKey)
     }
 
     private fun setupLessonMenu(holder: VH, lessonKey: String) {

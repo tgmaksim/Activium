@@ -133,7 +133,8 @@ fun ScheduleDay.toUi(praiseState: LoadState.Empty? = null): UiScheduleDay {
     return UiScheduleDay(
         date = date,
         lessons = lessons.toUi(praiseState),
-        ea = ea
+        ea = ea,
+        schoolPosts = schoolPosts
     )
 }
 

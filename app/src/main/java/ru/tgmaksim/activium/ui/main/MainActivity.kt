@@ -1,7 +1,9 @@
 package ru.tgmaksim.activium.ui.main
 
 import android.os.Bundle
+import android.view.View
 import android.graphics.Rect
+import android.view.ViewGroup
 import android.content.Intent
 import android.graphics.Color
 import android.widget.TextView
@@ -9,14 +11,16 @@ import android.view.MotionEvent
 import java.util.concurrent.TimeUnit
 import androidx.core.content.ContextCompat
 
+import androidx.core.view.get
+import androidx.core.view.size
 import kotlinx.coroutines.launch
 import androidx.lifecycle.Lifecycle
 import androidx.activity.viewModels
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.fragment.app.FragmentManager
 
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.Position
@@ -40,6 +44,7 @@ import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.ui.pages.schedule.SchedulePage
 import ru.tgmaksim.activium.ui.pages.settings.SettingsPage
 import ru.tgmaksim.activium.databinding.ActivityMainBinding
+import ru.tgmaksim.activium.api.SchoolPostsWithoutVisionResult
 
 /**
  * Главная Activity приложения
@@ -48,6 +53,9 @@ import ru.tgmaksim.activium.databinding.ActivityMainBinding
 class MainActivity : ParentActivity() {
     private lateinit var ui: ActivityMainBinding
     val activityViewModel: MainActivityViewModel by viewModels()
+
+    private var schoolAnim = false
+    private var settingsAnim = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Устанавливается сохраненная тема
@@ -309,6 +317,20 @@ class MainActivity : ParentActivity() {
                         }
                     }
                 }
+                launch {
+                    activityViewModel.schoolPostsState.collect { state ->
+                        when (state) {
+                            LoadState.Empty -> {
+                                activityViewModel.checkNewSchoolPosts()
+                            }
+                            is LoadState.Success -> {
+                                showNewSchoolPostsInfo(state.data)
+                                activityViewModel.reset(MainActivityViewModel.StateType.SchoolPosts)
+                            }
+                            else -> {}
+                        }
+                    }
+                }
             }
         }
     }
@@ -330,6 +352,68 @@ class MainActivity : ParentActivity() {
             ) { _, _ ->
                 ui.bottomMenu.selectedItemId = R.id.it_settings
             }
+        }
+
+        settingsAnim = true
+        startMenuAnimation(R.id.it_settings) { settingsAnim }
+    }
+
+    private fun showNewSchoolPostsInfo(data: SchoolPostsWithoutVisionResult) {
+        if (data.countPosts == 0) {
+            ui.bottomMenu.removeBadge(R.id.it_school)
+            return
+        }
+
+        ui.bottomMenu.getOrCreateBadge(R.id.it_school).apply {
+            isVisible = true
+            backgroundColor = getColor(R.color.bg_school_badge)
+            badgeTextColor = getColor(R.color.text_primary)
+            number = data.countPosts
+        }
+
+        schoolAnim = true
+        startMenuAnimation(R.id.it_school) { schoolAnim }
+    }
+
+    private fun startMenuAnimation(menuId: Int, getterVariableContinue: () -> Boolean) {
+        val menuView = ui.bottomMenu.getChildAt(0) as ViewGroup
+        val index = run {
+            for (i in 0 until ui.bottomMenu.menu.size) {
+                if (ui.bottomMenu.menu[i].itemId == menuId) {
+                    return@run i
+                }
+            }
+            return
+        }
+
+        val itemView = menuView.getChildAt(index)
+        menuAnimate(itemView, getterVariableContinue)
+    }
+
+    private fun menuAnimate(itemView: View, getterVariableContinue: () -> Boolean) {
+        if (!getterVariableContinue()) return
+
+        itemView.animate()
+            .scaleX(1.15f)
+            .scaleY(1.15f)
+            .setDuration(400)
+            .withEndAction {
+                itemView.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(400)
+                    .withEndAction {
+                        menuAnimate(itemView, getterVariableContinue)
+                    }
+                    .start()
+            }
+            .start()
+    }
+
+    fun stopMenuAnim(menuId: Int) {
+        when (menuId) {
+            R.id.it_school -> schoolAnim = false
+            R.id.it_settings -> settingsAnim = false
         }
     }
 

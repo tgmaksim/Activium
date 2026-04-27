@@ -4,10 +4,12 @@ import kotlinx.datetime.LocalDate
 
 import ru.tgmaksim.activium.ui.core.LoadState
 
+import ru.tgmaksim.activium.api.Note
 import ru.tgmaksim.activium.api.MarkLog
 import ru.tgmaksim.activium.api.WorkType
 import ru.tgmaksim.activium.api.MarksOther
 import ru.tgmaksim.activium.api.NoteResult
+import ru.tgmaksim.activium.api.SchoolPost
 import ru.tgmaksim.activium.api.ScheduleHours
 import ru.tgmaksim.activium.api.ScheduleHomeworkDocument
 import ru.tgmaksim.activium.api.ScheduleExtracurricularActivity
@@ -21,7 +23,8 @@ data class UiScheduleResult(
 data class UiScheduleDay(
     val date: LocalDate,
     val lessons: List<UiScheduleLesson>,
-    val ea: List<ScheduleExtracurricularActivity>
+    val ea: List<ScheduleExtracurricularActivity>,
+    val schoolPosts: List<SchoolPost>
 )
 
 data class UiScheduleLesson(
@@ -35,7 +38,7 @@ data class UiScheduleLesson(
     val othersMarks: List<MarksOther>,
     val avgGroupLessonMark: MarkLog?,
     val homework: String?,
-    val note: String?,
+    val note: Note?,
     val files: List<ScheduleHomeworkDocument>,
     val ratingKey: String?,
     val dnevnikruUrl: String?,

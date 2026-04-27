@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 
+import ru.tgmaksim.activium.ui.pages.SchoolPostAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleDay
 import ru.tgmaksim.activium.databinding.ItemScheduleDayBinding
 import ru.tgmaksim.activium.ui.pages.schedule.UiScheduleLesson
@@ -36,18 +37,26 @@ class ScheduleDayAdapter(
                 LinearLayoutManager.VERTICAL,
                 false
             )
+            ui.schoolPostsRecycler.layoutManager = LinearLayoutManager(
+                ui.root.context,
+                LinearLayoutManager.VERTICAL,
+                false
+            )
         }
 
         fun bind(day: UiScheduleDay?) {
             if (day == null) {
                 ui.weekendPhoto.visibility = View.GONE
+                ui.schoolPostsRecycler.visibility = View.GONE
                 ui.lessonsRecycler.visibility = View.VISIBLE
                 ui.lessonsRecycler.adapter = skeletonAdapter
-            } else if (day.lessons.isEmpty() && day.ea.isEmpty()) {
+            } else if (day.lessons.isEmpty() && day.ea.isEmpty() && day.schoolPosts.isEmpty()) {
                 ui.lessonsRecycler.visibility = View.GONE
+                ui.schoolPostsRecycler.visibility = View.GONE
                 ui.weekendPhoto.visibility = View.VISIBLE
             } else {
                 ui.weekendPhoto.visibility = View.GONE
+                ui.schoolPostsRecycler.visibility = View.VISIBLE
                 ui.lessonsRecycler.visibility = View.VISIBLE
 
                 val lessonAdapter = (ui.lessonsRecycler.adapter as? ScheduleLessonAdapter)
@@ -63,6 +72,13 @@ class ScheduleDayAdapter(
                 }
 
                 lessonAdapter.submitList(items)
+
+                val schoolPostAdapter = (ui.schoolPostsRecycler.adapter as? SchoolPostAdapter)
+                    ?: SchoolPostAdapter().also {
+                        ui.schoolPostsRecycler.adapter = it
+                    }
+
+                schoolPostAdapter.submitList(day.schoolPosts)
             }
         }
     }

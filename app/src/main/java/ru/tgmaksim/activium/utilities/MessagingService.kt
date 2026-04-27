@@ -35,41 +35,44 @@ class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         try {
-            if (NotificationManager.checkPermission(this))
-                message.notification?.let { notification ->
-                    val title = notification.title
-                    val body = notification.body
-                    val imageUrl = notification.imageUrl?.toString()
-                    val data = message.data
+            if (!NotificationManager.checkPermission(this))
+                return
 
-                    val buttons = try {
-                        data["buttons"]?.let { json.decodeFromString<List<NotificationManager.NotificationButton>>(it) }
-                    } catch (e: Exception) {
-                        Utilities.log(e)
-                        null
-                    } ?: emptyList()
+            val data = message.data
 
-                    if (title != null && body != null) {
-                        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-                            Utilities.log("Coroutine Error: ${throwable.message}")
-                        }
-                        val scope = CoroutineScope(Dispatchers.IO + exceptionHandler)
+            val title = data["title"] ?: message.notification?.title ?: return
+            val body = data["body"] ?: message.notification?.body ?: return
+            val channelId = data["channelId"] ?: message.notification?.channelId ?: NotificationManager.CHANNEL_SERVICE
+            val imageUrl = data["imageUrl"] ?: message.notification?.imageUrl?.toString()
+            val priority = data["priority"]?.toInt() ?: message.notification?.notificationPriority ?: NotificationCompat.PRIORITY_HIGH
+            val time = data["time"]?.toLong()
 
-                        scope.launch {
-                            val bitmap = imageUrl?.let { downloadBitmap(imageUrl) }
-                            NotificationManager.showNotification(
-                                this@MessagingService,
-                                notification.channelId ?: NotificationManager.CHANNEL_SERVICE,
-                                title,
-                                body,
-                                data,
-                                bitmap,
-                                notification.notificationPriority ?: NotificationCompat.PRIORITY_HIGH,
-                                buttons
-                            )
-                        }
-                    }
-                }
+            val buttons = try {
+                data["buttons"]?.let { json.decodeFromString<List<NotificationManager.NotificationButton>>(it) }
+            } catch (e: Exception) {
+                Utilities.log(e)
+                null
+            } ?: emptyList()
+
+            val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                Utilities.log("Coroutine Error: ${throwable.message}")
+            }
+            val scope = CoroutineScope(Dispatchers.IO + exceptionHandler)
+
+            scope.launch {
+                val bitmap = imageUrl?.let { downloadBitmap(imageUrl) }
+                NotificationManager.showNotification(
+                    this@MessagingService,
+                    channelId,
+                    title,
+                    body,
+                    data,
+                    bitmap,
+                    priority,
+                    buttons,
+                    time
+                )
+            }
         } catch (e: Exception) {
             Utilities.log(e)
         }
