@@ -1,12 +1,15 @@
 package ru.tgmaksim.activium.ui.pages
 
 import android.view.View
+import android.graphics.Rect
 import android.view.ViewGroup
 import android.view.LayoutInflater
+import androidx.core.widget.NestedScrollView
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 
 import coil3.load
 import coil3.request.crossfade
@@ -31,8 +34,48 @@ class SchoolPostAdapter : ListAdapter<SchoolPost, SchoolPostAdapter.VH>(DiffCall
         holder.bind(getItem(position))
     }
 
+    fun settingsScroll(scrollView: NestedScrollView, recyclerView: RecyclerView, onSeePost: (Long) -> Unit) {
+        scrollView.setOnScrollChangeListener(object : NestedScrollView.OnScrollChangeListener {
+            private val sawPosts = mutableSetOf<Long>()
+
+            override fun onScrollChange(v: NestedScrollView, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
+                val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+
+                val first = layoutManager.findFirstVisibleItemPosition()
+                val last = layoutManager.findLastVisibleItemPosition()
+
+                if (first == RecyclerView.NO_POSITION) return
+
+                for (i in first..last) {
+                    val view = layoutManager.findViewByPosition(i) ?: continue
+                    val postId = view.tag as? Long ?: continue
+
+                    if (postId in sawPosts) continue
+
+                    if (isViewVisible(view)) {
+                        sawPosts.add(postId)
+                        onSeePost(postId)
+                    }
+                }
+            }
+
+            private fun isViewVisible(view: View): Boolean {
+                val rect = Rect()
+
+                val isVisible = view.getGlobalVisibleRect(rect)
+                if (!isVisible) return false
+
+                val viewHeight = view.height.toFloat()
+                val visibleHeight = rect.height().toFloat()
+
+                return visibleHeight >= viewHeight
+            }
+        })
+    }
+
     class VH(val ui: ItemSchoolPostBinding) : RecyclerView.ViewHolder(ui.root) {
         fun bind(post: SchoolPost) {
+            ui.root.tag = post.postId
             ui.title.text = post.title
 
             if (post.description.isNullOrBlank()) {

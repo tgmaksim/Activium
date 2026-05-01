@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="12dp"
+    android:layout_marginBottom="8dp"
     android:background="@drawable/lesson_bg">
 
     <!-- Заголовок -->

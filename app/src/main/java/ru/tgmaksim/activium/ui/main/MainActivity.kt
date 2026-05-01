@@ -279,6 +279,10 @@ class MainActivity : ParentActivity() {
         }
     }
 
+    fun updateNewSchoolPosts(countPosts: Int) {
+        showNewSchoolPostsInfo(countPosts)
+    }
+
     private fun setupCollectors() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -291,6 +295,8 @@ class MainActivity : ParentActivity() {
                             is LoadState.Success -> {
                                 if (state.data.latestVersionNumber > BuildConfig.VERSION_CODE)
                                     showNewVersionInfo(state)
+                                else
+                                    stopMenuAnim(R.id.it_settings)
                             }
                             else -> {}
                         }
@@ -324,7 +330,7 @@ class MainActivity : ParentActivity() {
                                 activityViewModel.checkNewSchoolPosts()
                             }
                             is LoadState.Success -> {
-                                showNewSchoolPostsInfo(state.data)
+                                showNewSchoolPostsInfo(state.data.countPosts)
                                 activityViewModel.reset(MainActivityViewModel.StateType.SchoolPosts)
                             }
                             else -> {}
@@ -358,9 +364,10 @@ class MainActivity : ParentActivity() {
         startMenuAnimation(R.id.it_settings) { settingsAnim }
     }
 
-    private fun showNewSchoolPostsInfo(data: SchoolPostsWithoutVisionResult) {
-        if (data.countPosts == 0) {
+    private fun showNewSchoolPostsInfo(countPosts: Int) {
+        if (countPosts == 0) {
             ui.bottomMenu.removeBadge(R.id.it_school)
+            stopMenuAnim(R.id.it_school)
             return
         }
 
@@ -368,7 +375,7 @@ class MainActivity : ParentActivity() {
             isVisible = true
             backgroundColor = getColor(R.color.bg_school_badge)
             badgeTextColor = getColor(R.color.text_primary)
-            number = data.countPosts
+            number = countPosts
         }
 
         schoolAnim = true
@@ -421,7 +428,7 @@ class MainActivity : ParentActivity() {
         if (event.action != MotionEvent.ACTION_DOWN)
             return super.dispatchTouchEvent(event)
 
-        // При нажатии на любую область вне TextView с возможным выделением текста,
+        // При нажатии на любую область вне TextView с возможным выделением текста
         // фокус сбрасывается
         val el = currentFocus
         if (el is TextView) {

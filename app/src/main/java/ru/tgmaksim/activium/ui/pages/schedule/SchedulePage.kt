@@ -79,7 +79,8 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
         skeletonLessonsCount = SKELETON_LESSONS_COUNT,
         onPraiseClick = ::onPraiseLesson,
         onMenuLesson = ::onMenuLesson,
-        onRating = ::onRating
+        onRating = ::onRating,
+        onSeePost = ::onSeePost
     )
 
     private val pagerSnapHelper = PagerSnapHelper()
@@ -496,6 +497,15 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
         ).show(parentFragmentManager, RatingDialog.TAG)
     }
 
+    private fun onSeePost(postId: Long) {
+        val posts = currentData?.schedule?.mapNotNull { it?.schoolPosts }?.flatten() ?: return
+        val post = posts.find { it.postId == postId } ?: return
+
+        if (post.isSaw) return
+
+        scheduleViewModel.seePost(postId)
+    }
+
     private fun setupCollectors() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -607,7 +617,6 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
                 launch {
                     scheduleViewModel.noteStates.collect { states ->
                         currentNoteStates = states
-                        currentData?.let { renderSchedule(it, currentPraiseStates, currentNoteStates) }
 
                         for ((lessonKey, state) in states) {
                             if (state is LoadState.Error) {
@@ -618,6 +627,17 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
                                     break
                                 }
                             }
+                        }
+                    }
+                }
+                launch {
+                    scheduleViewModel.seePostStates.collect { states ->
+                        for ((postId, state) in states) {
+                            if (state is LoadState.Success) {
+                                (activity as MainActivity).updateNewSchoolPosts(state.data.countPostsWithoutVision)
+                            }
+
+                            scheduleViewModel.resetSeePost(postId)
                         }
                     }
                 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.json
+import ru.tgmaksim.activium.api.School
 import ru.tgmaksim.activium.api.Dnevnik
 import ru.tgmaksim.activium.ui.core.toUi
 import ru.tgmaksim.activium.ui.core.UiText
@@ -29,6 +30,7 @@ import ru.tgmaksim.activium.ui.core.setCacheError
 import ru.tgmaksim.activium.ui.core.setShownError
 import ru.tgmaksim.activium.ui.core.setCacheLoading
 import ru.tgmaksim.activium.ui.core.setCacheSuccess
+import ru.tgmaksim.activium.api.MarkSchoolPostResult
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.utilities.datastore.CacheManager
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
@@ -48,6 +50,9 @@ class ScheduleViewModel : UiViewModel() {
 
     private val _noteStates = MutableStateFlow<Map<String, LoadState<NoteResult>>>(emptyMap())
     val noteStates = _noteStates.asStateFlow()
+
+    private val _seePostStates = MutableStateFlow<Map<Long, LoadState<MarkSchoolPostResult>>>(emptyMap())
+    val seePostStates = _seePostStates.asStateFlow()
 
     private var loadCacheScheduleJob: Job? = null
     private var loadCloudCacheScheduleJob: Job? = null
@@ -80,6 +85,10 @@ class ScheduleViewModel : UiViewModel() {
             MapStateType.Praises -> _praiseStates.value = _praiseStates.value.toMutableMap().apply { remove(lessonKey) }
             MapStateType.Notes -> _noteStates.value = _noteStates.value.toMutableMap().apply { remove(lessonKey) }
         }
+    }
+
+    fun resetSeePost(postId: Long) {
+        _seePostStates.value = _seePostStates.value.toMutableMap().apply { remove(postId) }
     }
 
     fun logout() {
@@ -286,6 +295,19 @@ class ScheduleViewModel : UiViewModel() {
         } catch (_: CancellationException) {
         } catch (e: Exception) {
             Utilities.log(e)
+        }
+    }
+
+    fun seePost(postId: Long) {
+        viewModelScope.launch {
+            executeRequest(
+                _seePostStates,
+                postId,
+                "seePost",
+                R.string.error_mark_school_post,
+                { School.seePost(postId) },
+                { it.answer }
+            )
         }
     }
 }

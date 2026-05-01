@@ -5,6 +5,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 
 import ru.tgmaksim.activium.utilities.datastore.MemoryDataManager
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
  * Школьный пост
@@ -41,6 +42,7 @@ data class SchoolPost(
     val countViewings: Int,
     val countLikes: Int,
     val hasMyLike: Boolean,
+    val isSaw: Boolean,
     val postUrl: String,
     val createdAt: Instant,
     val humanCreatedAt: String
@@ -149,71 +151,25 @@ data class SchoolPostsWithoutVisionApiResponse(
 }
 
 /**
- * Ответ на запрос пометки поста как увиденного
- * @param classId Идентификатор класса
- * @param status Статус выполненного запроса
- * @param error Объект ошибки
- * @param answer Всегда null
- * @author Максим Дрючин (tgmaksim)
- */
-@Serializable
-data class SeeSchoolPostApiResponse(
-    override val classId: Int = CLASS_ID,
-    override val status: Boolean,
-    override val error: ApiError?,
-    override val answer: ApiBase?
-) : ApiResponse() {
-    companion object {
-        const val CLASS_ID = 0x53
-    }
-
-    init {
-        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
-            throw ClassCastException()
-        if (answer != null) throw ClassCastException()
-    }
-}
-
-/**
- * Ответ на запрос пометки поста как нажатого
- * @param classId Идентификатор класса
- * @param status Статус выполненного запроса
- * @param error Объект ошибки
- * @param answer Всегда null
- * @author Максим Дрючин (tgmaksim)
- */
-@Serializable
-data class ClickSchoolPostApiResponse(
-    override val classId: Int = CLASS_ID,
-    override val status: Boolean,
-    override val error: ApiError?,
-    override val answer: ApiBase?
-) : ApiResponse() {
-    companion object {
-        const val CLASS_ID = 0x54
-    }
-
-    init {
-        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
-            throw ClassCastException()
-        if (answer != null) throw ClassCastException()
-    }
-}
-
-/**
- * Результат запроса просмотра поста
+ * Результат запроса пометки поста
  * @param classId Идентификатор класса
  * @param post Обновленный пост
+ * @param countPostsWithoutVision Количество неувиденных постов
  * @author Максим Дрючин (tgmaksim)
+ * @see SeeSchoolPostApiResponse
+ * @see ClickSchoolPostApiResponse
  * @see ViewSchoolPostApiResponse
+ * @see LikeSchoolPostApiResponse
+ * @see UnlikeSchoolPostApiResponse
  */
 @Serializable
-data class ViewSchoolPostResult(
+data class MarkSchoolPostResult(
     override val classId: Int = CLASS_ID,
-    val post: SchoolPost
+    val post: SchoolPost,
+    val countPostsWithoutVision: Int
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x55
+        const val CLASS_ID = 0x53
     }
 
     init {
@@ -222,11 +178,61 @@ data class ViewSchoolPostResult(
 }
 
 /**
+ * Ответ на запрос пометки поста как увиденного
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект ошибки
+ * @param answer Обновленный пост и количество неувиденных постов
+ * @author Максим Дрючин (tgmaksim)
+ */
+@Serializable
+data class SeeSchoolPostApiResponse(
+    override val classId: Int = CLASS_ID,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: MarkSchoolPostResult?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x54
+    }
+
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
+ * Ответ на запрос пометки поста как нажатого
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект ошибки
+ * @param answer Обновленный пост и количество неувиденных постов
+ * @author Максим Дрючин (tgmaksim)
+ */
+@Serializable
+data class ClickSchoolPostApiResponse(
+    override val classId: Int = CLASS_ID,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: MarkSchoolPostResult?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x55
+    }
+
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+    }
+}
+
+/**
  * Ответ на запрос просмотра поста
  * @param classId Идентификатор класса
  * @param status Статус выполненного запроса
  * @param error Объект ошибки
- * @param answer Обновленный пост
+ * @param answer Обновленный пост и количество неувиденных постов
  * @author Максим Дрючин (tgmaksim)
  */
 @Serializable
@@ -234,7 +240,7 @@ data class ViewSchoolPostApiResponse(
     override val classId: Int = CLASS_ID,
     override val status: Boolean,
     override val error: ApiError?,
-    override val answer: ViewSchoolPostResult?
+    override val answer: MarkSchoolPostResult?
 ) : ApiResponse() {
     companion object {
         const val CLASS_ID = 0x56
@@ -247,32 +253,11 @@ data class ViewSchoolPostApiResponse(
 }
 
 /**
- * Результат запроса постановки реакции
- * @param classId Идентификатор класса
- * @param post Обновленный пост
- * @author Максим Дрючин (tgmaksim)
- * @see LikeSchoolPostApiResponse
- */
-@Serializable
-data class LikeSchoolPostResult(
-    override val classId: Int = CLASS_ID,
-    val post: SchoolPost
-) : ApiBase() {
-    companion object {
-        const val CLASS_ID = 0x57
-    }
-
-    init {
-        if (classId != CLASS_ID) throw ClassCastException()
-    }
-}
-
-/**
  * Ответ на запрос постановки реакции
  * @param classId Идентификатор класса
  * @param status Статус выполненного запроса
  * @param error Объект ошибки
- * @param answer Обновленный пост
+ * @param answer Обновленный пост и количество неувиденных постов
  * @author Максим Дрючин (tgmaksim)
  */
 @Serializable
@@ -280,10 +265,10 @@ data class LikeSchoolPostApiResponse(
     override val classId: Int = CLASS_ID,
     override val status: Boolean,
     override val error: ApiError?,
-    override val answer: LikeSchoolPostResult?
+    override val answer: MarkSchoolPostResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x58
+        const val CLASS_ID = 0x57
     }
 
     init {
@@ -293,32 +278,11 @@ data class LikeSchoolPostApiResponse(
 }
 
 /**
- * Результат запроса удаления реакции
- * @param classId Идентификатор класса
- * @param post Обновленный пост
- * @author Максим Дрючин (tgmaksim)
- * @see UnlikeSchoolPostApiResponse
- */
-@Serializable
-data class UnlikeSchoolPostResult(
-    override val classId: Int = CLASS_ID,
-    val post: SchoolPost
-) : ApiBase() {
-    companion object {
-        const val CLASS_ID = 0x59
-    }
-
-    init {
-        if (classId != CLASS_ID) throw ClassCastException()
-    }
-}
-
-/**
  * Ответ на запрос удаления реакции
  * @param classId Идентификатор класса
  * @param status Статус выполненного запроса
  * @param error Объект ошибки
- * @param answer Обновленный пост
+ * @param answer Обновленный пост и количество неувиденных постов
  * @author Максим Дрючин (tgmaksim)
  */
 @Serializable
@@ -326,10 +290,10 @@ data class UnlikeSchoolPostApiResponse(
     override val classId: Int = CLASS_ID,
     override val status: Boolean,
     override val error: ApiError?,
-    override val answer: UnlikeSchoolPostResult?
+    override val answer: MarkSchoolPostResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x5A
+        const val CLASS_ID = 0x58
     }
 
     init {
@@ -373,7 +337,7 @@ object School {
         return Request.get(
             listOf(PATH_PREFIX, PATH_GET_POSTS, GET_POSTS_VERSION).joinToString("/"),
             params = mapOf("offset" to offset),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -387,7 +351,7 @@ object School {
     suspend fun checkNewPosts(): SchoolPostsWithoutVisionApiResponse {
         return Request.get(
             listOf(PATH_PREFIX, PATH_CHECK_NEW_POSTS, CHECK_NEW_POSTS_VERSION).joinToString("/"),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -402,7 +366,7 @@ object School {
         return Request.put(
             listOf(PATH_PREFIX, PATH_SEE_POST, SEE_POST_VERSION).joinToString("/"),
             params = mapOf("postId" to postId),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -417,7 +381,7 @@ object School {
         return Request.put(
             listOf(PATH_PREFIX, PATH_CLICK_POST, CLICK_POST_VERSION).joinToString("/"),
             params = mapOf("postId" to postId),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -432,7 +396,7 @@ object School {
         return Request.put(
             listOf(PATH_PREFIX, PATH_VIEW_POST, VIEW_POST_VERSION).joinToString("/"),
             params = mapOf("postId" to postId),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -447,7 +411,7 @@ object School {
         return Request.put(
             listOf(PATH_PREFIX, PATH_LIKE_POST, LIKE_POST_VERSION).joinToString("/"),
             params = mapOf("postId" to postId),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 
@@ -462,7 +426,7 @@ object School {
         return Request.put(
             listOf(PATH_PREFIX, PATH_UNLIKE_POST, UNLIKE_POST_VERSION).joinToString("/"),
             params = mapOf("postId" to postId),
-            sessionId = MemoryDataManager.sessionId.value
+            sessionId = SettingsManager.getSessionId()
         )
     }
 }

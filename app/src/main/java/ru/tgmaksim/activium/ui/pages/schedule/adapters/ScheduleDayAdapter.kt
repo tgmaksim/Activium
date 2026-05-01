@@ -20,15 +20,10 @@ class ScheduleDayAdapter(
     private val skeletonLessonsCount: Int,
     private val onPraiseClick: (String, FloatArray) -> Unit,
     private val onMenuLesson: (String, FloatArray) -> Unit,
-    private val onRating: (String) -> Unit
+    private val onRating: (String) -> Unit,
+    private val onSeePost: (Long) -> Unit
 ) : ListAdapter<UiScheduleDay?, ScheduleDayAdapter.VH>(Diff()) {
-    class VH(
-        val ui: ItemScheduleDayBinding,
-        skeletonLessonsCount: Int,
-        private val onPraiseClick: (String, FloatArray) -> Unit,
-        private val onMenuLesson: (String, FloatArray) -> Unit,
-        private val onRating: (String) -> Unit
-    ) : RecyclerView.ViewHolder(ui.root) {
+    inner class VH(val ui: ItemScheduleDayBinding) : RecyclerView.ViewHolder(ui.root) {
         private val skeletonAdapter = LessonSkeletonAdapter(skeletonLessonsCount)
 
         init {
@@ -78,6 +73,12 @@ class ScheduleDayAdapter(
                         ui.schoolPostsRecycler.adapter = it
                     }
 
+                schoolPostAdapter.settingsScroll(
+                    ui.nestedScrollView,
+                    ui.schoolPostsRecycler,
+                    onSeePost
+                )
+
                 schoolPostAdapter.submitList(day.schoolPosts)
             }
         }
@@ -89,7 +90,7 @@ class ScheduleDayAdapter(
             parent,
             false
         )
-        return VH(ui, skeletonLessonsCount, onPraiseClick, onMenuLesson, onRating)
+        return VH(ui)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {

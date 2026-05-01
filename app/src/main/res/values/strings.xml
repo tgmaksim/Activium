@@ -86,6 +86,7 @@
     <string name="menu_item_school">Мероприятия</string>
     <string name="school_soon">Пока что эта страница находится в разработке. Скоро здесь появятся новости и мероприятия Вашей школы</string>
     <string name="no_school_posts">Пока что здесь нет публикаций. Как только Ваше учебное заведение опубликует новость, ее можно будет прочитать на этой странице</string>
+    <string name="error_mark_school_post">Произошла ошибка при пометке поста</string>
     <string name="error_new_school_posts">Произошла ошибка при проверке новых постов</string>
     <string name="school_post_updated">· изменено</string>
     <string name="school_post_schedule">📅 Мероприятие: %1$s</string>
