@@ -50,6 +50,7 @@
         <!-- Другие Activity приложения -->
         <activity android:name=".ui.main.MainActivity" android:exported="false" android:launchMode="singleTask" />
         <activity android:name=".ui.LoginActivity" android:exported="false" android:launchMode="singleTask" />
+        <activity android:name=".ui.webview.WebSchoolPostActivity" android:exported="false" />
 
         <!-- Service для уведомлений -->
         <service android:name=".utilities.MessagingService"

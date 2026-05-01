@@ -44,7 +44,6 @@ import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.ui.pages.schedule.SchedulePage
 import ru.tgmaksim.activium.ui.pages.settings.SettingsPage
 import ru.tgmaksim.activium.databinding.ActivityMainBinding
-import ru.tgmaksim.activium.api.SchoolPostsWithoutVisionResult
 
 /**
  * Главная Activity приложения

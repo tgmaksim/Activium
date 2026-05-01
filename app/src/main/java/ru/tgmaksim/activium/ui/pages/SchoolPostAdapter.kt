@@ -20,7 +20,9 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.SchoolPost
 import ru.tgmaksim.activium.databinding.ItemSchoolPostBinding
 
-class SchoolPostAdapter : ListAdapter<SchoolPost, SchoolPostAdapter.VH>(DiffCallback()) {
+class SchoolPostAdapter(
+    private val onClickPost: (Long) -> Unit
+) : ListAdapter<SchoolPost, SchoolPostAdapter.VH>(DiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val ui = ItemSchoolPostBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -73,7 +75,7 @@ class SchoolPostAdapter : ListAdapter<SchoolPost, SchoolPostAdapter.VH>(DiffCall
         })
     }
 
-    class VH(val ui: ItemSchoolPostBinding) : RecyclerView.ViewHolder(ui.root) {
+    inner class VH(val ui: ItemSchoolPostBinding) : RecyclerView.ViewHolder(ui.root) {
         fun bind(post: SchoolPost) {
             ui.root.tag = post.postId
             ui.title.text = post.title
@@ -134,6 +136,10 @@ class SchoolPostAdapter : ListAdapter<SchoolPost, SchoolPostAdapter.VH>(DiffCall
             ui.likeIcon.setImageResource(
                 if (post.hasMyLike) R.drawable.like else R.drawable.like_outline
             )
+
+            ui.root.setOnClickListener {
+                onClickPost(post.postId)
+            }
         }
     }
 

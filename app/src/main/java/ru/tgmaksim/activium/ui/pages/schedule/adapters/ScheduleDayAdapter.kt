@@ -21,7 +21,8 @@ class ScheduleDayAdapter(
     private val onPraiseClick: (String, FloatArray) -> Unit,
     private val onMenuLesson: (String, FloatArray) -> Unit,
     private val onRating: (String) -> Unit,
-    private val onSeePost: (Long) -> Unit
+    private val onSeePost: (Long) -> Unit,
+    private val onClickPost: (Long) -> Unit
 ) : ListAdapter<UiScheduleDay?, ScheduleDayAdapter.VH>(Diff()) {
     inner class VH(val ui: ItemScheduleDayBinding) : RecyclerView.ViewHolder(ui.root) {
         private val skeletonAdapter = LessonSkeletonAdapter(skeletonLessonsCount)
@@ -69,7 +70,7 @@ class ScheduleDayAdapter(
                 lessonAdapter.submitList(items)
 
                 val schoolPostAdapter = (ui.schoolPostsRecycler.adapter as? SchoolPostAdapter)
-                    ?: SchoolPostAdapter().also {
+                    ?: SchoolPostAdapter(onClickPost).also {
                         ui.schoolPostsRecycler.adapter = it
                     }
 

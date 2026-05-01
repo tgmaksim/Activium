@@ -83,11 +83,11 @@
     <string name="class_rating_info">Общий рейтинг в классе по всем предметам</string>
     <string name="error_marks">Произошла ошибка при загрузке оценок</string>
 
-    <string name="menu_item_school">Мероприятия</string>
-    <string name="school_soon">Пока что эта страница находится в разработке. Скоро здесь появятся новости и мероприятия Вашей школы</string>
+    <string name="menu_item_school">Актив</string>
     <string name="no_school_posts">Пока что здесь нет публикаций. Как только Ваше учебное заведение опубликует новость, ее можно будет прочитать на этой странице</string>
     <string name="error_mark_school_post">Произошла ошибка при пометке поста</string>
     <string name="error_new_school_posts">Произошла ошибка при проверке новых постов</string>
+    <string name="error_school_posts">Произошла ошибка при получении школьных постов</string>
     <string name="school_post_updated">· изменено</string>
     <string name="school_post_schedule">📅 Мероприятие: %1$s</string>
     <string name="school_post_viewings">👁 %1$d</string>

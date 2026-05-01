@@ -37,6 +37,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.minus
 import kotlin.collections.get
 import kotlinx.datetime.number
+import java.time.LocalDateTime
 import kotlinx.datetime.LocalDate
 import kotlin.properties.Delegates
 import kotlinx.datetime.DatePeriod
@@ -53,13 +54,13 @@ import ru.tgmaksim.activium.ui.pages.MainFragment
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.DialogPraiseBinding
 import ru.tgmaksim.activium.databinding.SchedulePageBinding
+import ru.tgmaksim.activium.ui.webview.WebSchoolPostActivity
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 import ru.tgmaksim.activium.databinding.DialogLessonNoteEditorBinding
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleDayAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarDayUi
 import ru.tgmaksim.activium.ui.pages.schedule.adapters.ScheduleCalendarAdapter
 import ru.tgmaksim.activium.ui.pages.schedule.skeletone.CalendarSkeletonAdapter
-import java.time.LocalDateTime
 
 /**
  * Страница с расписанием, оценками на уроках
@@ -80,7 +81,8 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
         onPraiseClick = ::onPraiseLesson,
         onMenuLesson = ::onMenuLesson,
         onRating = ::onRating,
-        onSeePost = ::onSeePost
+        onSeePost = ::onSeePost,
+        onClickPost = ::onClickPost
     )
 
     private val pagerSnapHelper = PagerSnapHelper()
@@ -506,6 +508,15 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
         scheduleViewModel.seePost(postId)
     }
 
+    private fun onClickPost(postId: Long) {
+        val posts = currentData?.schedule?.mapNotNull { it?.schoolPosts }?.flatten() ?: return
+        val post = posts.find { it.postId == postId } ?: return
+
+        WebSchoolPostActivity.start(requireContext(), post)
+
+        scheduleViewModel.clickPost(postId)
+    }
+
     private fun setupCollectors() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -638,6 +649,17 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
                             }
 
                             scheduleViewModel.resetSeePost(postId)
+                        }
+                    }
+                }
+                launch {
+                    scheduleViewModel.clickPostStates.collect { states ->
+                        for ((postId, state) in states) {
+                            if (state is LoadState.Success) {
+                                (activity as MainActivity).updateNewSchoolPosts(state.data.countPostsWithoutVision)
+                            }
+
+                            scheduleViewModel.resetClickPost(postId)
                         }
                     }
                 }

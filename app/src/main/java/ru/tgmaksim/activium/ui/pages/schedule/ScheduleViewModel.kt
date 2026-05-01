@@ -54,6 +54,9 @@ class ScheduleViewModel : UiViewModel() {
     private val _seePostStates = MutableStateFlow<Map<Long, LoadState<MarkSchoolPostResult>>>(emptyMap())
     val seePostStates = _seePostStates.asStateFlow()
 
+    private val _clickPostStates = MutableStateFlow<Map<Long, LoadState<MarkSchoolPostResult>>>(emptyMap())
+    val clickPostStates = _clickPostStates.asStateFlow()
+
     private var loadCacheScheduleJob: Job? = null
     private var loadCloudCacheScheduleJob: Job? = null
 
@@ -89,6 +92,10 @@ class ScheduleViewModel : UiViewModel() {
 
     fun resetSeePost(postId: Long) {
         _seePostStates.value = _seePostStates.value.toMutableMap().apply { remove(postId) }
+    }
+
+    fun resetClickPost(postId: Long) {
+        _clickPostStates.value = _clickPostStates.value.toMutableMap().apply { remove(postId) }
     }
 
     fun logout() {
@@ -306,6 +313,19 @@ class ScheduleViewModel : UiViewModel() {
                 "seePost",
                 R.string.error_mark_school_post,
                 { School.seePost(postId) },
+                { it.answer }
+            )
+        }
+    }
+
+    fun clickPost(postId: Long) {
+        viewModelScope.launch {
+            executeRequest(
+                _clickPostStates,
+                postId,
+                "clickPost",
+                R.string.error_mark_school_post,
+                { School.clickPost(postId) },
                 { it.answer }
             )
         }

@@ -242,7 +242,7 @@ class MarksPage(param: String? = null) : MainFragment(param) {
 
                         if (showNullSubjectMarksChanged) {
                             currentData?.let { data ->
-                                renderSchedule(data)
+                                renderMarks(data)
                             }
                         }
                     }
@@ -358,7 +358,7 @@ class MarksPage(param: String? = null) : MainFragment(param) {
                             currentData = data
 
                             if (data != null)
-                                renderSchedule(data)
+                                renderMarks(data)
                         }
                     }
                 }
@@ -375,7 +375,7 @@ class MarksPage(param: String? = null) : MainFragment(param) {
         marksViewModel.resetMarks()
     }
 
-    private fun renderSchedule(data: UiMarksResult) {
+    private fun renderMarks(data: UiMarksResult) {
         if (data.recentMarks.isEmpty() && data.periodMarks.isEmpty()) return
 
         if (ui.lastMarks.adapter !== lastMarksAdapter) {
