@@ -327,7 +327,50 @@ class ScheduleViewModel : UiViewModel() {
                 R.string.error_mark_school_post,
                 { School.clickPost(postId) },
                 { it.answer }
+            ) { postResult -> onSuccessUpdatePost(postId, postResult) }
+        }
+    }
+
+    fun updatePost(postId: Long, postResult: MarkSchoolPostResult) {
+        val data = _scheduleData.value
+        _scheduleData.value = data?.copy(
+            schedule = data.schedule.map { day ->
+                if (day?.schoolPosts?.find { it.postId == postId } != null) {
+                    day.copy(schoolPosts = day.schoolPosts.map { post ->
+                        if (post.postId == postId) postResult.post else post
+                    })
+                } else {
+                    day
+                }
+            }
+        )
+    }
+
+    private suspend fun onSuccessUpdatePost(postId: Long, postResult: MarkSchoolPostResult) {
+        updatePost(postId, postResult)
+
+        try {
+            val childId = SettingsManager.getActiveChildId()
+            val entity = CacheManager.read(childId, CACHE_SCHEDULE_NAME)
+                ?: throw CacheNullException()
+            val schedule = json.decodeFromString<List<ScheduleDay>>(entity.value)
+            val newSchedule = json.encodeToString(
+                schedule.map { day ->
+                    if (day.schoolPosts.find { it.postId == postId } != null) {
+                        day.copy(schoolPosts = day.schoolPosts.map { post ->
+                            if (post.postId == postId) postResult.post else post
+                        })
+                    } else {
+                        day
+                    }
+                }
             )
+
+            CacheManager.writeDnevnikCache(childId, CACHE_SCHEDULE_NAME, value = newSchedule)
+        } catch (_: CacheNullException) {
+        } catch (_: CancellationException) {
+        } catch (e: Exception) {
+            Utilities.log(e)
         }
     }
 }

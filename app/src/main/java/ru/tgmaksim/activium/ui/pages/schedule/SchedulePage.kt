@@ -2,9 +2,12 @@ package ru.tgmaksim.activium.ui.pages.schedule
 
 import android.os.Bundle
 import android.view.View
+import android.app.Activity
 import android.view.ViewGroup
 import android.graphics.Color
 import android.view.LayoutInflater
+import androidx.activity.result.contract.ActivityResultContracts
+
 import android.animation.ValueAnimator
 import android.animation.ObjectAnimator
 import android.view.animation.LinearInterpolator
@@ -45,12 +48,14 @@ import kotlinx.datetime.toKotlinMonth
 import java.time.format.DateTimeFormatter
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.NoteResult
 import ru.tgmaksim.activium.ui.LoginActivity
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.main.MainActivity
 import ru.tgmaksim.activium.ui.pages.MainFragment
+import ru.tgmaksim.activium.api.MarkSchoolPostResult
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.DialogPraiseBinding
 import ru.tgmaksim.activium.databinding.SchedulePageBinding
@@ -86,6 +91,26 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
     )
 
     private val pagerSnapHelper = PagerSnapHelper()
+
+    private val postLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val postId = result.data?.getLongExtra("postId", -1L)?.takeIf {
+                    it != -1L
+                } ?: return@registerForActivityResult
+                val stringPost = result.data?.getStringExtra("postResult")
+                val newPostResult = try {
+                    stringPost?.let { json.decodeFromString<MarkSchoolPostResult>(it) }
+                } catch (_: Exception) {
+                    null
+                } ?: return@registerForActivityResult
+
+                (activity as MainActivity).updateNewSchoolPosts(newPostResult.countPostsWithoutVision)
+                scheduleViewModel.updatePost(postId, newPostResult)
+
+                requireActivity().recreate()
+            }
+        }
 
     private var currentData: UiScheduleResult? = null
     private var currentPraiseStates: Map<String, LoadState<Unit>> = emptyMap()
@@ -512,7 +537,7 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
         val posts = currentData?.schedule?.mapNotNull { it?.schoolPosts }?.flatten() ?: return
         val post = posts.find { it.postId == postId } ?: return
 
-        WebSchoolPostActivity.start(requireContext(), post)
+        WebSchoolPostActivity.start(postLauncher, requireContext(), post)
 
         scheduleViewModel.clickPost(postId)
     }

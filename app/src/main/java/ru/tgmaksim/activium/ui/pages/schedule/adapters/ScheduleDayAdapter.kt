@@ -74,13 +74,15 @@ class ScheduleDayAdapter(
                         ui.schoolPostsRecycler.adapter = it
                     }
 
-                schoolPostAdapter.settingsScroll(
+                val checker = schoolPostAdapter.settingsScroll(
                     ui.nestedScrollView,
                     ui.schoolPostsRecycler,
                     onSeePost
                 )
 
-                schoolPostAdapter.submitList(day.schoolPosts)
+                schoolPostAdapter.submitList(day.schoolPosts) {
+                    checker()  // Проверить видимость постов
+                }
             }
         }
     }

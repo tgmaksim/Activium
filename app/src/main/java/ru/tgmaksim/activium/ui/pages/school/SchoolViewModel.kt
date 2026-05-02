@@ -37,6 +37,9 @@ class SchoolViewModel : UiViewModel() {
     private val _clickPostStates = MutableStateFlow<Map<Long, LoadState<MarkSchoolPostResult>>>(emptyMap())
     val clickPostStates = _clickPostStates.asStateFlow()
 
+    private val _seePostStates = MutableStateFlow<Map<Long, LoadState<MarkSchoolPostResult>>>(emptyMap())
+    val seePostStates = _seePostStates.asStateFlow()
+
     private var loadCachePostsJob: Job? = null
     private var loadCloudCachePostsJob: Job? = null
 
@@ -46,6 +49,14 @@ class SchoolViewModel : UiViewModel() {
 
     fun resetError() {
         _postsState.setShownError()
+    }
+
+    fun resetClickPost(postId: Long) {
+        _clickPostStates.value = _clickPostStates.value.toMutableMap().apply { remove(postId) }
+    }
+
+    fun resetSeePost(postId: Long) {
+        _seePostStates.value = _seePostStates.value.toMutableMap().apply { remove(postId) }
     }
 
     fun logout() {
@@ -106,7 +117,21 @@ class SchoolViewModel : UiViewModel() {
                 "schoolPosts",
                 R.string.error_school_posts,
                 { School.getPosts(offset) },
-                { it.answer }
+                {
+                    if (offset == 0) {
+                        it.answer
+                    } else if (it.answer == null) {
+                        null
+                    } else {
+                        SchoolPostsResult(
+                            posts = buildList {
+                                addAll(_postsData.value?.posts ?: emptyList())
+                                addAll(it.answer.posts)
+                            },
+                            nextOffset = it.answer.nextOffset
+                        )
+                    }
+                }
             ) {
                 it.answer ?: return@executeRequest
 
@@ -129,7 +154,59 @@ class SchoolViewModel : UiViewModel() {
                 R.string.error_mark_school_post,
                 { School.clickPost(postId) },
                 { it.answer }
+            ) { postResult -> onSuccessUpdatePost(postId, postResult) }
+        }
+    }
+
+    fun seePost(postId: Long) {
+        viewModelScope.launch {
+            executeRequest(
+                _seePostStates,
+                postId,
+                "seePost",
+                R.string.error_mark_school_post,
+                { School.seePost(postId) },
+                { it.answer }
             )
+        }
+    }
+
+    fun updatePost(postId: Long, postResult: MarkSchoolPostResult) {
+        val data = _postsData.value
+        _postsData.value = data?.copy(
+            posts = data.posts.map { post ->
+                if (post.postId == postId) {
+                    postResult.post
+                } else {
+                    post
+                }
+            }
+        )
+    }
+
+    private suspend fun onSuccessUpdatePost(postId: Long, postResult: MarkSchoolPostResult) {
+        updatePost(postId, postResult)
+
+        try {
+            val childId = SettingsManager.getActiveChildId()
+            val entity = CacheManager.read(childId, CACHE_POSTS_NAME)
+                ?: throw CacheNullException()
+            val posts = json.decodeFromString<List<SchoolPost>>(entity.value)
+            val newPosts = json.encodeToString(
+                posts.map { post ->
+                    if (post.postId == postId) {
+                        postResult.post
+                    } else {
+                        post
+                    }
+                }
+            )
+
+            CacheManager.writeDnevnikCache(childId, CACHE_POSTS_NAME, value = newPosts)
+        } catch (_: CacheNullException) {
+        } catch (_: CancellationException) {
+        } catch (e: Exception) {
+            Utilities.log(e)
         }
     }
 }
