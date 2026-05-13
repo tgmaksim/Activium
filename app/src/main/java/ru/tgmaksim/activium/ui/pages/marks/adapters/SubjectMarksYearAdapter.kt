@@ -16,7 +16,7 @@ import ru.tgmaksim.activium.databinding.ItemSubjectMarksYearBinding
 
 class SubjectMarksYearAdapter(
     private var showNullSubjectMarks: Boolean,
-    private val onPeriodMarkRating: (String, String) -> Unit,
+    private val onPeriodMarkRating: (MarkLog, String) -> Unit,
     private val onMarksRating: (MarkLog, String) -> Unit
 ) : ListAdapter<MarksSubjectFinal, SubjectMarksYearAdapter.VH>(Diff()) {
     class VH(val ui: ItemSubjectMarksYearBinding) : RecyclerView.ViewHolder(ui.root)
@@ -72,7 +72,10 @@ class SubjectMarksYearAdapter(
         bindOneMark(holder.ui.periodMark, subjectMarks.finalMark)
 
         holder.ui.periodMark.root.setOnClickListener {
-            subjectMarks.finalMark?.ratingKey?.let { onPeriodMarkRating(it, subjectMarks.subject) }
+            subjectMarks.finalMark?.let { mark ->
+                if (mark.ratingKey != null)
+                    onPeriodMarkRating(mark, subjectMarks.subject)
+            }
         }
     }
 

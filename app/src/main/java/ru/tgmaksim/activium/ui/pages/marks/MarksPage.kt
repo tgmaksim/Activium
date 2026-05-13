@@ -56,7 +56,7 @@ class MarksPage(param: String? = null) : MainFragment(param) {
     private val subjectMarksYearSkeletonAdapter = SubjectMarksSkeletonAdapter(SKELETON_SUBJECT_MARKS_COUNTS)
     private val subjectMarksYearAdapter = SubjectMarksYearAdapter(
         false,
-        onPeriodMarkRating = ::onSubjectRating,
+        onPeriodMarkRating = ::onMarksRating,
         onMarksRating = ::onMarksRating
     )
 
