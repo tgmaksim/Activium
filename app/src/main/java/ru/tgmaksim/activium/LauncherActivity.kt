@@ -15,10 +15,10 @@ class LauncherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Маршрутизация в зависимости от наличия сессии
-        // Если сессии нет, то повторная проверка
+        // Если сессия не была загружена в фоне, то загружается в потоке
         val sessionId = MemoryDataManager.sessionId.value ?: runBlocking { SettingsManager.getSessionId() }
 
+        // Маршрутизация в зависимости от наличия сессии
         val target = if (sessionId == null) {
             LoginActivity::class.java
         } else {

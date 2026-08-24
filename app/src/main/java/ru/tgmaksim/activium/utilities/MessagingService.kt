@@ -1,5 +1,7 @@
 package ru.tgmaksim.activium.utilities
 
+import android.annotation.SuppressLint
+
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,20 +22,25 @@ import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.Settings
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
+@SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class MessagingService : FirebaseMessagingService() {
-    override fun onNewToken(token: String) {
-        super.onNewToken(token)
+    override fun onRegistered(installationId: String) {
+        super.onRegistered(installationId)
 
-        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            Utilities.log("Coroutine Error at MessagingService.onRegistered: ${throwable.message}")
+        }
+        val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + exceptionHandler)
+
         applicationScope.launch {
-            SettingsManager.setFirebaseMessagingToken(token)
-            if (SettingsManager.getSessionId() != null)
-                Settings.updateFirebase(token)
+            SettingsManager.setFirebaseMessagingToken(installationId)
+            Settings.updateFirebase(installationId)
         }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+
         try {
             if (!NotificationManager.checkPermission(this))
                 return

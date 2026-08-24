@@ -59,9 +59,9 @@ class SchoolPage(param: String? = null) : MainFragment(param) {
 
                 (activity as MainActivity).updateNewSchoolPosts(newPostResult.countPostsWithoutVision)
                 schoolViewModel.updatePost(postId, newPostResult)
-
-                requireActivity().recreate()
             }
+
+            requireActivity().recreate()
         }
 
     override fun onCreateView(

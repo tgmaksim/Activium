@@ -1,15 +1,24 @@
 package ru.tgmaksim.activium.ui.webview
 
 import android.os.Bundle
-import android.view.View
 import android.util.TypedValue
-import androidx.activity.addCallback
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 
 import android.content.Intent
 import android.content.Context
-import android.webkit.WebViewClient
+
 import android.annotation.SuppressLint
+
+import android.view.View
+import android.view.ViewGroup
+import android.webkit.JavascriptInterface
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+
+import android.webkit.WebViewClient
+import android.webkit.WebChromeClient
 
 import kotlinx.coroutines.launch
 import androidx.activity.viewModels
@@ -38,6 +47,29 @@ class WebSchoolPostActivity : ParentActivity() {
     private var hasLike = false
     private var postResult: MarkSchoolPostResult? = null
     private var isViewedSent = false
+
+    private var customView: View? = null
+    private var customViewCallback: WebChromeClient.CustomViewCallback? = null
+    private var originalOrientation: Int = 0
+
+    private val fullScreenBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            ui.webView.webChromeClient?.onHideCustomView()
+        }
+    }
+    private val activityBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (ui.webView.canScrollVertically(-1))
+                ui.webView.evaluateJavascript("window.scrollTo({ top: 0, behavior: 'smooth' });", null)
+            else
+                finishWithResult()
+        }
+    }
+    private val imageZoomBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            ui.webView.evaluateJavascript("closePhotoSwipe();", null)
+        }
+    }
 
     private val thresholdPx by lazy {
         TypedValue.applyDimension(
@@ -81,10 +113,10 @@ class WebSchoolPostActivity : ParentActivity() {
             "$it?isDarkTheme=${if (MemoryDataManager.darkTheme.value) "true" else "false"}"
         } ?: return finish()
 
-        ui.webView.loadUrl(url)
-
         setupWebView()
         updateLikeUI()
+
+        ui.webView.loadUrl(url)
 
         setupButtons()
 
@@ -109,7 +141,67 @@ class WebSchoolPostActivity : ParentActivity() {
             domStorageEnabled = true
         }
 
+        onBackPressedDispatcher.addCallback(this, fullScreenBackPressedCallback)
+        onBackPressedDispatcher.addCallback(this, imageZoomBackPressedCallback)
+
         ui.webView.webViewClient = WebViewClient()
+
+        ui.webView.addJavascriptInterface(object {
+            @JavascriptInterface
+            fun setImageOverlayVisible(isVisible: Boolean) {
+                runOnUiThread {
+                    imageZoomBackPressedCallback.isEnabled = isVisible
+                    activityBackPressedCallback.isEnabled = !isVisible
+                }
+            }
+        }, "AndroidBridge")
+
+        // Обработка полноэкранного режима видео
+        ui.webView.webChromeClient = object : WebChromeClient() {
+            override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                if (customView != null) {
+                    callback?.onCustomViewHidden()
+                    return
+                }
+
+                customView = view
+                customViewCallback = callback
+                originalOrientation = requestedOrientation
+
+                val decorView = window.decorView as ViewGroup
+                decorView.addView(
+                    customView, ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                )
+
+                val windowInsetsController = WindowCompat.getInsetsController(window, decorView)
+                windowInsetsController.let {
+                    it.hide(WindowInsetsCompat.Type.systemBars())
+                    it.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+
+                fullScreenBackPressedCallback.isEnabled = true
+                activityBackPressedCallback.isEnabled = false
+            }
+
+            override fun onHideCustomView() {
+                val decorView = window.decorView as ViewGroup
+                decorView.removeView(customView)
+                customView = null
+
+                customViewCallback?.onCustomViewHidden()
+
+                val windowInsetsController = WindowCompat.getInsetsController(window, decorView)
+                windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+
+                requestedOrientation = originalOrientation
+
+                fullScreenBackPressedCallback.isEnabled = false
+                activityBackPressedCallback.isEnabled = true
+            }
+        }
     }
 
     private fun updateLikeUI() {
@@ -127,12 +219,7 @@ class WebSchoolPostActivity : ParentActivity() {
             toggleLike()
         }
 
-        onBackPressedDispatcher.addCallback(this) {
-            if (ui.webView.canScrollVertically(-1))
-                ui.webView.scrollTo(0, 0)
-            else
-                finishWithResult()
-        }
+        onBackPressedDispatcher.addCallback(this, activityBackPressedCallback)
     }
 
     private fun toggleLike() {

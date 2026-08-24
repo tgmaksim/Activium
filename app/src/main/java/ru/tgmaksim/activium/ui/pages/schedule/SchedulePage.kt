@@ -107,9 +107,9 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
 
                 (activity as MainActivity).updateNewSchoolPosts(newPostResult.countPostsWithoutVision)
                 scheduleViewModel.updatePost(postId, newPostResult)
-
-                requireActivity().recreate()
             }
+
+            requireActivity().recreate()
         }
 
     private var currentData: UiScheduleResult? = null

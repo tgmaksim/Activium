@@ -1,6 +1,7 @@
+@file:Suppress("UnstableApiUsage")
+
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 // Переменные окружения
 val propsFile: File = rootProject.file("variables.xml")
@@ -34,30 +35,33 @@ gradle.taskGraph.whenReady {
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.4.10"
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
     id("com.google.devtools.ksp") version "2.3.6"
 }
 
+androidComponents {
+    onVariants { variant ->
+        val appVersion = variant.outputs.firstOrNull()?.versionName?.get() ?: ""
+
+        // Меняем имя выходного файла
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("activium_v$appVersion.apk")
+        }
+    }
+}
+
 android {
     namespace = "ru.tgmaksim.activium"
     compileSdk {
-        version = release(36)
-    }
-
-    applicationVariants.all {
-        outputs.all {
-            val output = this as BaseVariantOutputImpl
-            output.outputFileName = "activium_v$appVersion.apk"
-        }
+        version = release(37)
     }
 
     defaultConfig {
         applicationId = "ru.tgmaksim.activium"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 37
         versionCode = newBuildNumber
         versionName = appVersion
 
@@ -70,7 +74,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -105,6 +110,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.konfetti.xml)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.webkit)
     implementation(libs.ktor.client.cio)
     implementation(libs.kotlinx.datetime)
     implementation(libs.ktor.client.core)
@@ -118,16 +124,15 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(platform(libs.firebase.bom))
 
     ksp(libs.androidx.room.compiler)
 
     api(libs.firebase.messaging)
-    api(platform(libs.firebase.bom))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
