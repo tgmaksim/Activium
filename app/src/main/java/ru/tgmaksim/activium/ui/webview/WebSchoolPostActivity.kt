@@ -9,14 +9,15 @@ import android.content.Intent
 import android.content.Context
 
 import android.annotation.SuppressLint
+import android.webkit.JavascriptInterface
 
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.JavascriptInterface
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
+import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebChromeClient
 
@@ -26,6 +27,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 
+import kotlin.math.abs
 import kotlin.getValue
 import kotlin.properties.Delegates
 
@@ -52,6 +54,7 @@ class WebSchoolPostActivity : ParentActivity() {
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
     private var originalOrientation: Int = 0
 
+    // Обработчики кнопки назад или жестом для разных состояний
     private val fullScreenBackPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
             ui.webView.webChromeClient?.onHideCustomView()
@@ -75,6 +78,13 @@ class WebSchoolPostActivity : ParentActivity() {
         TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             100f,
+            resources.displayMetrics
+        )
+    }
+    private val scrollThreshold by lazy {
+        TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            15f,
             resources.displayMetrics
         )
     }
@@ -114,14 +124,15 @@ class WebSchoolPostActivity : ParentActivity() {
         } ?: return finish()
 
         setupWebView()
-        updateLikeUI()
+        setupButtons()
 
         ui.webView.loadUrl(url)
 
-        setupButtons()
+        updateLikeUI()
+
+        setupSwipeRefresh()
 
         setupScrollTracking()
-
         setupCollectors()
     }
 
@@ -134,25 +145,35 @@ class WebSchoolPostActivity : ParentActivity() {
         finish()
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "MissingOnRenderProcessGone")
     private fun setupWebView() {
+        ui.swipeRefresh.isRefreshing = true
+        ui.webView.setBackgroundColor(getColor(R.color.main_bg))
+
         ui.webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
         }
 
-        onBackPressedDispatcher.addCallback(this, fullScreenBackPressedCallback)
-        onBackPressedDispatcher.addCallback(this, imageZoomBackPressedCallback)
+        ui.webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
 
-        ui.webView.webViewClient = WebViewClient()
+                ui.webView.background = null
+                ui.swipeRefresh.isRefreshing = false
+            }
+        }
 
+        // Обработка данных от JS
         ui.webView.addJavascriptInterface(object {
-            @JavascriptInterface
-            fun setImageOverlayVisible(isVisible: Boolean) {
-                runOnUiThread {
-                    imageZoomBackPressedCallback.isEnabled = isVisible
-                    activityBackPressedCallback.isEnabled = !isVisible
-                }
+            @JavascriptInterface  // Открытие или скрытие полноэкранного просмотра картинки
+            fun setImageOverlayVisible(isVisible: Boolean) = runOnUiThread {
+                // Смена обработчика кнопки назад или жестом
+                imageZoomBackPressedCallback.isEnabled = isVisible
+                activityBackPressedCallback.isEnabled = !isVisible
+
+                // Скрытие или возвращение нижнего меню
+                ui.bottomBar.visibility = if (isVisible) View.INVISIBLE else View.VISIBLE
             }
         }, "AndroidBridge")
 
@@ -220,6 +241,8 @@ class WebSchoolPostActivity : ParentActivity() {
         }
 
         onBackPressedDispatcher.addCallback(this, activityBackPressedCallback)
+        onBackPressedDispatcher.addCallback(this, fullScreenBackPressedCallback)
+        onBackPressedDispatcher.addCallback(this, imageZoomBackPressedCallback)
     }
 
     private fun toggleLike() {
@@ -227,6 +250,7 @@ class WebSchoolPostActivity : ParentActivity() {
     }
 
     private fun setupScrollTracking() {
+        // При пролистывании почти всей страницы отправляется просмотр
         ui.webView.viewTreeObserver.addOnScrollChangedListener {
             val contentHeight = ui.webView.contentHeight * ui.webView.scaleY
             val scrollY = ui.webView.scrollY + ui.webView.height
@@ -236,6 +260,21 @@ class WebSchoolPostActivity : ParentActivity() {
                 sendViewed()
             }
         }
+
+        // Скрытие и появление нижнего меню при прокрутке страницы
+        ui.webView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (abs(scrollY - oldScrollY) > scrollThreshold) {
+                if (scrollY > oldScrollY)
+                    ui.bottomBar.visibility = View.INVISIBLE
+                else if (scrollY < oldScrollY)
+                    ui.bottomBar.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun setupSwipeRefresh() {
+        ui.swipeRefresh.setColorSchemeColors(getColor(R.color.swipe_refresh_scheme))
+        ui.swipeRefresh.setProgressBackgroundColorSchemeColor(getColor(R.color.main_bg))
     }
 
     private fun sendViewed() {
