@@ -376,8 +376,6 @@ class MarksPage(param: String? = null) : MainFragment(param) {
     }
 
     private fun renderMarks(data: UiMarksResult) {
-        if (data.recentMarks.isEmpty() && data.periodMarks.isEmpty()) return
-
         if (ui.lastMarks.adapter !== lastMarksAdapter) {
             ui.lastMarks.adapter = lastMarksAdapter
         }
