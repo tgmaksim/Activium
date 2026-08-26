@@ -1,5 +1,7 @@
 package ru.tgmaksim.activium.utilities.datastore
 
+import java.time.Instant
+
 import android.content.Context
 
 import androidx.datastore.preferences.core.edit
@@ -27,6 +29,10 @@ object SettingsManager {
     private val KEY_AFTER_SCHEDULE = intPreferencesKey("after_schedule")
     private val KEY_LAST_MARKS_PERIOD = intPreferencesKey("last_marks_period")
     private val KEY_SHOW_NULL_SUBJECT_MARKS = booleanPreferencesKey("show_null_subject_marks")
+    private val KEY_STUDY_LESSON_MENU = booleanPreferencesKey("key_study_lesson_menu")
+    private val KEY_STUDY_MARK_RATING = booleanPreferencesKey("key_study_mark_rating")
+    private val KEY_STUDY_SUBJECT_RATING = booleanPreferencesKey("key_study_subject_rating")
+    private val KEY_LAST_STUDY = stringPreferencesKey("key_last_show_study")
 
     private const val DEFAULT_ACTIVE_CHILD_ID = -1L
     private const val DEFAULT_DARK_THEME = false
@@ -34,6 +40,10 @@ object SettingsManager {
     private const val DEFAULT_AFTER_SCHEDULE = 3
     private const val DEFAULT_LAST_MARKS_PERIOD = 5
     private const val DEFAULT_SHOW_NULL_SUBJECT_MARKS = false
+    private const val DEFAULT_STUDY = false
+    private val DEFAULT_LAST_STUDY by lazy {
+        (Instant.now().toEpochMilli() / 1000).toString()
+    }
 
     fun init(context: Context) {
         appContext = context.applicationContext
@@ -181,6 +191,70 @@ object SettingsManager {
         }
     }
 
+    suspend fun getStudyLessonMenu(): Boolean {
+        return appContext.settingsDataStore.data.first()[KEY_STUDY_LESSON_MENU] ?: DEFAULT_STUDY
+    }
+
+    suspend fun setStudyLessonMenu(value: Boolean) {
+        appContext.settingsDataStore.edit { prefs ->
+            prefs[KEY_STUDY_LESSON_MENU] = value
+        }
+    }
+
+    fun studyLessonMenuFlow(): Flow<Boolean> {
+        return appContext.settingsDataStore.data.map { prefs ->
+            prefs[KEY_STUDY_LESSON_MENU] ?: DEFAULT_STUDY
+        }
+    }
+
+    suspend fun getStudyMarkRating(): Boolean {
+        return appContext.settingsDataStore.data.first()[KEY_STUDY_MARK_RATING] ?: DEFAULT_STUDY
+    }
+
+    suspend fun setStudyMarkRating(value: Boolean) {
+        appContext.settingsDataStore.edit { prefs ->
+            prefs[KEY_STUDY_MARK_RATING] = value
+        }
+    }
+
+    fun studyMarkRatingFlow(): Flow<Boolean> {
+        return appContext.settingsDataStore.data.map { prefs ->
+            prefs[KEY_STUDY_MARK_RATING] ?: DEFAULT_STUDY
+        }
+    }
+
+    suspend fun getStudySubjectRating(): Boolean {
+        return appContext.settingsDataStore.data.first()[KEY_STUDY_SUBJECT_RATING] ?: DEFAULT_STUDY
+    }
+
+    suspend fun setStudySubjectRating(value: Boolean) {
+        appContext.settingsDataStore.edit { prefs ->
+            prefs[KEY_STUDY_SUBJECT_RATING] = value
+        }
+    }
+
+    fun studySubjectRatingFlow(): Flow<Boolean> {
+        return appContext.settingsDataStore.data.map { prefs ->
+            prefs[KEY_STUDY_SUBJECT_RATING] ?: DEFAULT_STUDY
+        }
+    }
+
+    suspend fun getLastStudy(): String {
+        return appContext.settingsDataStore.data.first()[KEY_LAST_STUDY] ?: DEFAULT_LAST_STUDY
+    }
+
+    suspend fun setLastStudy(value: String) {
+        appContext.settingsDataStore.edit { prefs ->
+            prefs[KEY_LAST_STUDY] = value
+        }
+    }
+
+    fun lastStudyFlow(): Flow<String> {
+        return appContext.settingsDataStore.data.map { prefs ->
+            prefs[KEY_LAST_STUDY] ?: DEFAULT_LAST_STUDY
+        }
+    }
+
     suspend fun snapshot(): SettingsSnapshot {
         val prefs = appContext.settingsDataStore.data.first()
         return SettingsSnapshot(
@@ -190,7 +264,11 @@ object SettingsManager {
             beforeSchedule = prefs[KEY_BEFORE_SCHEDULE] ?: DEFAULT_BEFORE_SCHEDULE,
             afterSchedule = prefs[KEY_AFTER_SCHEDULE] ?: DEFAULT_AFTER_SCHEDULE,
             lastMarksPeriod = prefs[KEY_LAST_MARKS_PERIOD] ?: DEFAULT_LAST_MARKS_PERIOD,
-            showNullSubjectMarks = prefs[KEY_SHOW_NULL_SUBJECT_MARKS] ?: DEFAULT_SHOW_NULL_SUBJECT_MARKS
+            showNullSubjectMarks = prefs[KEY_SHOW_NULL_SUBJECT_MARKS] ?: DEFAULT_SHOW_NULL_SUBJECT_MARKS,
+            studyLessonMenu = prefs[KEY_STUDY_LESSON_MENU] ?: DEFAULT_STUDY,
+            studyMarkRating = prefs[KEY_STUDY_MARK_RATING] ?: DEFAULT_STUDY,
+            studySubjectRating = prefs[KEY_STUDY_SUBJECT_RATING] ?: DEFAULT_STUDY,
+            lastStudy = prefs[KEY_LAST_STUDY] ?: DEFAULT_LAST_STUDY
         )
     }
 }

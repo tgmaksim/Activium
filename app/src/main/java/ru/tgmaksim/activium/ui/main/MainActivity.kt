@@ -22,6 +22,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.fragment.app.FragmentManager
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+
+import java.time.Instant
+import kotlin.time.Duration.Companion.seconds
+
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.Rotation
@@ -44,6 +50,7 @@ import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.ui.pages.schedule.SchedulePage
 import ru.tgmaksim.activium.ui.pages.settings.SettingsPage
 import ru.tgmaksim.activium.databinding.ActivityMainBinding
+import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
  * Главная Activity приложения
@@ -55,6 +62,8 @@ class MainActivity : ParentActivity() {
 
     private var schoolAnim = false
     private var settingsAnim = false
+
+    private var studyJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Устанавливается сохраненная тема
@@ -90,6 +99,19 @@ class MainActivity : ParentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        checkStudy()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        studyJob?.cancel()
+        studyJob = null
     }
 
     private fun handleIntent(intent: Intent?): Boolean {
@@ -247,13 +269,17 @@ class MainActivity : ParentActivity() {
      * @author Максим Дрючин (tgmaksim)
      * */
     private fun getOrCreateFragment(itemId: Int, param: String? = null): MainFragment {
-        return supportFragmentManager.findFragmentByTag(itemId.toString()) as? MainFragment ?: when (itemId) {
+        return getFragment(itemId) ?: when (itemId) {
             R.id.it_schedule -> SchedulePage(param)
             R.id.it_marks -> MarksPage(param)
             R.id.it_school -> SchoolPage(param)
             R.id.it_settings -> SettingsPage(param)
             else -> throw IllegalArgumentException()
         }
+    }
+
+    private fun getFragment(itemId: Int): MainFragment? {
+        return supportFragmentManager.findFragmentByTag(itemId.toString()) as? MainFragment
     }
 
     /**
@@ -420,6 +446,67 @@ class MainActivity : ParentActivity() {
         when (menuId) {
             R.id.it_school -> schoolAnim = false
             R.id.it_settings -> settingsAnim = false
+        }
+    }
+
+    /**
+     * Показ подсказки при необходимости
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    private fun checkStudy() {
+        if (studyJob != null && studyJob?.isActive == true)
+            return
+
+        studyJob = lifecycleScope.launch {
+            delay(10.seconds)  // Чтобы не создавать шум вначале
+
+            var showStudy = false
+
+            val now = Instant.now()
+            val lastStudySeconds = SettingsManager.getLastStudy().toLong()
+            val deltaSeconds = now.minusSeconds(lastStudySeconds).toEpochMilli() / 1000
+
+            // С прошлой подсказки (или первого запуска) прошло больше суток
+            if (deltaSeconds >= 60 * 60 * 24) run {
+                // Если пользователь на странице расписания
+                if (getFragment(R.id.it_schedule)?.isVisible == true) {
+                    if (!SettingsManager.getStudyLessonMenu()) {
+                        Utilities.showText(
+                            this@MainActivity,
+                            R.string.study_lesson_menu,
+                            long = true
+                        )
+                        showStudy = true
+                        return@run
+                    }
+                }
+
+                // Если пользователь на странице оценок
+                if (getFragment(R.id.it_marks)?.isVisible == true) {
+                    if (!SettingsManager.getStudyMarkRating()) {
+                        Utilities.showText(
+                            this@MainActivity,
+                            R.string.study_mark_rating,
+                            long = true
+                        )
+                        showStudy = true
+                        return@run
+                    }
+
+                    if (!SettingsManager.getStudySubjectRating()) {
+                        Utilities.showText(
+                            this@MainActivity,
+                            R.string.study_subject_rating,
+                            long = true
+                        )
+                        showStudy = true
+                        return@run
+                    }
+                }
+            }
+
+            if (showStudy)
+                SettingsManager.setLastStudy((now.toEpochMilli() / 1000).toString())
         }
     }
 

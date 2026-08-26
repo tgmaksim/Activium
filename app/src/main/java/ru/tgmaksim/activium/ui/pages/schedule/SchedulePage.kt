@@ -388,6 +388,8 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
             { Utilities.openUrl(requireContext(), lesson.dnevnikruUrl!!) },
             { onRating(lessonKey) }
         ).show(childFragmentManager, LessonMenuDialog.TAG)
+
+        scheduleViewModel.doneStudyLessonMenu()
     }
 
     private fun openLessonNoteEditor(lessonKey: String) {

@@ -109,6 +109,12 @@ class ScheduleViewModel : UiViewModel() {
         _noteStates.value = emptyMap()
     }
 
+    fun doneStudyLessonMenu() {
+        viewModelScope.launch {
+            SettingsManager.setStudyLessonMenu(true)
+        }
+    }
+
     fun loadCacheSchedule() {
         val job = loadCacheScheduleJob
         if (job?.isActive == true)

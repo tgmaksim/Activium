@@ -7,5 +7,9 @@ data class SettingsSnapshot(
     val beforeSchedule: Int,
     val afterSchedule: Int,
     val lastMarksPeriod: Int,
-    val showNullSubjectMarks: Boolean
+    val showNullSubjectMarks: Boolean,
+    val studyLessonMenu: Boolean,
+    val studyMarkRating: Boolean,
+    val studySubjectRating: Boolean,
+    val lastStudy: String
 )

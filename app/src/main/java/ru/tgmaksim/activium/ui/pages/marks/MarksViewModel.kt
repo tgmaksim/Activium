@@ -66,6 +66,18 @@ class MarksViewModel : UiViewModel() {
         }
     }
 
+    fun doneStudyMarkRating() {
+        viewModelScope.launch {
+            SettingsManager.setStudyMarkRating(true)
+        }
+    }
+
+    fun doneStudySubjectRating() {
+        viewModelScope.launch {
+            SettingsManager.setStudySubjectRating(true)
+        }
+    }
+
     fun loadCacheMarks() {
         val job = loadCacheMarksJob
         if (job?.isActive == true)

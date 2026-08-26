@@ -188,4 +188,8 @@
     <string name="android">Android %1$s (API %2$d)</string>
     <string name="default_android">Android</string>
     <string name="developer">Разработчик: Максим Дрючин, 2026</string>
+
+    <string name="study_lesson_menu">Долгое нажатие на карточку урока открывает меню</string>
+    <string name="study_mark_rating">Нажатие на любую оценку открывает рейтинг</string>
+    <string name="study_subject_rating">Нажатие на название предмета открывает рейтинг</string>
 </resources>

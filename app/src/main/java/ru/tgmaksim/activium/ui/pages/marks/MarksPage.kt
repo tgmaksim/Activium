@@ -204,6 +204,8 @@ class MarksPage(param: String? = null) : MainFragment(param) {
             currentData?.recentMarks?.find { it.ratingKey == ratingKey } ?: return,
             false
         ).show(parentFragmentManager, LastMarkRatingDialog.TAG)
+
+        marksViewModel.doneStudyMarkRating()
     }
 
     private fun onSubjectRating(ratingKey: String, subject: String? = null, classRating: Boolean = false) {
@@ -213,6 +215,8 @@ class MarksPage(param: String? = null) : MainFragment(param) {
             true,
             classRating = classRating
         ).show(parentFragmentManager, SubjectRatingDialog.TAG)
+
+        marksViewModel.doneStudySubjectRating()
     }
 
     private fun onMarksRating(myMark: MarkLog, subject: String) {
@@ -229,6 +233,8 @@ class MarksPage(param: String? = null) : MainFragment(param) {
             ),
             false
         ).show(parentFragmentManager, LastMarkRatingDialog.TAG)
+
+        marksViewModel.doneStudyMarkRating()
     }
 
     private fun setupCollectors() {
