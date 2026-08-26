@@ -5,6 +5,8 @@
     <color name="text_primary">#000000</color>
     <color name="text_secondary">#99000000</color>
 
+    <color name="developer_text">#0288D1</color>
+
     <color name="button_bg">#80FFFFFF</color>
 
     <color name="stroke_bg">#50FFFFFF</color>

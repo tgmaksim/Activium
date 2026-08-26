@@ -3,8 +3,10 @@
 
     <style name="Theme.Activium.Splash" parent="Theme.Activium">
         <item name="android:windowBackground">@drawable/background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
         <item name="android:windowSplashScreenBackground">@color/main_bg</item>
+
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/ic_developer_text</item>
     </style>
 
 </resources>
