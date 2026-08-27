@@ -163,13 +163,16 @@
     <string name="referral_info">Приглашайте своих друзей и знакомых в Активиум по реферальной ссылке</string>
     <string name="referral_count_zero">🤜🤛 Вы пока что не приглашали друзей</string>
     <plurals name="referral_count">
-        <item quantity="zero">🤜🤛 Вы пока что не приглашали друзей</item>
         <item quantity="one">🤜🤛 Вы пригласили %1$d друга</item>
         <item quantity="few">🤜🤛 Вы пригласили %1$d друга</item>
         <item quantity="many">🤜🤛 Вы пригласили %1$d друзей</item>
         <item quantity="other">🤜🤛 Вы пригласили %1$d друзей</item>
         <item quantity="two">🤜🤛 Вы пригласили %1$d друга</item>
     </plurals>
+    <string name="active_relatives_children">🧒 Дети в %1$s: %2$d из %3$d</string>
+    <string name="all_active_relatives_children">🧒 Ваши дети уже в %1$s!</string>
+    <string name="active_relatives_parents">👩👨 Родители в %1$s: %2$d из %3$d</string>
+    <string name="all_active_relatives_parents">👩👨 Ваши родители уже в %1$s!</string>
     <string name="me_referral">📥 Вас пригласили: %1$s</string>
     <string name="share">Пригласить</string>
     <string name="share_text">Я приглашаю в Активиум — приложения для учеников и их родителей\n\nСкачивание на сайте: %1$s</string>

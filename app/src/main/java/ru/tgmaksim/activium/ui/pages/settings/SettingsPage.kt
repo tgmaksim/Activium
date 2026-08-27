@@ -739,6 +739,18 @@ class SettingsPage(param: String? = null) : MainFragment(param) {
         ui.meReferral.text = data.meReferralName?.let { getString(R.string.me_referral, it) } ?: ""
         ui.referralCounter.text = if (data.referralsCount == 0) getString(R.string.referral_count_zero)
         else resources.getQuantityString(R.plurals.referral_count, data.referralsCount, data.referralsCount)
+
+        ui.activeRelatives.text = if (data.countRelatives == data.countActiveRelatives)
+            getString(
+                if (data.isParent) R.string.all_active_relatives_children else R.string.all_active_relatives_parents,
+                getString(R.string.app_name)
+            )
+        else getString(
+            if (data.isParent) R.string.active_relatives_children else R.string.active_relatives_parents,
+            getString(R.string.app_name),
+            data.countActiveRelatives, data.countRelatives
+        )
+
         ui.buttonShare.setOnClickListener {
             val shareIntent = Intent().apply {
                 action = Intent.ACTION_SEND
@@ -800,6 +812,7 @@ class SettingsPage(param: String? = null) : MainFragment(param) {
         ui.meReferral.visibility =
             if (state is LoadState.Success && state.data.meReferralName != null) View.VISIBLE else View.GONE
         ui.referralCounter.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
+        ui.activeRelatives.visibility = if (state is LoadState.Success) View.VISIBLE else View.GONE
 
         ui.referralLoading.visibility = if (state is LoadState.Loading) View.VISIBLE else View.GONE
         ui.referralError.visibility = if (state.isError()) View.VISIBLE else View.GONE

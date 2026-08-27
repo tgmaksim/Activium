@@ -267,10 +267,13 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
     override val classId: Int = CLASS_ID,
     val meReferralName: String?,
     val referralsCount: Int,
+    val isParent: Boolean,
+    val countActiveRelatives: Int,
+    val countRelatives: Int,
     val referralUrl: String
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x45
+        const val CLASS_ID = 0x5F
     }
     init {
         if (classId != CLASS_ID)
@@ -293,7 +296,7 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
     override val answer: ReferralParamsResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x46
+        const val CLASS_ID = 0x60
     }
     init {
         if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
@@ -324,7 +327,7 @@ object Settings {
     private const val UPDATE_FIREBASE_VERSION = 0
     private const val EA_NOTIFICATIONS_VERSION = 0
     private const val SWITCH_EA_NOTIFICATIONS_VERSION = 0
-    private const val REFERRAL_PARAMS_VERSION = 0
+    private const val REFERRAL_PARAMS_VERSION = 1
 
     /**
      * Получение списка детей, привязанных к пользователю сессии, и активного ребенка.
@@ -423,7 +426,7 @@ object Settings {
     }
 
     /**
-     * Включение или выключение уведомлений о внеурочных занятияхдля активного ребенка
+     * Включение или выключение уведомлений о внеурочных занятиях для активного ребенка
      * @return Ответ сервера в виде [SwitchEANotificationsApiResponse]
      * @exception Exception
      * @author Максим Дрючин (tgmaksim)
