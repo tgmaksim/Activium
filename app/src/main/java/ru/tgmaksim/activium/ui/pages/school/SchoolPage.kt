@@ -186,6 +186,17 @@ class SchoolPage(param: String? = null) : MainFragment(param) {
                         }
                     }
                 }
+                launch {
+                    val mainActivity = (requireActivity() as MainActivity)
+                    mainActivity.activityViewModel.adState.collect { state ->
+                        if (state is LoadState.Success && state.data.ad != null) {
+                            mainActivity.renderAdBanner(ui.adBanner, state.data.ad)
+                            ui.adBanner.root.visibility = View.VISIBLE
+                        } else {
+                            ui.adBanner.root.visibility = View.GONE
+                        }
+                    }
+                }
             }
         }
     }

@@ -22,7 +22,9 @@ import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.api.MarkLast
 import ru.tgmaksim.activium.api.MarkLog
 import ru.tgmaksim.activium.ui.LoginActivity
+import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.utilities.Utilities
+import ru.tgmaksim.activium.ui.main.MainActivity
 import ru.tgmaksim.activium.ui.pages.MainFragment
 import ru.tgmaksim.activium.ui.core.CacheDataLoadState
 import ru.tgmaksim.activium.databinding.MarksPageBinding
@@ -365,6 +367,17 @@ class MarksPage(param: String? = null) : MainFragment(param) {
 
                             if (data != null)
                                 renderMarks(data)
+                        }
+                    }
+                }
+                launch {
+                    val mainActivity = (requireActivity() as MainActivity)
+                    mainActivity.activityViewModel.adState.collect { state ->
+                        if (state is LoadState.Success && state.data.ad != null) {
+                            mainActivity.renderAdBanner(ui.adBanner, state.data.ad)
+                            ui.adBanner.root.visibility = View.VISIBLE
+                        } else {
+                            ui.adBanner.root.visibility = View.GONE
                         }
                     }
                 }

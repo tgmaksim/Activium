@@ -22,6 +22,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.fragment.app.FragmentManager
 
+import coil3.load
+import coil3.request.crossfade
+import coil3.request.CachePolicy
+
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 
@@ -38,6 +42,7 @@ import nl.dionsegijn.konfetti.xml.KonfettiView
 import nl.dionsegijn.konfetti.xml.image.DrawableImage
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.api.Ad
 import ru.tgmaksim.activium.BuildConfig
 import ru.tgmaksim.activium.ui.ParentActivity
 import ru.tgmaksim.activium.ui.core.LoadState
@@ -46,6 +51,7 @@ import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.pages.MainFragment
 import ru.tgmaksim.activium.ui.pages.marks.MarksPage
 import ru.tgmaksim.activium.ui.pages.school.SchoolPage
+import ru.tgmaksim.activium.databinding.AdBannerBinding
 import ru.tgmaksim.activium.utilities.NotificationManager
 import ru.tgmaksim.activium.ui.pages.schedule.SchedulePage
 import ru.tgmaksim.activium.ui.pages.settings.SettingsPage
@@ -104,14 +110,14 @@ class MainActivity : ParentActivity() {
     override fun onResume() {
         super.onResume()
 
+        checkAccessibleAd()
         checkStudy()
     }
 
     override fun onPause() {
         super.onPause()
 
-        studyJob?.cancel()
-        studyJob = null
+        pauseStudy()
     }
 
     private fun handleIntent(intent: Intent?): Boolean {
@@ -458,7 +464,7 @@ class MainActivity : ParentActivity() {
             return
 
         studyJob = lifecycleScope.launch {
-            delay(10.seconds)  // Чтобы не создавать шум вначале
+            delay(20.seconds)  // Чтобы не создавать шум вначале
 
             var showStudy = false
 
@@ -507,6 +513,50 @@ class MainActivity : ParentActivity() {
 
             if (showStudy)
                 SettingsManager.setLastStudy((now.toEpochMilli() / 1000).toString())
+        }
+    }
+
+    private fun pauseStudy() {
+        studyJob?.cancel()
+        studyJob = null
+    }
+
+    private fun checkAccessibleAd() {
+        val adValue = activityViewModel.adState.value
+        val hasAd = adValue !is LoadState.Empty && adValue !is LoadState.Loading
+
+        // Если реклама уже показана, то следующая после onResume открывается сразу
+        activityViewModel.checkAccessibleAd(wait = if (hasAd) null else 10.seconds)
+    }
+
+    fun renderAdBanner(adBanner: AdBannerBinding, ad: Ad) {
+        adBanner.title.text = ad.title
+        adBanner.description.text = ad.text
+
+        adBanner.imagePlaceholder.visibility = View.VISIBLE
+        adBanner.image.load(ad.imageUrl) {
+            // Для рекламных объявлений используется всегда актуальные картинки
+            memoryCachePolicy(CachePolicy.DISABLED)
+            diskCachePolicy(CachePolicy.DISABLED)
+
+            crossfade(true)
+
+            listener(
+                onSuccess = { _, _ ->
+                    adBanner.image.background = null
+                    adBanner.imagePlaceholder.visibility = View.GONE
+                },
+                onError = { _, _ ->
+                    adBanner.imagePlaceholder.visibility = View.VISIBLE
+                    adBanner.image.setBackgroundColor(getColor(R.color.skeleton_base))
+                }
+            )
+        }
+
+        adBanner.root.setOnClickListener {
+            activityViewModel.clickAd(ad.adId)
+
+            Utilities.openUrl(this, ad.url)
         }
     }
 

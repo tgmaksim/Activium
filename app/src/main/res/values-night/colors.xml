@@ -87,4 +87,7 @@
     <color name="bg_old_rating_mark">#AAAAAA</color>
 
     <color name="bg_school_badge">#4B9A25</color>
+
+    <color name="ad_label_bg">#204FC3F7</color>
+    <color name="ad_label_text">#4FC3F7</color>
 </resources>

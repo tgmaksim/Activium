@@ -1,13 +1,17 @@
 package ru.tgmaksim.activium.ui.main
 
+import kotlin.time.Duration
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.api.Ads
 import ru.tgmaksim.activium.api.Status
 import ru.tgmaksim.activium.api.School
+import ru.tgmaksim.activium.api.AdResult
 import ru.tgmaksim.activium.ui.core.LoadState
 import ru.tgmaksim.activium.api.VersionsResult
 import ru.tgmaksim.activium.ui.core.UiViewModel
@@ -27,6 +31,12 @@ class MainActivityViewModel : UiViewModel() {
 
     private val _schoolPostsState = MutableStateFlow<LoadState<SchoolPostsWithoutVisionResult>>(LoadState.Empty)
     val schoolPostsState = _schoolPostsState.asStateFlow()
+
+    private val _adState = MutableStateFlow<LoadState<AdResult>>(LoadState.Empty)
+    val adState = _adState.asStateFlow()
+
+    private val _clickAdState = MutableStateFlow<LoadState<Unit>>(LoadState.Empty)
+    val clickAdState = _clickAdState.asStateFlow()
 
     fun reset(stateType: StateType) {
         when (stateType) {
@@ -69,6 +79,32 @@ class MainActivityViewModel : UiViewModel() {
                 R.string.error_new_school_posts,
                 School::checkNewPosts,
                 { it.answer }
+            )
+        }
+    }
+
+    fun checkAccessibleAd(wait: Duration? = null) {
+        viewModelScope.launch {
+            wait?.let { delay(wait) }
+
+            executeRequest(
+                _adState,
+                "checkAccessibleAd",
+                R.string.error_ad,
+                Ads::checkAccessibleAd,
+                { it.answer }
+            )
+        }
+    }
+
+    fun clickAd(adId: Int) {
+        viewModelScope.launch {
+            executeRequest(
+                _clickAdState,
+                "clickAd",
+                R.string.error_click_ad,
+                suspend{ Ads.clickAd(adId) },
+                {}
             )
         }
     }

@@ -195,4 +195,8 @@
     <string name="study_lesson_menu">Долгое нажатие на карточку урока открывает меню</string>
     <string name="study_mark_rating">Нажатие на любую оценку открывает рейтинг</string>
     <string name="study_subject_rating">Нажатие на название предмета открывает рейтинг</string>
+
+    <string name="ad_label">Реклама</string>
+    <string name="error_ad">Произошла ошибка при загрузке рекламы</string>
+    <string name="error_click_ad">Произошла ошибка при отправке статистики</string>
 </resources>

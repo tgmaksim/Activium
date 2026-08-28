@@ -23,6 +23,15 @@
                 android:paddingHorizontal="8dp"
                 android:paddingBottom="16dp">
 
+                <include
+                    android:id="@+id/adBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginHorizontal="2dp"
+                    android:visibility="gone"
+                    layout="@layout/ad_banner" />
+
                 <!-- Последние оценки -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/lastMarks"
