@@ -125,7 +125,8 @@ class MainActivity : ParentActivity() {
 
         val fromNotification = intent.getStringExtra("from_notification")
         fromNotification?.let {
-            var processing = false
+            var processing = false  // Открыта определенная страница
+
             when (it) {
                 "new_mark" -> {
                     processing = true
@@ -138,7 +139,7 @@ class MainActivity : ParentActivity() {
 
                     val goodMark = intent.getStringExtra("good_mark") == "true"
                     if (goodMark)
-                        startKonfettiAnimation(ui.konfettiView)
+                        startKonfettiAnimation()
                 }
                 "ea", "remind_note" -> {
                     processing = true
@@ -150,8 +151,8 @@ class MainActivity : ParentActivity() {
                     setupMenuListener()
                 }
                 "praise" -> {
-                    processing = true
-                    startKonfettiAnimation(ui.konfettiView)
+                    processing = false  // Никакая страница не открывает дополнительно
+                    startKonfettiAnimation()
                 }
                 "publish_review" -> {
                     processing = true
