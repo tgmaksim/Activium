@@ -58,11 +58,14 @@
             </intent-filter>
         </service>
 
+        <receiver android:name=".utilities.NotificationActionReceiver" android:exported="false" />
+
         <!-- Регистрация через Firebase Installation ID -->
         <meta-data
             android:name="firebase_messaging_installation_id_enabled"
             android:value="true" />
 
+        <!-- Не запускать автоматически Firebase  -->
         <provider
             android:name="com.google.firebase.provider.FirebaseInitProvider"
             android:authorities="${applicationId}.firebaseinitprovider"

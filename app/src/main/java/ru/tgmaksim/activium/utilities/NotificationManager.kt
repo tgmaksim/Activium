@@ -157,19 +157,35 @@ object NotificationManager {
             }
         }
         val mainPendingIntent = PendingIntent.getActivity(
-            context, id, mainIntent, PendingIntent.FLAG_IMMUTABLE)
+            context, id, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val buttonActions = buttons.mapIndexed { index, button ->
-            val intent = if (button.action == "open") Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            val cls: Class<out Any>
+            val intentFlags: Int
+
+            if (button.action == "open") {
+                cls = MainActivity::class.java
+                intentFlags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            } else {
+                cls = NotificationActionReceiver::class.java
+                intentFlags = Intent.FLAG_RECEIVER_FOREGROUND
+            }
+
+            val intent = Intent(context, cls).apply {
+                flags = intentFlags
+
                 putExtra("notificationId", id)
+                putExtra("action", button.action)
+
                 for (entry in button.data) {
                     putExtra(entry.key, entry.value)
                 }
-            } else null
+            }
 
-            val pendingIntent = intent?.let { PendingIntent.getActivity(
-                context, id + index, intent, PendingIntent.FLAG_IMMUTABLE) }
+            val pendingIntent = if (button.action == "open") PendingIntent.getActivity(
+                context, id + index, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            else PendingIntent.getBroadcast(
+                context, id + index, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
             NotificationCompat.Action(R.drawable.ic_launcher_foreground, button.text, pendingIntent)
         }

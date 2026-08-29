@@ -28,7 +28,7 @@ class MessagingService : FirebaseMessagingService() {
         super.onRegistered(installationId)
 
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            Utilities.log("Coroutine Error at MessagingService.onRegistered: ${throwable.message}")
+            Utilities.log(throwable, "Coroutine Error at MessagingService.onRegistered")
         }
         val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + exceptionHandler)
 
@@ -62,7 +62,7 @@ class MessagingService : FirebaseMessagingService() {
             } ?: emptyList()
 
             val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-                Utilities.log("Coroutine Error: ${throwable.message}")
+                Utilities.log(throwable, "Coroutine Error at MessagingService.onMessageReceived")
             }
             val scope = CoroutineScope(Dispatchers.IO + exceptionHandler)
 

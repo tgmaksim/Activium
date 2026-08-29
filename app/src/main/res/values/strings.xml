@@ -6,6 +6,10 @@
     <string name="error_server">Сервер в данное время недоступен</string>
     <string name="ok">Ок</string>
 
+    <string name="notification_broadcast_title">Фоновое действие</string>
+    <string name="notification_broadcast_success_text">Успешно выполнено</string>
+    <string name="notification_broadcast_unsuccess_text">Ошибка при выполнении, откройте приложение</string>
+
     <string name="title_dialog_permission_dnevnik_notifications">Разрешение на уведомления</string>
     <string name="message_dialog_permission_dnevnik_notifications">Предоставьте разрешения на уведомления. Если окно не откроется, посетите настройки</string>
     <string name="button_dialog_permission_dnevnik_notifications">Предоставить</string>

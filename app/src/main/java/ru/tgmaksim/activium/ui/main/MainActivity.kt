@@ -123,6 +123,13 @@ class MainActivity : ParentActivity() {
     private fun handleIntent(intent: Intent?): Boolean {
         if (intent == null) return false
 
+        val buttonId = intent.getIntExtra("notificationId", -1)
+        if (buttonId != -1) {
+            val manager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+            manager.cancel(buttonId)
+        }
+        intent.removeExtra("notificationId")
+
         val fromNotification = intent.getStringExtra("from_notification")
         fromNotification?.let {
             var processing = false  // Открыта определенная страница
@@ -165,13 +172,6 @@ class MainActivity : ParentActivity() {
                 }
             }
             intent.removeExtra("from_notification")
-
-            val buttonId = intent.getIntExtra("notificationId", -1)
-            if (buttonId != -1) {
-                val manager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
-                manager.cancel(buttonId)
-            }
-            intent.removeExtra("notificationId")
 
             return processing
         }

@@ -24,7 +24,7 @@ class App : Application() {
         CacheManager.init(this)
 
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            Utilities.log("Coroutine Error at App.onCreate: ${throwable.message}")
+            Utilities.log(throwable, "Coroutine Error at App.onCreate")
         }
         val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + exceptionHandler)
 
