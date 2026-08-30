@@ -104,7 +104,7 @@ class LoginActivity : ParentActivity() {
         } catch (_: CancellationException) {
             hideLoading()
         } catch (e: Exception) {
-            Utilities.log(e)
+            Utilities.log(e, "Error at login")
             if (!Request.checkInternet())
                 Utilities.showText(this, R.string.error_internet)
             else

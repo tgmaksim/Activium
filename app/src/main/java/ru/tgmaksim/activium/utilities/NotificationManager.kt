@@ -177,7 +177,7 @@ object NotificationManager {
                 putExtra("notificationId", id)
                 putExtra("action", button.action)
 
-                for (entry in button.data) {
+                for (entry in data + button.data) {
                     putExtra(entry.key, entry.value)
                 }
             }

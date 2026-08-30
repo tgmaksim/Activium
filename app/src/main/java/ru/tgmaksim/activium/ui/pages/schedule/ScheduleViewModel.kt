@@ -149,7 +149,7 @@ class ScheduleViewModel : UiViewModel() {
                     throw e
                 } catch (e: Exception) {
                     if (e !is CacheNullException) {
-                        Utilities.log(e)
+                        Utilities.log(e, "Error at loadCacheSchedule")
                         CacheManager.writeDnevnikCache(childId, CACHE_SCHEDULE_NAME, value = "")
                     }
                     _scheduleData.value = UiScheduleResult(
@@ -307,7 +307,7 @@ class ScheduleViewModel : UiViewModel() {
         } catch (_: CacheNullException) {
         } catch (_: CancellationException) {
         } catch (e: Exception) {
-            Utilities.log(e)
+            Utilities.log(e, "Error at onSuccessEditLessonNote")
         }
     }
 
@@ -376,7 +376,7 @@ class ScheduleViewModel : UiViewModel() {
         } catch (_: CacheNullException) {
         } catch (_: CancellationException) {
         } catch (e: Exception) {
-            Utilities.log(e)
+            Utilities.log(e, "Error at onSuccessUpdatePost")
         }
     }
 }

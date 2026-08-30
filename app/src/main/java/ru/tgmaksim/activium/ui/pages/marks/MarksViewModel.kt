@@ -109,7 +109,7 @@ class MarksViewModel : UiViewModel() {
                     throw e
                 } catch (e: Exception) {
                     if (e !is CacheNullException) {
-                        Utilities.log(e)
+                        Utilities.log(e, "Error at loadCacheMarks")
                         CacheManager.writeDnevnikCache(childId, CACHE_LAST_MARKS_NAME, value = "")
                         CacheManager.writeDnevnikCache(childId, CACHE_SUBJECT_MARKS_PERIOD, value = "")
                     }
@@ -178,7 +178,7 @@ class MarksViewModel : UiViewModel() {
                     throw e
                 } catch (e: Exception) {
                     if (e !is CacheNullException) {
-                        Utilities.log(e)
+                        Utilities.log(e, "Error at loadCacheFinalMarks")
                         CacheManager.writeDnevnikCache(childId, CACHE_SUBJECT_MARKS_YEAR, value = "")
                     }
                     _finalMarksState.setCacheSuccess()

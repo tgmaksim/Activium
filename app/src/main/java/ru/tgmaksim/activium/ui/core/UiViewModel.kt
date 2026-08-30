@@ -66,7 +66,7 @@ open class UiViewModel : ViewModel() {
                 !Request.checkInternet() -> R.string.error_internet
                 !Status.checkHealth() -> R.string.error_server
                 else -> {
-                    Utilities.log(e)
+                    Utilities.log(e, "Error at $apiName")
                     errorRes
                 }
             }
@@ -122,7 +122,7 @@ open class UiViewModel : ViewModel() {
                 !Request.checkInternet() -> R.string.error_internet
                 !Status.checkHealth() -> R.string.error_server
                 else -> {
-                    Utilities.log(e)
+                    Utilities.log(e, "Error at $apiName")
                     errorRes
                 }
             }
@@ -190,7 +190,7 @@ open class UiViewModel : ViewModel() {
                 !Request.checkInternet() -> R.string.error_internet
                 !Status.checkHealth() -> R.string.error_server
                 else -> {
-                    Utilities.log(e)
+                    Utilities.log(e, "Error at $apiName")
                     errorRes
                 }
             }

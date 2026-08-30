@@ -63,7 +63,7 @@ class RatingViewModel : UiViewModel() {
                     throw e
                 } catch (e: Exception) {
                     if (e !is CacheNullException) {
-                        Utilities.log(e)
+                        Utilities.log(e, "Error at loadCacheLessonRatingStats")
                         CacheManager.writeDnevnikCache(childId, CACHE_LESSON_RATING_STATS_NAME, param = ratingKey, value = "")
                     }
 

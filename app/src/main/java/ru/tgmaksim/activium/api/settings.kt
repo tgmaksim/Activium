@@ -304,6 +304,32 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
     }
 }
 
+
+/**
+ * Ответ на запрос скрытия уведомлений об определенном внеурочном занятии
+ * @param classId Идентификатор класса
+ * @param status Статус выполненного запроса
+ * @param error Объект ошибки
+ * @param answer Всегда null
+ * @author Максим Дрючин (tgmaksim)
+ * */
+@Serializable data class HideExtracurricularActivityApiResponse(
+    override val classId: Int = CLASS_ID,
+    override val status: Boolean,
+    override val error: ApiError?,
+    override val answer: ApiBase?
+) : ApiResponse() {
+    companion object {
+        const val CLASS_ID = 0x65
+    }
+    init {
+        if (classId != CLASS_ID && classId != ApiResponse.CLASS_ID)
+            throw ClassCastException()
+        if (answer != null)
+            throw ClassCastException()
+    }
+}
+
 /**
  * API-singleton для запросов группы settings
  * @property PATH_PREFIX Группа API-запросов
@@ -319,6 +345,7 @@ object Settings {
     private const val PATH_EA_NOTIFICATIONS = "getStatusEANotifications"
     private const val PATH_SWITCH_EA_NOTIFICATIONS = "switchEANotifications"
     private const val PATH_REFERRAL_PARAMS = "getReferralParams"
+    private const val PATH_HIDE_EXTRACURRICULAR_ACTIVITY = "hideExtracurricularActivity"
 
     private const val CHILDREN_VERSION = 0
     private const val ACTIVE_CHILD_VERSION = 0
@@ -328,6 +355,7 @@ object Settings {
     private const val EA_NOTIFICATIONS_VERSION = 0
     private const val SWITCH_EA_NOTIFICATIONS_VERSION = 0
     private const val REFERRAL_PARAMS_VERSION = 1
+    private const val HIDE_EXTRACURRICULAR_ACTIVITY = 0
 
     /**
      * Получение списка детей, привязанных к пользователю сессии, и активного ребенка.
@@ -451,6 +479,22 @@ object Settings {
         val response = Request.get<ReferralParamsApiResponse>(
             listOf(PATH_PREFIX, PATH_REFERRAL_PARAMS, REFERRAL_PARAMS_VERSION).joinToString("/"),
             sessionId = SettingsManager.getSessionId()
+        )
+
+        return response
+    }
+
+    /**
+     * Скрытие уведомлений с напоминанием об определенном внеурочном занятии
+     * @return Ответ сервера в виде [HideExtracurricularActivityApiResponse]
+     * @exception Exception
+     * @author Максим Дрючин (tgmaksim)
+     * */
+    suspend fun hideExtracurricularActivity(childId: Long, subject: String, place: String): HideExtracurricularActivityApiResponse {
+        val response = Request.put<HideExtracurricularActivityApiResponse>(
+            listOf(PATH_PREFIX, PATH_HIDE_EXTRACURRICULAR_ACTIVITY, HIDE_EXTRACURRICULAR_ACTIVITY).joinToString("/"),
+            sessionId = SettingsManager.getSessionId(),
+            params = mapOf("childId" to childId, "subject" to subject, "place" to place)
         )
 
         return response

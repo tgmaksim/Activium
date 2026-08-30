@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.api.Settings
 import ru.tgmaksim.activium.api.DnevnikTools
 
 class NotificationActionReceiver : BroadcastReceiver() {
@@ -36,9 +37,15 @@ class NotificationActionReceiver : BroadcastReceiver() {
 
                 runAsyncAction(context, notificationId) { sendPraise(ratingKey) }
             }
+            "hide_extracurricular_activity" -> {
+                val subject = intent.getStringExtra("subject") ?: return
+                val place = intent.getStringExtra("place") ?: return
+                val profile = intent.getStringExtra("profile")?.toLong() ?: return
+
+                runAsyncAction(context, notificationId) { hideExtracurricularActivity(profile, subject, place) }
+            }
             else -> {
-                val manager = NotificationManagerCompat.from(context)
-                manager.cancel(notificationId)
+                updateNotificationStatus(context, notificationId, null)
             }
         }
     }
@@ -66,14 +73,19 @@ class NotificationActionReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun updateNotificationStatus(context: Context, notificationId: Int, isSuccess: Boolean) {
+    private fun updateNotificationStatus(context: Context, notificationId: Int, isSuccess: Boolean?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val permission = ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
             if (permission != PackageManager.PERMISSION_GRANTED) return
         }
 
         val title = context.getString(R.string.notification_broadcast_title)
-        val message = context.getString(if (isSuccess) R.string.notification_broadcast_success_text else R.string.notification_broadcast_unsuccess_text)
+        val message = context.getString(
+            when (isSuccess) {
+                true -> R.string.notification_broadcast_success_text
+                false -> R.string.notification_broadcast_unsuccess_text
+                null -> R.string.notification_broadcast_unknown_text
+            })
 
         val statusNotification = NotificationCompat.Builder(context, NotificationManager.CHANNEL_SERVICE)
             .setSmallIcon(R.mipmap.ic_launcher_round)
@@ -93,6 +105,12 @@ class NotificationActionReceiver : BroadcastReceiver() {
             lessonKey = null,
             text = null
         )
+
+        return answer.status
+    }
+
+    private suspend fun hideExtracurricularActivity(childId: Long, subject: String, place: String): Boolean {
+        val answer = Settings.hideExtracurricularActivity(childId, subject, place)
 
         return answer.status
     }

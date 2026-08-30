@@ -79,7 +79,6 @@ class SubjectRatingDialog(
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     ratingViewModel.marksState.collect { state ->
-                        Utilities.log(state.toString(), tag = "debug")
                         when (state) {
                             CacheDataLoadState.Empty -> {
                                 ratingViewModel.loadCacheMarksRatingStats(ratingKey)

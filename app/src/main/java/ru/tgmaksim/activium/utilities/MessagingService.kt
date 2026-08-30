@@ -57,7 +57,7 @@ class MessagingService : FirebaseMessagingService() {
             val buttons = try {
                 data["buttons"]?.let { json.decodeFromString<List<NotificationManager.NotificationButton>>(it) }
             } catch (e: Exception) {
-                Utilities.log(e)
+                Utilities.log(e, "Error at MessagingService.onMessageReceived with json.decodeFromString")
                 null
             } ?: emptyList()
 
@@ -81,7 +81,7 @@ class MessagingService : FirebaseMessagingService() {
                 )
             }
         } catch (e: Exception) {
-            Utilities.log(e)
+            Utilities.log(e, "Error at MessagingService.onMessageReceived")
         }
     }
 

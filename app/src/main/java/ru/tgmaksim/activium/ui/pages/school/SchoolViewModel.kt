@@ -90,7 +90,7 @@ class SchoolViewModel : UiViewModel() {
                     throw e
                 } catch (e: Exception) {
                     if (e !is CacheNullException) {
-                        Utilities.log(e)
+                        Utilities.log(e, "Error at loadCachePosts")
                         CacheManager.writeDnevnikCache(childId, CACHE_POSTS_NAME, value = "")
                     }
                     _postsData.value = SchoolPostsResult(
@@ -206,7 +206,7 @@ class SchoolViewModel : UiViewModel() {
         } catch (_: CacheNullException) {
         } catch (_: CancellationException) {
         } catch (e: Exception) {
-            Utilities.log(e)
+            Utilities.log(e, "Error at onSuccessUpdatePost")
         }
     }
 }

@@ -77,7 +77,7 @@ class LastMarkRatingViewModel : UiViewModel() {
                     throw e
                 } catch (e: Exception) {
                     if (e !is CacheNullException) {
-                        Utilities.log(e)
+                        Utilities.log(e, "Error at loadCacheMarksRatingStats")
                         CacheManager.writeDnevnikCache(childId, CACHE_MARKS_RATING_STATS_NAME, param = ratingKey, value = "")
                     }
 

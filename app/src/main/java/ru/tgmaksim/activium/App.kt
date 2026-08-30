@@ -41,7 +41,7 @@ class App : Application() {
             // В фоне запустится регистрация устройства и будет вызван MessagingService.onRegistered
             FirebaseMessaging.getInstance().register()
         } catch (e: Exception) {
-            Utilities.log("Firebase Init Error: ${e.message}")
+            Utilities.log(e, "Firebase Init Error")
         }
     }
 }

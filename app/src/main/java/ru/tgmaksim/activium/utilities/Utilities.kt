@@ -34,7 +34,7 @@ object Utilities {
             context.startActivity(browserIntent)
             return true
         } catch (e: ActivityNotFoundException) {
-            log(e)
+            log(e, "Error at Utitlities.openUrl")
             showText(context, "Не найдено приложение для открытия ссылки")
             return false
         }
@@ -110,7 +110,7 @@ object Utilities {
      * @author Максим Дрючин (tgmaksim)
      * */
     fun log(e: Throwable, context: String? = null) {
-        Log.e("Activium.error", "Ошибка", e)
+        Log.e("Activium.error", context, e)
 
         runCatching {
             val crashlytics = FirebaseCrashlytics.getInstance()
