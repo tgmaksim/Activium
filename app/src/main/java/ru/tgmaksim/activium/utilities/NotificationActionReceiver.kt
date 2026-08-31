@@ -29,9 +29,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
         val notificationId = intent.getIntExtra("notificationId", -1)
         if (notificationId == -1) return
 
-        val action = intent.getStringExtra("action")
-
-        when (action) {
+        when (intent.getStringExtra("action")) {
             "praise" -> {
                 val ratingKey = intent.getStringExtra("ratingKey") ?: return
 

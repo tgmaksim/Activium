@@ -11,6 +11,8 @@
     <string name="notification_broadcast_unsuccess_text">Ошибка при выполнении, откройте приложение</string>
     <string name="notification_broadcast_unknown_text">Кнопка не поддерживается в данной версии приложения</string>
 
+    <string name="change_active_child">Профиль сменен на %1$s</string>
+
     <string name="title_dialog_permission_dnevnik_notifications">Разрешение на уведомления</string>
     <string name="message_dialog_permission_dnevnik_notifications">Предоставьте разрешения на уведомления. Если окно не откроется, посетите настройки</string>
     <string name="button_dialog_permission_dnevnik_notifications">Предоставить</string>
@@ -166,7 +168,7 @@
 
     <string name="referral">Приглашения</string>
     <string name="referral_info">Приглашайте своих друзей и знакомых в Активиум по реферальной ссылке</string>
-    <string name="referral_count_zero">🤜🤛 Вы пока что не приглашали друзей</string>
+    <string name="referral_count_zero">🤜🤛 Вы не приглашали друзей</string>
     <plurals name="referral_count">
         <item quantity="one">🤜🤛 Вы пригласили %1$d друга</item>
         <item quantity="few">🤜🤛 Вы пригласили %1$d друга</item>

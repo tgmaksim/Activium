@@ -1,6 +1,5 @@
 package ru.tgmaksim.activium.ui.pages.school
 
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 
 import kotlinx.coroutines.launch
@@ -40,9 +39,6 @@ class SchoolViewModel : UiViewModel() {
     private val _seePostStates = MutableStateFlow<Map<Long, LoadState<MarkSchoolPostResult>>>(emptyMap())
     val seePostStates = _seePostStates.asStateFlow()
 
-    private var loadCachePostsJob: Job? = null
-    private var loadCloudCachePostsJob: Job? = null
-
     companion object {
         const val CACHE_POSTS_NAME = "school_posts"
     }
@@ -66,11 +62,7 @@ class SchoolViewModel : UiViewModel() {
     }
 
     fun loadCachePosts() {
-        val job = loadCachePostsJob
-        if (job?.isActive == true)
-            return
-
-        loadCachePostsJob = viewModelScope.launch {
+        viewModelScope.launch {
             _postsState.setCacheLoading()
 
             try {
@@ -106,11 +98,7 @@ class SchoolViewModel : UiViewModel() {
     }
 
     fun loadCloudPosts(offset: Int = 0) {
-        val job = loadCloudCachePostsJob
-        if (job?.isActive == true)
-            return
-
-        loadCloudCachePostsJob = viewModelScope.launch {
+        viewModelScope.launch {
             executeRequest(
                 _postsState,
                 _postsData,

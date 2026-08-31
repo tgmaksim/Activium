@@ -53,9 +53,13 @@ import ru.tgmaksim.activium.ui.pages.marks.MarksPage
 import ru.tgmaksim.activium.ui.pages.school.SchoolPage
 import ru.tgmaksim.activium.databinding.AdBannerBinding
 import ru.tgmaksim.activium.utilities.NotificationManager
+import ru.tgmaksim.activium.ui.pages.marks.MarksViewModel
 import ru.tgmaksim.activium.ui.pages.schedule.SchedulePage
 import ru.tgmaksim.activium.ui.pages.settings.SettingsPage
 import ru.tgmaksim.activium.databinding.ActivityMainBinding
+import ru.tgmaksim.activium.ui.pages.school.SchoolViewModel
+import ru.tgmaksim.activium.ui.pages.schedule.ScheduleViewModel
+import ru.tgmaksim.activium.ui.pages.settings.SettingsViewModel
 import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 
 /**
@@ -65,6 +69,10 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
 class MainActivity : ParentActivity() {
     private lateinit var ui: ActivityMainBinding
     val activityViewModel: MainActivityViewModel by viewModels()
+    val scheduleViewModel: ScheduleViewModel by viewModels()
+    val marksViewModel: MarksViewModel by viewModels()
+    val schoolViewModel: SchoolViewModel by viewModels()
+    val settingsViewModel: SettingsViewModel by viewModels()
 
     private var schoolAnim = false
     private var settingsAnim = false
@@ -122,6 +130,19 @@ class MainActivity : ParentActivity() {
 
     private fun handleIntent(intent: Intent?): Boolean {
         if (intent == null) return false
+
+        // Если приложение открыто из уведомления с данными о профиле,
+        // то профиль сменится на необходимый и покажется оповещение
+        val profile = intent.getStringExtra("profile")?.toLong()
+        if (profile != null) {
+            settingsViewModel.setActiveChild(profile) { result ->
+                val child = result.children.find { it.childId == result.activeChildId } ?: return@setActiveChild
+
+                val name = getString(R.string.change_active_child, child.name)
+                Utilities.showText(this, name, long = true)
+            }
+        }
+        intent.removeExtra("profile")
 
         val buttonId = intent.getIntExtra("notificationId", -1)
         if (buttonId != -1) {

@@ -6,7 +6,6 @@ import java.time.ZonedDateTime
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toKotlinMonth
 
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,9 +55,6 @@ class ScheduleViewModel : UiViewModel() {
 
     private val _clickPostStates = MutableStateFlow<Map<Long, LoadState<MarkSchoolPostResult>>>(emptyMap())
     val clickPostStates = _clickPostStates.asStateFlow()
-
-    private var loadCacheScheduleJob: Job? = null
-    private var loadCloudCacheScheduleJob: Job? = null
 
     companion object {
         const val CACHE_SCHEDULE_NAME = "schedule"
@@ -116,11 +112,7 @@ class ScheduleViewModel : UiViewModel() {
     }
 
     fun loadCacheSchedule() {
-        val job = loadCacheScheduleJob
-        if (job?.isActive == true)
-            return
-
-        loadCacheScheduleJob = viewModelScope.launch {
+        viewModelScope.launch {
             _scheduleState.setCacheLoading()
 
             try {
@@ -193,11 +185,7 @@ class ScheduleViewModel : UiViewModel() {
     }
 
     fun loadCloudSchedule() {
-        val job = loadCloudCacheScheduleJob
-        if (job?.isActive == true)
-            return
-
-        loadCloudCacheScheduleJob = viewModelScope.launch {
+        viewModelScope.launch {
             val childId = SettingsManager.getActiveChildId()
             val before = SettingsManager.getBeforeSchedule()
             val after = SettingsManager.getAfterSchedule()

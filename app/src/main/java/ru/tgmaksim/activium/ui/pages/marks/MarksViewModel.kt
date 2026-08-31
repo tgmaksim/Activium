@@ -1,6 +1,5 @@
 package ru.tgmaksim.activium.ui.pages.marks
 
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,9 +35,6 @@ class MarksViewModel : UiViewModel() {
 
     private val _finalMarksState = MutableStateFlow<CacheDataLoadState>(CacheDataLoadState.Empty)
     val finalMarksState = _finalMarksState.asStateFlow()
-
-    private var loadCacheMarksJob: Job? = null
-    private var loadCloudMarksJob: Job? = null
 
     companion object {
         const val CACHE_LAST_MARKS_NAME = "marks"
@@ -79,11 +75,7 @@ class MarksViewModel : UiViewModel() {
     }
 
     fun loadCacheMarks() {
-        val job = loadCacheMarksJob
-        if (job?.isActive == true)
-            return
-
-        loadCacheMarksJob = viewModelScope.launch {
+        viewModelScope.launch {
             _marksState.setCacheLoading()
 
             try {
@@ -122,11 +114,7 @@ class MarksViewModel : UiViewModel() {
     }
 
     fun loadCloudMarks() {
-        val job = loadCloudMarksJob
-        if (job?.isActive == true)
-            return
-
-        loadCloudMarksJob = viewModelScope.launch {
+        viewModelScope.launch {
             val childId = SettingsManager.getActiveChildId()
             val period = SettingsManager.getLastMarksPeriod()
 

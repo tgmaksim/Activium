@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 
 import ru.tgmaksim.activium.R
@@ -36,7 +35,8 @@ import ru.tgmaksim.activium.ui.webview.WebSchoolPostActivity
  * */
 class SchoolPage(param: String? = null) : MainFragment(param) {
     private lateinit var ui: SchoolPageBinding
-    private val schoolViewModel: SchoolViewModel by activityViewModels()
+    private val schoolViewModel
+        get() = (requireActivity() as MainActivity).schoolViewModel
 
     private var currentData: SchoolPostsResult? = null
 

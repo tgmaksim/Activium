@@ -13,7 +13,6 @@ import android.animation.ObjectAnimator
 import android.view.animation.LinearInterpolator
 
 import androidx.core.view.doOnLayout
-import androidx.fragment.app.activityViewModels
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -74,7 +73,8 @@ import ru.tgmaksim.activium.ui.pages.schedule.skeletone.CalendarSkeletonAdapter
  * */
 class SchedulePage(param: String? = null) : MainFragment(param) {
     private lateinit var ui: SchedulePageBinding
-    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
+    private val scheduleViewModel
+        get() = (requireActivity() as MainActivity).scheduleViewModel
 
     private var shimmerAnimator: ObjectAnimator? = null
     private var shouldAnimateShimmer = false

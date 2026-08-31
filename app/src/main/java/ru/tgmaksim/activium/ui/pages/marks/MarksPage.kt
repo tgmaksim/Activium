@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.fragment.app.activityViewModels
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 import ru.tgmaksim.activium.R
@@ -42,7 +41,8 @@ import ru.tgmaksim.activium.ui.pages.marks.skeleton.SubjectMarksSkeletonAdapter
  * */
 class MarksPage(param: String? = null) : MainFragment(param) {
     private lateinit var ui: MarksPageBinding
-    private val marksViewModel: MarksViewModel by activityViewModels()
+    private val marksViewModel
+        get() = (requireActivity() as MainActivity).marksViewModel
 
     private var shimmerAnimator: ObjectAnimator? = null
     private var shouldAnimateShimmer = false

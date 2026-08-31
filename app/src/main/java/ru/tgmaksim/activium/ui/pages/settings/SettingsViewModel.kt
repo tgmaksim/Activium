@@ -148,19 +148,21 @@ class SettingsViewModel : UiViewModel() {
         }
     }
 
-    fun selectActiveChild(childId: Long) {
+    fun setActiveChild(childId: Long, onSuccess: (suspend (ChildrenResult) -> Unit)? = null) {
         viewModelScope.launch {
+            if (SettingsManager.getActiveChildId() == childId) return@launch
+
             executeRequest(
                 _childrenState,
                 { state ->
                     _statusMarksNotificationsState.value = state
                     _statusEANotificationsState.value = state
                 },
-                "selectChild",
+                "setActiveChild",
                 R.string.error_children,
                 { Settings.setActiveChild(childId) },
                 { it.answer }
-            ) {
+            ) { result ->
                 SettingsManager.setActiveChildId(childId)
                 executeRequest(
                     _statusMarksNotificationsState,
@@ -176,6 +178,7 @@ class SettingsViewModel : UiViewModel() {
                     Settings::getStatusEANotifications,
                     { it.answer }
                 )
+                onSuccess?.invoke(result)
             }
         }
     }

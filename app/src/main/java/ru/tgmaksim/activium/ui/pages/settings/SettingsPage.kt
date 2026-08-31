@@ -15,7 +15,6 @@ import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.fragment.app.activityViewModels
 import androidx.core.widget.addTextChangedListener
 
 import com.google.android.material.slider.RangeSlider
@@ -59,7 +58,8 @@ import ru.tgmaksim.activium.databinding.DialogReviewEditorBinding
  * */
 class SettingsPage(param: String? = null) : MainFragment(param) {
     private lateinit var ui: SettingsPageBinding
-    private val settingsViewModel: SettingsViewModel by activityViewModels()
+    private val settingsViewModel
+        get() = (requireActivity() as MainActivity).settingsViewModel
 
     private var isChildrenExpanded = false
     private var before = 3
@@ -578,7 +578,7 @@ class SettingsPage(param: String? = null) : MainFragment(param) {
         ui.activeChildText.text = active?.name ?: getString(
             R.string.no_child)
 
-        settingsViewModel.selectActiveChild(childId)
+        settingsViewModel.setActiveChild(childId)
     }
 
     /**

@@ -36,7 +36,7 @@ class MainActivityViewModel : UiViewModel() {
     val adState = _adState.asStateFlow()
 
     private val _clickAdState = MutableStateFlow<LoadState<Unit>>(LoadState.Empty)
-    val clickAdState = _clickAdState.asStateFlow()
+//    val clickAdState = _clickAdState.asStateFlow()
 
     fun reset(stateType: StateType) {
         when (stateType) {
