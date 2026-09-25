@@ -67,9 +67,9 @@ class SettingsViewModel : UiViewModel() {
         }
     }
 
-    fun logout() {
+    fun logout(deleteSession: Boolean = false) {
         viewModelScope.launch {
-            LoginActivity.logout()
+            LoginActivity.logout(deleteSession)
         }
     }
 

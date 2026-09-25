@@ -82,6 +82,7 @@
 
     <string name="menu_item_marks">Оценки</string>
     <string name="class_rating">📊 Рейтинг в классе</string>
+    <string name="old_mark_info">Прошлое место в рейтинге</string>
     <string name="marks_current">Текущий период</string>
     <string name="marks_year">Год</string>
     <string name="last_mark_detail_no_work">За %1$s</string>

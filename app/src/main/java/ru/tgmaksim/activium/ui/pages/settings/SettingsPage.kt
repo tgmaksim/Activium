@@ -368,7 +368,7 @@ class SettingsPage(param: String? = null) : MainFragment(param) {
 
         // Нажатие на кнопку выхода
         ui.buttonLogout.setOnClickListener {
-            logout()
+            logout(deleteSession = true)
         }
 
         ui.buttonOpenAllReviews.setOnClickListener {
@@ -532,8 +532,8 @@ class SettingsPage(param: String? = null) : MainFragment(param) {
      * Выход из аккаунта и открытие LoginActivity
      * @author Максим Дрючин (tgmaksim)
      * */
-    private fun logout() {
-        settingsViewModel.logout()
+    private fun logout(deleteSession: Boolean = false) {
+        settingsViewModel.logout(deleteSession)
 
         LoginActivity.openLoginActivity(requireActivity())
     }

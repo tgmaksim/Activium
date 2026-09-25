@@ -12,6 +12,7 @@ import androidx.appcompat.content.res.AppCompatResources
 
 import ru.tgmaksim.activium.R
 import ru.tgmaksim.activium.ui.core.toUi
+import ru.tgmaksim.activium.utilities.Utilities
 import ru.tgmaksim.activium.ui.core.UiMarksOther
 import ru.tgmaksim.activium.databinding.ItemMarksRatingBinding
 
@@ -44,6 +45,7 @@ class RatingAdapter(
             ui.studentName.text = item.name
             ui.number.text = item.number?.let { ui.root.context.getString(R.string.person_number, it + 1) }
             ui.number.visibility = if (showNumber) View.VISIBLE else View.GONE
+            ui.infoButton.visibility = if (item.isOldMark) View.VISIBLE else View.GONE
 
             val adapter = (ui.logs.adapter as? MarkLogAdapter) ?: MarkLogAdapter().also {
                 ui.logs.adapter = it
@@ -54,6 +56,10 @@ class RatingAdapter(
                 ui.root.background = AppCompatResources.getDrawable(ui.root.context, R.drawable.old_rating_mark_bg)
             } else {
                 ui.root.background = null
+            }
+
+            ui.infoButton.setOnClickListener {
+                Utilities.showText(ui.root.context, R.string.old_mark_info, long = true)
             }
         }
     }

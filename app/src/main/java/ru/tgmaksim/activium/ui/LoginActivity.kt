@@ -33,9 +33,12 @@ class LoginActivity : ParentActivity() {
     companion object {
         var loginUrl: String? = null
 
-        suspend fun logout() {
-            MemoryDataManager.sessionId.value = null
-            SettingsManager.setSessionId(null)
+        suspend fun logout(deleteSession: Boolean = false) {
+            if (deleteSession) {
+                MemoryDataManager.sessionId.value = null
+                SettingsManager.setSessionId(null)
+            }
+
             withContext(Dispatchers.IO) {
                 CacheManager.clear()
             }

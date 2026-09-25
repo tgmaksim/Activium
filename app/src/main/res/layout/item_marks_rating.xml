@@ -17,16 +17,30 @@
         android:textStyle="bold"
         android:textColor="@color/text_primary" />
 
-    <!-- Имя ученика -->
-    <TextView
-        android:id="@+id/studentName"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_gravity="center_vertical"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary" />
+        android:layout_gravity="center_vertical">
+
+        <!-- Имя ученика -->
+        <TextView
+            android:id="@+id/studentName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
+
+        <ImageView
+            android:id="@+id/infoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/info"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
     <!-- Горизонтальный список оценок -->
     <androidx.recyclerview.widget.RecyclerView
