@@ -489,10 +489,11 @@ data class MarksRatingStatsApiResponse(
 data class MarksSubjectRatingResult(
     override val classId: Int = CLASS_ID,
     val rating: List<MarksOther>,
-    val oldMark: MarksOther?
+    val oldMark: MarksOther?,
+    val isRatingUp: Boolean?
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x1C
+        const val CLASS_ID = 0x59
     }
 
     init {
@@ -516,7 +517,7 @@ data class MarksSubjectRatingApiResponse(
     override val answer: MarksSubjectRatingResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x1D
+        const val CLASS_ID = 0x5A
     }
 
     init {
@@ -614,7 +615,7 @@ object Dnevnik {
     private const val LESSON_RATING_STATS_VERSION = 0
     private const val MARKS_VERSION = 0
     private const val MARK_RATING_STATS_VERSION = 1
-    private const val MARKS_SUBJECT_RATING_VERSION = 0
+    private const val MARKS_SUBJECT_RATING_VERSION = 1
     private const val FINAL_MARKS_VERSION = 0
 
     /**

@@ -141,9 +141,14 @@ class SubjectRatingDialog(
 
         val list = data.rating.toUi().toMutableList()
         data.oldMark?.let { oldMark ->
-            val myMark = list.find { it.number == data.oldMark.number }
-            if (myMark != null)
-                list.add(list.indexOf(myMark) + 1, oldMark.toUi(true))
+            if (oldMark.number == null) return@let
+
+            val mark = list.findLast { it.number != null && oldMark.number >= it.number }
+            if (mark != null)
+                list.add(
+                    list.indexOf(mark) + 1,
+                    oldMark.toUi(true, isRatingUp = data.isRatingUp)
+                )
         }
         ratingAdapter.submitList(list.toList())
 

@@ -152,8 +152,8 @@ object NotificationManager {
 
         val mainIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            for (entry in data) {
-                putExtra(entry.key, entry.value)
+            for ((key, value) in data) {
+                putExtra(key, value)
             }
         }
         val mainPendingIntent = PendingIntent.getActivity(
@@ -177,8 +177,8 @@ object NotificationManager {
                 putExtra("notificationId", id)
                 putExtra("action", button.action)
 
-                for (entry in data + button.data) {
-                    putExtra(entry.key, entry.value)
+                for ((key, value) in data + button.data) {
+                    putExtra(key, value)
                 }
             }
 

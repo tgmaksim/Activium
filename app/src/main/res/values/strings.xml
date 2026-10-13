@@ -105,8 +105,8 @@
 
     <string name="settings_theme">Использовать темную тему</string>
     <string name="settings_ea_notifications">Напоминать о внеурочных занятиях</string>
-    <string name="settings_marks_notifications">Уведомлять о новых оценках</string>
-    <string name="error_marks_notifications">Произошла ошибка при загрузке статуса уведомлений о новых оценках</string>
+    <string name="settings_marks_notifications">Уведомлять об оценках 🆕🗑️✏️</string>
+    <string name="error_marks_notifications">Произошла ошибка при загрузке статуса уведомлений об оценках</string>
     <string name="error_ea_notifications">Произошла ошибка при загрузке статуса уведомлений о внеурочных занятиях</string>
     <string name="settings_show_null_subject_marks">Показывать предметы без оценок</string>
     <string name="settings_schedule_period">Диапазон расписания</string>

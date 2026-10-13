@@ -58,6 +58,9 @@ class RatingAdapter(
                 ui.root.background = null
             }
 
+            ui.ratingArrowUp.visibility = if (item.isRatingUp == true) View.VISIBLE else View.GONE
+            ui.ratingArrowDown.visibility = if (item.isRatingUp == false) View.VISIBLE else View.GONE
+
             ui.infoButton.setOnClickListener {
                 Utilities.showText(ui.root.context, R.string.old_mark_info, long = true)
             }

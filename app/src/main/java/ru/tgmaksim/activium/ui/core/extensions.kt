@@ -142,14 +142,15 @@ fun List<MarksOther>.toUi(): List<UiMarksOther> {
     return this.map { it.toUi() }
 }
 
-fun MarksOther.toUi(isOldMark: Boolean = false): UiMarksOther {
+fun MarksOther.toUi(isOldMark: Boolean = false, isRatingUp: Boolean? = null): UiMarksOther {
     return UiMarksOther(
         number = number,
         name = name,
         personKey = personKey,
         isHighlighting = isHighlighting,
         marks = marks,
-        isOldMark = isOldMark
+        isOldMark = isOldMark,
+        isRatingUp = isRatingUp
     )
 }
 

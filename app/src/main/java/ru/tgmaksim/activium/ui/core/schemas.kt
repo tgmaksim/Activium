@@ -11,7 +11,8 @@ data class UiMarksOther(
     val personKey: String?,
     val isHighlighting: Boolean?,
     val marks: List<MarkLog>,
-    val isOldMark: Boolean = false
+    val isOldMark: Boolean = false,
+    val isRatingUp: Boolean? = null
 )
 
 data class UiMarkLog(

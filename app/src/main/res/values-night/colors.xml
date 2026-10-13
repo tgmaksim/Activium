@@ -90,4 +90,7 @@
 
     <color name="ad_label_bg">#204FC3F7</color>
     <color name="ad_label_text">#4FC3F7</color>
+
+    <color name="arrow_up">#4B9A25</color>
+    <color name="arrow_down">#CF3838</color>
 </resources>
