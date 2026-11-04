@@ -200,9 +200,9 @@
     <string name="default_android">Android</string>
     <string name="developer">Разработчик: Максим Дрючин, 2026</string>
 
-    <string name="study_lesson_menu">Долгое нажатие на карточку урока открывает меню</string>
-    <string name="study_mark_rating">Нажатие на любую оценку открывает рейтинг</string>
-    <string name="study_subject_rating">Нажатие на название предмета открывает рейтинг</string>
+    <string name="study_lesson_menu">Подсказка: долгое нажатие на карточку урока открывает меню</string>
+    <string name="study_mark_rating">Подсказка: нажатие на любую оценку открывает рейтинг</string>
+    <string name="study_subject_rating">Подсказка: нажатие на название предмета открывает рейтинг</string>
 
     <string name="ad_label">Реклама</string>
     <string name="error_ad">Произошла ошибка при загрузке рекламы</string>

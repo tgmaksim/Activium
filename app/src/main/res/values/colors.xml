@@ -76,7 +76,7 @@
     <color name="slider_label_text">#FFFFFF</color>
     <color name="slider_halo_static">#200288D1</color>
 
-    <color name="settings_warning">#FFFF4444</color>
+    <color name="settings_warning">#FF4444</color>
 
     <color name="swipe_refresh_scheme">#0288D1</color>
 

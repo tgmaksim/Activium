@@ -26,8 +26,8 @@ class MainActivityViewModel : UiViewModel() {
     private val _versionState = MutableStateFlow<LoadState<VersionsResult>>(LoadState.Empty)
     val versionState = _versionState.asStateFlow()
 
-    private val _infoStatus = MutableStateFlow<LoadState<InformationResult>>(LoadState.Empty)
-    val infoStatus = _infoStatus.asStateFlow()
+    private val _infoState = MutableStateFlow<LoadState<InformationResult>>(LoadState.Empty)
+    val infoState = _infoState.asStateFlow()
 
     private val _schoolPostsState = MutableStateFlow<LoadState<SchoolPostsWithoutVisionResult>>(LoadState.Empty)
     val schoolPostsState = _schoolPostsState.asStateFlow()
@@ -41,7 +41,7 @@ class MainActivityViewModel : UiViewModel() {
     fun reset(stateType: StateType) {
         when (stateType) {
             StateType.Version -> _versionState.setShownError()
-            StateType.Info -> _infoStatus.setShownError()
+            StateType.Info -> _infoState.setShownError()
             StateType.SchoolPosts -> _schoolPostsState.setShownError()
         }
     }
@@ -62,7 +62,7 @@ class MainActivityViewModel : UiViewModel() {
     fun checkInfoNotifications() {
         viewModelScope.launch {
             executeRequest(
-                _infoStatus,
+                _infoState,
                 "infoNotifications",
                 R.string.error_info_notifications,
                 Status::checkInfoNotifications,
@@ -103,7 +103,7 @@ class MainActivityViewModel : UiViewModel() {
                 _clickAdState,
                 "clickAd",
                 R.string.error_click_ad,
-                suspend{ Ads.clickAd(adId) },
+                { Ads.clickAd(adId) },
                 {}
             )
         }

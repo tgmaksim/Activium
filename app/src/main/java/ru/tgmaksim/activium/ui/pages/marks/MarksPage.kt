@@ -35,7 +35,7 @@ import ru.tgmaksim.activium.ui.pages.marks.skeleton.LastMarksSkeletonAdapter
 import ru.tgmaksim.activium.ui.pages.marks.skeleton.SubjectMarksSkeletonAdapter
 
 /**
- * Страница с мероприятиями и другими событиями и объявлениями школы
+ * Страница с оценками (последними по дате выставления и таблица)
  * @author Максим Дрючин (tgmaksim)
  * @see ru.tgmaksim.activium.ui.main.MainActivity
  * */

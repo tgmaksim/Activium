@@ -51,7 +51,6 @@ class MarksViewModel : UiViewModel() {
             StateType.Marks -> _marksState.setShownError()
             StateType.FinalMarks -> _finalMarksState.setShownError()
         }
-
     }
 
     fun resetMarks() {

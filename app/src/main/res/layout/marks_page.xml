@@ -20,7 +20,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="8dp"
                 android:paddingBottom="16dp">
 
                 <include
@@ -39,13 +38,15 @@
                     android:overScrollMode="never"
                     android:clipToPadding="false"
                     android:paddingVertical="8dp"
+                    android:paddingHorizontal="8dp"
                     android:nestedScrollingEnabled="false" />
 
                 <LinearLayout
                     android:id="@+id/buttonRating"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:layout_margin="10dp"
+                    android:layout_marginVertical="10dp"
+                    android:layout_marginHorizontal="18dp"
                     android:background="@drawable/button_bg"
                     android:gravity="center"
                     android:clickable="true"
@@ -67,7 +68,7 @@
                     android:layout_height="30dp"
                     android:orientation="horizontal"
                     android:padding="2dp"
-                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginHorizontal="18dp"
                     android:layout_marginTop="6dp"
                     android:layout_marginBottom="10dp"
                     android:background="@drawable/marks_switch_bg">
@@ -101,6 +102,7 @@
                     android:id="@+id/periodTable"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
                     android:orientation="vertical"
                     android:nestedScrollingEnabled="false"
                     android:clipToPadding="false"
@@ -111,6 +113,7 @@
                     android:id="@+id/yearTable"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
                     android:orientation="vertical"
                     android:visibility="gone"
                     android:nestedScrollingEnabled="false"

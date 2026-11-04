@@ -240,7 +240,10 @@ object SettingsManager {
     }
 
     suspend fun getLastStudy(): String {
-        return appContext.settingsDataStore.data.first()[KEY_LAST_STUDY] ?: DEFAULT_LAST_STUDY
+        return appContext.settingsDataStore.data.first()[KEY_LAST_STUDY] ?: run {
+            setLastStudy(DEFAULT_LAST_STUDY)
+            DEFAULT_LAST_STUDY
+        }
     }
 
     suspend fun setLastStudy(value: String) {
@@ -251,7 +254,10 @@ object SettingsManager {
 
     fun lastStudyFlow(): Flow<String> {
         return appContext.settingsDataStore.data.map { prefs ->
-            prefs[KEY_LAST_STUDY] ?: DEFAULT_LAST_STUDY
+            prefs[KEY_LAST_STUDY] ?: run {
+                setLastStudy(DEFAULT_LAST_STUDY)
+                DEFAULT_LAST_STUDY
+            }
         }
     }
 
@@ -268,7 +274,10 @@ object SettingsManager {
             studyLessonMenu = prefs[KEY_STUDY_LESSON_MENU] ?: DEFAULT_STUDY,
             studyMarkRating = prefs[KEY_STUDY_MARK_RATING] ?: DEFAULT_STUDY,
             studySubjectRating = prefs[KEY_STUDY_SUBJECT_RATING] ?: DEFAULT_STUDY,
-            lastStudy = prefs[KEY_LAST_STUDY] ?: DEFAULT_LAST_STUDY
+            lastStudy = prefs[KEY_LAST_STUDY] ?: run {
+                setLastStudy(DEFAULT_LAST_STUDY)
+                DEFAULT_LAST_STUDY
+            }
         )
     }
 }

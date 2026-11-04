@@ -356,17 +356,17 @@ class MainActivity : ParentActivity() {
                     }
                 }
                 launch {
-                    activityViewModel.infoStatus.collect { state ->
+                    activityViewModel.infoState.collect { state ->
                         when (state) {
                             LoadState.Empty -> {
                                 activityViewModel.checkInfoNotifications()
                             }
                             is LoadState.Success -> {
-                                for (message in state.data.messages) {
+                                for ((_, title, text) in state.data.messages) {
                                     Utilities.showAlertDialog(
                                         this@MainActivity,
-                                        message.title,
-                                        message.text,
+                                        title,
+                                        text,
                                         getString(R.string.ok)
                                     )
                                 }
@@ -557,8 +557,8 @@ class MainActivity : ParentActivity() {
 
         adBanner.imagePlaceholder.visibility = View.VISIBLE
         adBanner.image.load(ad.imageUrl) {
-            // Для рекламных объявлений используется всегда актуальные картинки
-            memoryCachePolicy(CachePolicy.DISABLED)
+            // Для рекламных объявлений используется актуальные картинки
+            memoryCachePolicy(CachePolicy.ENABLED)
             diskCachePolicy(CachePolicy.DISABLED)
 
             crossfade(true)
