@@ -84,6 +84,33 @@
 
         </LinearLayout>
 
+        <!-- Согласие с документами -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="16dp">
+
+            <CheckBox
+                android:id="@+id/checkAgreement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:buttonTint="@color/thumb_switch_checked" />
+
+            <TextView
+                android:id="@+id/textAgreement"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/login_agreement"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:lineSpacingExtra="2dp" />
+
+        </LinearLayout>
+
         <!-- Кнопка входа через Дневник.ру -->
         <LinearLayout
             android:id="@+id/buttonLogin"

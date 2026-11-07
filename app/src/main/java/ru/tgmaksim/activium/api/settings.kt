@@ -429,10 +429,16 @@ object Settings {
      * @author Максим Дрючин (tgmaksim)
      * */
     suspend fun updateFirebase(firebaseToken: String): UpdateFirebaseApiResponse {
+        val sessionId = SettingsManager.getSessionId() ?: return UpdateFirebaseApiResponse(
+            status = false,
+            error = null,
+            answer = null
+        );
+
         val response = Request.put<UpdateFirebaseApiResponse>(
             listOf(PATH_PREFIX, PATH_UPDATE_FIREBASE, UPDATE_FIREBASE_VERSION).joinToString("/"),
             params = mapOf("firebaseToken" to firebaseToken),
-            sessionId = SettingsManager.getSessionId()
+            sessionId = sessionId
         )
 
         return response

@@ -6,6 +6,10 @@
     <string name="error_server">Сервер в данное время недоступен</string>
     <string name="ok">Ок</string>
 
+    <string name="login_agreement">Я соглашаюсь с Политикой конфиденциальности и Условиями пользования</string>
+    <string name="privacy">Политикой конфиденциальности</string>
+    <string name="terms">Условиями пользования</string>
+
     <string name="notification_broadcast_title">Фоновое действие</string>
     <string name="notification_broadcast_success_text">Успешно выполнено</string>
     <string name="notification_broadcast_unsuccess_text">Ошибка при выполнении, откройте приложение</string>

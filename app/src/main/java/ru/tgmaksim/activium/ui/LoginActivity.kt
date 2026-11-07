@@ -6,8 +6,15 @@ import android.view.View
 import android.app.Activity
 import android.content.Intent
 
+import android.text.Spanned
+import android.text.SpannableString
+import android.text.style.ClickableSpan
+import android.text.method.LinkMovementMethod
+
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+
+import androidx.core.net.toUri
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,6 +72,8 @@ class LoginActivity : ParentActivity() {
         ui.version.text = getString(R.string.version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)
         ui.android.text = getString(R.string.android, Build.VERSION.RELEASE,Build.VERSION.SDK_INT)
 
+        setupAgreement()
+
         // Настройка кнопки входа
         ui.buttonLogin.setOnClickListener {
             lifecycleScope.launch {
@@ -75,7 +84,60 @@ class LoginActivity : ParentActivity() {
         }
     }
 
+    private fun setupAgreement() {
+        val privacyUrl = "${BuildConfig.DOMAIN}/privacy"
+        val termsUrl = "${BuildConfig.DOMAIN}/terms"
+
+        val agreementText = getString(R.string.login_agreement)
+        val spannable = SpannableString(agreementText)
+
+        addLink(spannable, getString(R.string.privacy), privacyUrl)
+        addLink(spannable, getString(R.string.terms), termsUrl)
+
+        ui.textAgreement.text = spannable
+        ui.textAgreement.movementMethod = LinkMovementMethod.getInstance()
+
+        ui.checkAgreement.setOnCheckedChangeListener { _, _ ->
+            updateLoginButton()
+        }
+
+        updateLoginButton()
+    }
+
+    fun addLink(spannable: SpannableString, text: String, url: String) {
+        val agreementText = getString(R.string.login_agreement)
+
+        val start = agreementText.indexOf(text)
+        if (start == -1) return
+
+        spannable.setSpan(
+            object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+                    startActivity(intent)
+                }
+
+                override fun updateDrawState(ds: android.text.TextPaint) {
+                    super.updateDrawState(ds)
+                    ds.color = getColor(R.color.lesson_link)
+                    ds.isUnderlineText = true
+                }
+            },
+            start,
+            start + text.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+
+    private fun updateLoginButton() {
+        ui.buttonLogin.isEnabled = ui.checkAgreement.isChecked
+        ui.buttonLogin.isClickable = ui.checkAgreement.isChecked
+        ui.buttonLogin.alpha = if (ui.checkAgreement.isChecked) 1f else 0.5f
+    }
+
     private suspend fun login() {
+        if (!ui.checkAgreement.isChecked) return
+
         var loginUrl = loginUrl
 
         try {
