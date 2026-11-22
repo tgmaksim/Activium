@@ -29,4 +29,39 @@
             android:textColor="@color/text_primary"
             android:textSize="24sp" />
 
+        <!-- Праздничное оформление -->
+        <TextView
+            android:id="@+id/birthdayBalloon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="3dp"
+            android:text="@string/balloon"
+            android:textSize="10sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/birthdayStarOne"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_marginStart="3dp"
+            android:layout_marginBottom="2dp"
+            android:text="@string/star"
+            android:textSize="9sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/birthdayStarTwo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="3dp"
+            android:layout_marginBottom="2dp"
+            android:text="@string/black_star"
+            android:textColor="@color/birthday_star"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
 </FrameLayout>

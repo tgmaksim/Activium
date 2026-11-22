@@ -47,6 +47,7 @@ import kotlinx.datetime.toKotlinMonth
 import java.time.format.DateTimeFormatter
 
 import ru.tgmaksim.activium.R
+import ru.tgmaksim.activium.api.Ad
 import ru.tgmaksim.activium.api.json
 import ru.tgmaksim.activium.api.NoteResult
 import ru.tgmaksim.activium.ui.LoginActivity
@@ -122,6 +123,9 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
     private var currentDates: List<LocalDate> = emptyList()
 
     private val praiseAnimations: MutableMap<String, FloatArray> = mutableMapOf()
+    private var stopAdAnimation: (() -> Unit)? = null
+
+    private var developerBirthday: LocalDate? = null
 
     companion object {
         private const val PRAISE_TEXT_LIMIT = 64
@@ -291,6 +295,7 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
                 weekday = formatWeekday(date),
                 dayNumber = date.day.toString(),
                 isSelected = index == activeSelectedIndex,
+                isBirthdayDay = date == developerBirthday
             )
         }
 
@@ -695,8 +700,15 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
                     val mainActivity = (requireActivity() as MainActivity)
                     mainActivity.activityViewModel.adState.collect { state ->
                         if (state is LoadState.Success && state.data.ad != null) {
-                            mainActivity.renderAdBanner(ui.adBanner, state.data.ad)
+                            stopAdAnimation?.invoke()
+                            val startAnimation = mainActivity.renderAdBanner(ui.adBanner, state.data.ad)
                             ui.adBanner.root.visibility = View.VISIBLE
+
+                            ui.adBanner.root.doOnLayout {
+                                stopAdAnimation = startAnimation()
+                            }
+
+                            submitCalendarWithDeveloperBirthday(state.data.ad)
                         } else {
                             ui.adBanner.root.visibility = View.GONE
                         }
@@ -704,6 +716,17 @@ class SchedulePage(param: String? = null) : MainFragment(param) {
                 }
             }
         }
+    }
+
+    private fun submitCalendarWithDeveloperBirthday(ad: Ad) {
+        val timeZone = currentData?.timezone ?: return
+
+        developerBirthday = if (ad.isDeveloperBirthday) getToday(timeZone) else null
+
+        val list = calendarAdapter.currentList.map {
+            it.copy(isBirthdayDay = it.date == developerBirthday)
+        }
+        calendarAdapter.submitList(list)
     }
 
     private fun restartScheduleFromScratch() {

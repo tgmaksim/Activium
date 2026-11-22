@@ -61,7 +61,7 @@ class ScheduleLessonAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val lesson = getItem(position)
 
-        holder.ui.number.text = if (!lesson.isExtra) holder.ui.root.context.getString(R.string.lesson_number, position + 1) else ""
+        holder.ui.number.text = if (!lesson.isExtra) holder.ui.root.context.getString(R.string.lesson_number, lesson.number + 1) else ""
         holder.ui.subject.text = lesson.subject
         holder.ui.place.text = lesson.place
         holder.ui.time.text = lesson.hours.string

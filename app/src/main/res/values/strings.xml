@@ -211,4 +211,8 @@
     <string name="ad_label">Реклама</string>
     <string name="error_ad">Произошла ошибка при загрузке рекламы</string>
     <string name="error_click_ad">Произошла ошибка при отправке статистики</string>
+
+    <string name="balloon">🎈</string>
+    <string name="star">⭐</string>
+    <string name="black_star">✦</string>
 </resources>

@@ -11,6 +11,11 @@ import android.view.MotionEvent
 import java.util.concurrent.TimeUnit
 import androidx.core.content.ContextCompat
 
+import android.animation.Keyframe
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.view.animation.LinearInterpolator
+
 import androidx.core.view.get
 import androidx.core.view.size
 import kotlinx.coroutines.launch
@@ -551,9 +556,13 @@ class MainActivity : ParentActivity() {
         activityViewModel.checkAccessibleAd(wait = if (hasAd) null else 10.seconds)
     }
 
-    fun renderAdBanner(adBanner: AdBannerBinding, ad: Ad) {
+    fun renderAdBanner(adBanner: AdBannerBinding, ad: Ad): (() -> (() -> Unit)) {
         adBanner.title.text = ad.title
         adBanner.description.text = ad.text
+
+        adBanner.adLabel.visibility = if (ad.isDeveloperBirthday) View.GONE else View.VISIBLE
+        adBanner.balloonOne.visibility = if (ad.isDeveloperBirthday) View.VISIBLE else View.GONE
+        adBanner.balloonTwo.visibility = if (ad.isDeveloperBirthday) View.VISIBLE else View.GONE
 
         adBanner.imagePlaceholder.visibility = View.VISIBLE
         adBanner.image.load(ad.imageUrl) {
@@ -579,6 +588,56 @@ class MainActivity : ParentActivity() {
             activityViewModel.clickAd(ad.adId)
 
             Utilities.openUrl(this, ad.url)
+        }
+
+        return {
+            val animators = if (ad.isDeveloperBirthday) startAdAnimation(adBanner) else emptyList()
+
+            fun() {
+                animators.forEach { it.cancel() }
+            }
+        }
+    }
+
+    private fun startAdAnimation(adBanner: AdBannerBinding): List<ObjectAnimator> {
+        val balloons = listOf(
+            adBanner.balloonOne,
+            adBanner.balloonTwo
+        )
+
+        return balloons.mapIndexed { index, balloon ->
+            balloon.visibility = View.VISIBLE
+
+            // Начальная и конечная позиции с учетом размеров View
+            val startY = -balloon.bottom.toFloat() - 2f
+            val endY = (
+                    adBanner.root.height -
+                            adBanner.root.paddingBottom -
+                            balloon.bottom
+                    ).toFloat()
+
+            ObjectAnimator.ofPropertyValuesHolder(
+                balloon,
+                PropertyValuesHolder.ofFloat(
+                    View.TRANSLATION_Y,
+                    startY,
+                    endY
+                ),
+                PropertyValuesHolder.ofKeyframe(
+                    View.ALPHA,
+                    Keyframe.ofFloat(0f, 0f),
+                    Keyframe.ofFloat(0.12f, 1f),
+                    Keyframe.ofFloat(0.80f, 1f),
+                    Keyframe.ofFloat(1f, 0f)
+                )
+            ).apply {
+                duration = if (index == 0) 4000L else 5000L
+                startDelay = if (index == 0) 0L else 2000L
+                repeatCount = ObjectAnimator.INFINITE
+                repeatMode = ObjectAnimator.RESTART
+                interpolator = LinearInterpolator()
+                start()
+            }
         }
     }
 

@@ -46,6 +46,7 @@ class MarksPage(param: String? = null) : MainFragment(param) {
 
     private var shimmerAnimator: ObjectAnimator? = null
     private var shouldAnimateShimmer = false
+    private var stopAdAnimation: (() -> Unit)? = null
 
     private val lastMarksSkeletonAdapter = LastMarksSkeletonAdapter(SKELETON_LAST_MARKS_COUNT)
     private val lastMarksAdapter = LastMarksAdapter(::onLastMarkRating)
@@ -374,8 +375,13 @@ class MarksPage(param: String? = null) : MainFragment(param) {
                     val mainActivity = (requireActivity() as MainActivity)
                     mainActivity.activityViewModel.adState.collect { state ->
                         if (state is LoadState.Success && state.data.ad != null) {
-                            mainActivity.renderAdBanner(ui.adBanner, state.data.ad)
+                            stopAdAnimation?.invoke()
+                            val startAnimation = mainActivity.renderAdBanner(ui.adBanner, state.data.ad)
                             ui.adBanner.root.visibility = View.VISIBLE
+
+                            ui.adBanner.root.doOnLayout {
+                                stopAdAnimation = startAnimation()
+                            }
                         } else {
                             ui.adBanner.root.visibility = View.GONE
                         }

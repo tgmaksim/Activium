@@ -93,4 +93,6 @@
 
     <color name="arrow_up">#4B9A25</color>
     <color name="arrow_down">#CF3838</color>
+
+    <color name="birthday_star">#F5B942</color>
 </resources>

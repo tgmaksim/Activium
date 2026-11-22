@@ -11,6 +11,7 @@ import ru.tgmaksim.activium.utilities.datastore.SettingsManager
  * @param text Текст рекламного объявления
  * @param imageUrl Ссылка для скачивания рекламной картинки
  * @param url URL для открытия страницы при нажатии на рекламу
+ * @param isDeveloperBirthday Связана ли реклама с днем рождения разработчика для показа дополнительных анимаций
  */
 @Serializable
 data class Ad(
@@ -19,10 +20,11 @@ data class Ad(
     val title: String,
     val text: String,
     val imageUrl: String,
-    val url: String
+    val url: String,
+    val isDeveloperBirthday: Boolean
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x61
+        const val CLASS_ID = 0x66
     }
 
     init {
@@ -42,7 +44,7 @@ data class AdResult(
     val ad: Ad?
 ) : ApiBase() {
     companion object {
-        const val CLASS_ID = 0x62
+        const val CLASS_ID = 0x67
     }
 
     init {
@@ -66,7 +68,7 @@ data class AdApiResponse(
     override val answer: AdResult?
 ) : ApiResponse() {
     companion object {
-        const val CLASS_ID = 0x63
+        const val CLASS_ID = 0x68
     }
 
     init {
@@ -109,7 +111,7 @@ object Ads {
     private const val PATH_CHECK_ACCESSIBLE_AD = "checkAccessibleAd"
     private const val PATH_CLICK_AD = "clickAd"
 
-    private const val CHECK_ACCESSIBLE_AD = 0
+    private const val CHECK_ACCESSIBLE_AD = 1
     private const val CLICK_AD = 0
 
     /**

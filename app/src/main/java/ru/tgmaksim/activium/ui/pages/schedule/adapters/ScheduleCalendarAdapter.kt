@@ -2,6 +2,7 @@ package ru.tgmaksim.activium.ui.pages.schedule.adapters
 
 import kotlinx.datetime.LocalDate
 
+import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.DiffUtil
@@ -32,6 +33,10 @@ class ScheduleCalendarAdapter(
 
         // Окрашивание в разные цвета
         holder.ui.root.isSelected = item.isSelected
+
+        holder.ui.birthdayBalloon.visibility = if (item.isBirthdayDay) View.VISIBLE else View.GONE
+        holder.ui.birthdayStarOne.visibility = if (item.isBirthdayDay) View.VISIBLE else View.GONE
+        holder.ui.birthdayStarTwo.visibility = if (item.isBirthdayDay) View.VISIBLE else View.GONE
 
         holder.ui.root.setOnClickListener { onClick(item.date) }
     }

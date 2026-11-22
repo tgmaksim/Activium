@@ -5,6 +5,7 @@ import android.view.View
 import android.app.Activity
 import android.view.ViewGroup
 import android.view.LayoutInflater
+import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.activity.result.contract.ActivityResultContracts
 
@@ -39,6 +40,8 @@ class SchoolPage(param: String? = null) : MainFragment(param) {
         get() = (requireActivity() as MainActivity).schoolViewModel
 
     private var currentData: SchoolPostsResult? = null
+
+    private var stopAdAnimation: (() -> Unit)? = null
 
     private val postsAdapter = SchoolPostAdapter(
         onClickPost = ::onClickPost
@@ -190,8 +193,13 @@ class SchoolPage(param: String? = null) : MainFragment(param) {
                     val mainActivity = (requireActivity() as MainActivity)
                     mainActivity.activityViewModel.adState.collect { state ->
                         if (state is LoadState.Success && state.data.ad != null) {
-                            mainActivity.renderAdBanner(ui.adBanner, state.data.ad)
+                            stopAdAnimation?.invoke()
+                            val startAnimation = mainActivity.renderAdBanner(ui.adBanner, state.data.ad)
                             ui.adBanner.root.visibility = View.VISIBLE
+
+                            ui.adBanner.root.doOnLayout {
+                                stopAdAnimation = startAnimation()
+                            }
                         } else {
                             ui.adBanner.root.visibility = View.GONE
                         }
